@@ -1,7 +1,7 @@
 {
-  "name": "Состав чисел",
+  "name": "Состав чисел 2-10",
   "short_name": "Состав чисел",
-  "description": "Обучающая игра для Ярослава",
+  "description": "Обучающая игра: состав чисел от 2 до 10",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f0f4f8",
