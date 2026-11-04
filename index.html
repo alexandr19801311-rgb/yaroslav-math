@@ -6,22 +6,26 @@
 <title>Состав чисел 2–10 — Ярослав</title>
 <style>
   :root {
-    --bg: #f4f7fb; --panel: #ffffff; --text: #1a2233; --muted: #5b6b85;
-    --num: #1976d2; --op: #d32f2f; --card-bg: #ffffff; --card-border: #cfd8e3;
-    --card-sel: #ffe082; --card-sel-border: #ffb300; --house-bg: #ffffff;
-    --house-shadow: 0 4px 14px rgba(30,60,120,.12); --slot-bg: #eef3fa;
-    --slot-border: #c7d3e3; --slot-pop: #7ed957; --ghost: #b39ddb;
-    --hint: #ffd54f; --star: #f5b301; --btn-bg: #e8eef7;
-    --btn-active: #1976d2; --btn-active-text: #ffffff; --win-bg: rgba(255,255,255,.92);
+    --bg: #f0f4f8; --panel: #ffffff; --text: #1a2233; --muted: #5b6b85;
+    --num: #1976d2; --op: #d32f2f; --card-bg: #ffffff; --card-border: #90caf9;
+    --card-sel: #bbdefb; --card-sel-border: #1976d2; --house-bg: #ffffff;
+    --house-shadow: 0 2px 6px rgba(0,0,0,.1); --row-bg: #f4f7fb; --row-border: #cfd8e3;
+    --slot-pop: #7ed957; --ghost: #b39ddb; --hint: #ffd54f; --star: #f5b301;
+    --btn-bg: #e3f2fd; --btn-text: #1976d2; --btn-active: #1976d2; --btn-active-text: #ffffff;
+    --win-bg: rgba(255,255,255,.95); --tray-bg: #fff9e6; --tray-border: #ffcc80;
+    --house-2: #e53935; --house-3: #fb8c00; --house-4: #fdd835; --house-5: #7cb342;
+    --house-6: #00897b; --house-7: #1e88e5; --house-8: #8e24aa; --house-9: #d81b60; --house-10: #6d4c41;
   }
   [data-theme="dark"] {
     --bg: #12161f; --panel: #1b2130; --text: #e8edf5; --muted: #9aa8bd;
     --num: #64b5f6; --op: #ef5350; --card-bg: #232b3d; --card-border: #35405a;
-    --card-sel: #5c4a1a; --card-sel-border: #ffb300; --house-bg: #1b2130;
-    --house-shadow: 0 4px 14px rgba(0,0,0,.4); --slot-bg: #232b3d;
-    --slot-border: #35405a; --slot-pop: #4caf50; --ghost: #7e57c2;
-    --hint: #ffb300; --star: #ffca28; --btn-bg: #232b3d;
-    --btn-active: #64b5f6; --btn-active-text: #0b1220; --win-bg: rgba(18,22,31,.94);
+    --card-sel: #1e3a5f; --card-sel-border: #64b5f6; --house-bg: #1b2130;
+    --house-shadow: 0 2px 8px rgba(0,0,0,.4); --row-bg: #232b3d; --row-border: #35405a;
+    --slot-pop: #4caf50; --ghost: #7e57c2; --hint: #ffb300; --star: #ffca28;
+    --btn-bg: #232b3d; --btn-text: #64b5f6; --btn-active: #64b5f6; --btn-active-text: #0b1220;
+    --win-bg: rgba(18,22,31,.95); --tray-bg: #2a2518; --tray-border: #5c4a1a;
+    --house-2: #ef5350; --house-3: #ffa726; --house-4: #ffee58; --house-5: #9ccc65;
+    --house-6: #26a69a; --house-7: #42a5f5; --house-8: #ab47bc; --house-9: #ec407a; --house-10: #8d6e63;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; height: 100%; }
@@ -30,153 +34,168 @@
     background: var(--bg); color: var(--text); transition: background .25s, color .25s; overflow: hidden;
   }
   #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+  
+  /* ---------- Шапка ---------- */
   header {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
-    padding: 8px 14px; background: var(--panel); box-shadow: 0 2px 10px rgba(30,60,120,.08); z-index: 5;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; 
+    gap: 10px; padding: 10px 16px; background: var(--panel); box-shadow: 0 2px 8px rgba(0,0,0,.08); z-index: 5;
   }
-  .brand { font-size: 1.1rem; font-weight: bold; color: var(--num); white-space: nowrap; }
-  .brand small { color: var(--muted); font-weight: normal; font-size: .8rem; }
-  .spacer { flex: 1 1 auto; }
-  .stats { display: flex; gap: 14px; font-size: .95rem; color: var(--muted); white-space: nowrap; }
-  .stats b { color: var(--star); }
-  .stats .done b { color: var(--num); }
-  .seg { display: inline-flex; background: var(--btn-bg); border-radius: 10px; padding: 3px; gap: 3px; }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .brand { font-size: 1.3rem; font-weight: bold; color: var(--num); white-space: nowrap; }
+  .stats { display: flex; gap: 16px; font-size: 1rem; font-weight: bold; color: var(--muted); white-space: nowrap; }
+  .stats .stars { color: var(--star); }
+  .header-controls { display: flex; align-items: center; gap: 12px; }
+  
+  .seg { display: inline-flex; background: var(--btn-bg); border-radius: 8px; padding: 3px; gap: 2px; }
   .seg button {
-    font-family: inherit; border: none; background: transparent; color: var(--muted);
-    padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: .9rem;
-    transition: background .15s, color .15s; white-space: nowrap;
+    font-family: inherit; border: none; background: transparent; color: var(--btn-text);
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: .9rem; font-weight: bold;
+    transition: background .15s, color .15s;
   }
-  .seg button.active { background: var(--btn-active); color: var(--btn-active-text); font-weight: bold; }
+  .seg button.active { background: var(--btn-active); color: var(--btn-active-text); }
   .icon-btn {
-    font-family: inherit; border: none; background: var(--btn-bg); color: var(--text);
-    width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 1.2rem;
-    display: inline-flex; align-items: center; justify-content: center; transition: background .15s, transform .1s;
+    font-family: inherit; border: none; background: var(--btn-bg); color: var(--btn-text);
+    width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
   }
-  .icon-btn:active { transform: scale(.94); }
-  .label-sm { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  .control-group { display: flex; flex-direction: column; gap: 2px; }
+
+  /* ---------- Игровое поле ---------- */
   main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; padding: 10px; gap: 10px; }
+  
+  /* Домики */
   #houses {
-    flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr); gap: 10px; overflow: auto;
+    flex: 1 1 auto; min-height: 0;
+    display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden;
+    padding-bottom: 6px;
   }
   .house {
-    background: var(--house-bg); border-radius: 14px; box-shadow: var(--house-shadow);
-    display: flex; flex-direction: column; align-items: center; padding: 6px;
-    cursor: pointer; transition: transform .1s, box-shadow .15s; min-height: 90px; position: relative;
+    flex: 1 0 90px; min-width: 90px;
+    background: var(--house-bg); border-radius: 8px; box-shadow: var(--house-shadow);
+    display: flex; flex-direction: column; overflow: hidden;
+    border: 2px solid transparent; transition: transform .1s, border-color .15s;
   }
-  .house:active { transform: scale(.985); }
+  .house:active { transform: scale(.99); }
   .house-title {
-    font-size: 1.5rem; font-weight: bold; margin: 2px 0 6px; cursor: pointer;
-    user-select: none; padding: 0 8px; border-radius: 8px; transition: background .15s;
+    color: #fff; text-align: center; font-size: 1.2rem; font-weight: bold;
+    padding: 6px 0; cursor: pointer; user-select: none;
   }
-  .house-title:active { background: var(--hint); }
-  .slots { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; }
+  .house-title[data-n="2"] { background: var(--house-2); }
+  .house-title[data-n="3"] { background: var(--house-3); }
+  .house-title[data-n="4"] { background: var(--house-4); color: #333; }
+  .house-title[data-n="5"] { background: var(--house-5); }
+  .house-title[data-n="6"] { background: var(--house-6); }
+  .house-title[data-n="7"] { background: var(--house-7); }
+  .house-title[data-n="8"] { background: var(--house-8); }
+  .house-title[data-n="9"] { background: var(--house-9); }
+  .house-title[data-n="10"] { background: var(--house-10); }
+  
+  .house-slots {
+    flex: 1 1 auto; overflow-y: auto; padding: 4px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
   .slot {
-    width: 46px; height: 46px; border-radius: 10px; background: var(--slot-bg);
-    border: 2px dashed var(--slot-border); display: flex; align-items: center; justify-content: center;
-    font-size: 1.25rem; font-weight: bold; color: var(--num);
-    transition: transform .18s, background .18s, border-color .18s, color .18s;
+    background: var(--row-bg); border: 2px dashed var(--row-border);
+    border-radius: 6px; padding: 6px 2px; text-align: center; font-size: .95rem;
+    font-weight: bold; color: var(--num); min-height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .15s; white-space: nowrap;
   }
-  .slot.filled { background: var(--card-sel); border: 2px solid var(--card-sel-border); border-style: solid; }
+  .slot.filled {
+    background: var(--card-bg); border: 2px solid var(--card-border); border-style: solid;
+    cursor: default;
+  }
+  .slot.ghost { color: var(--ghost); border-color: var(--ghost); border-style: dashed; opacity: .8; }
   .slot.pop { animation: slot-pop .35s ease; }
-  @keyframes slot-pop {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.35); background: var(--slot-pop); color: #fff; border-color: var(--slot-pop); }
-    100% { transform: scale(1); }
+  @keyframes slot-pop { 40% { transform: scale(1.1); background: var(--slot-pop); color: #fff; border-color: var(--slot-pop); } }
+
+  /* Банк карточек */
+  #tray-container {
+    flex: 0 0 auto; background: var(--tray-bg); border: 3px dashed var(--tray-border);
+    border-radius: 12px; padding: 10px; display: flex; flex-direction: column; max-height: 35vh;
   }
-  .slot.ghost { color: var(--ghost); border-color: var(--ghost); border-style: dashed; opacity: .85; }
-  .op-sign { color: var(--op); font-size: 1.2rem; font-weight: bold; user-select: none; }
+  .tray-header {
+    font-size: .9rem; font-weight: bold; color: #f57c00; margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+  }
   #tray {
-    flex: 0 0 auto; background: var(--panel); border-radius: 14px; box-shadow: var(--house-shadow);
-    padding: 8px 10px; max-height: 38vh; overflow: auto; display: flex; flex-wrap: wrap;
-    gap: 8px; align-content: flex-start; min-height: 64px;
+    flex: 1 1 auto; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start;
   }
   .card {
-    width: 48px; height: 48px; border-radius: 12px; background: var(--card-bg);
-    border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem; font-weight: bold; color: var(--num); cursor: pointer;
-    transition: transform .1s, background .15s, border-color .15s, box-shadow .15s; user-select: none;
+    background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 8px;
+    padding: 6px 10px; font-size: 1rem; font-weight: bold; color: var(--num);
+    cursor: pointer; transition: all .1s; user-select: none;
   }
-  .card:active { transform: scale(.94); }
-  .card.selected {
-    background: var(--card-sel); border-color: var(--card-sel-border);
-    box-shadow: 0 0 0 3px var(--card-sel-border) inset; transform: translateY(-2px);
-  }
+  .card:active { transform: scale(.95); }
+  .card.selected { background: var(--card-sel); border-color: var(--card-sel-border); box-shadow: 0 0 0 2px var(--card-sel-border); }
   .card.hint-glow { animation: hint-glow .6s ease; box-shadow: 0 0 0 4px var(--hint); }
-  @keyframes hint-glow { 0%, 100% { box-shadow: 0 0 0 4px var(--hint); } 50% { box-shadow: 0 0 0 8px var(--hint); } }
-  .tray-empty { color: var(--muted); font-size: .95rem; padding: 10px; }
-  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  @keyframes hint-glow { 50% { box-shadow: 0 0 0 8px var(--hint); } }
+
+  /* Кнопки */
+  .actions { display: flex; gap: 10px; justify-content: center; padding-bottom: 10px; }
   .action-btn {
-    font-family: inherit; flex: 1 1 auto; min-width: 130px; border: none;
-    background: var(--btn-bg); color: var(--text); padding: 10px 14px; border-radius: 12px;
-    font-size: .95rem; cursor: pointer; transition: background .15s, transform .1s;
+    font-family: inherit; border: none; background: var(--btn-bg); color: var(--btn-text);
+    padding: 10px 20px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
   }
+  .action-btn.primary { background: var(--btn-active); color: #fff; }
   .action-btn:active { transform: scale(.97); }
-  .action-btn.primary { background: var(--num); color: #fff; }
-  .action-btn.warn { background: var(--op); color: #fff; }
+
+  /* Победа */
   #win {
     position: fixed; inset: 0; background: var(--win-bg); display: none;
-    align-items: center; justify-content: center; flex-direction: column; gap: 18px;
-    z-index: 50; padding: 24px; text-align: center;
+    align-items: center; justify-content: center; flex-direction: column; gap: 18px; z-index: 50;
   }
   #win.show { display: flex; }
   #win h1 { font-size: 2rem; margin: 0; color: var(--num); }
-  #win p { font-size: 1.1rem; color: var(--muted); margin: 0; }
-  #win .action-btn { flex: 0 0 auto; min-width: 180px; }
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
-  @media (min-width: 700px) and (orientation: landscape) {
-    #houses { grid-template-columns: repeat(9, 1fr); grid-template-rows: 1fr; }
-    .house { min-height: 0; }
-    .slot { width: 40px; height: 40px; font-size: 1.1rem; }
-    .house-title { font-size: 1.3rem; }
-    #tray { max-height: 45vh; }
-  }
-  @media (max-width: 699px) {
-    #houses { display: flex; flex-direction: row; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; gap: 10px; }
-    #houses .house { flex: 0 0 78%; scroll-snap-align: center; }
-    #tray { max-height: 35vh; }
-    header { padding: 6px 10px; gap: 6px 10px; }
-    .brand { font-size: 1rem; }
-    .stats { font-size: .85rem; gap: 10px; }
-    .seg button { padding: 5px 8px; font-size: .82rem; }
-    .icon-btn { width: 36px; height: 36px; }
+
+  /* Мобильная адаптация */
+  @media (max-width: 800px) {
+    .house { flex: 0 0 110px; min-width: 110px; scroll-snap-align: start; }
+    #houses { scroll-snap-type: x mandatory; }
+    .header-left, .header-controls { width: 100%; justify-content: space-between; }
+    .stats { font-size: .85rem; }
   }
 </style>
 </head>
 <body>
 <div id="app">
   <header>
-    <div class="brand">🧮 Состав чисел <small>для Ярослава</small></div>
-    <div class="control-group">
-      <span class="label-sm">Уровень</span>
+    <div class="header-left">
+      <div class="brand">🏠 Состав чисел</div>
+      <div class="stats">
+        <span class="done" id="doneCount">Собрано: 0 / 9</span>
+        <span class="stars">⭐ <b id="starsCount">0</b></span>
+      </div>
+    </div>
+    <div class="header-controls">
       <div class="seg" id="segLevel">
         <button data-level="low">2–5</button>
         <button data-level="high">6–10</button>
         <button data-level="all" class="active">Все</button>
       </div>
-    </div>
-    <div class="control-group">
-      <span class="label-sm">Режим</span>
       <div class="seg" id="segMode">
         <button data-mode="add" class="active">➕ Сложение</button>
         <button data-mode="sub">➖ Вычитание</button>
       </div>
+      <button class="icon-btn" id="themeBtn" title="Тема">🌙</button>
     </div>
-    <div class="spacer"></div>
-    <div class="stats">
-      <span class="stars">⭐ <b id="starsCount">0</b></span>
-      <span class="done">Собрано: <b id="doneCount">0/9</b></span>
-    </div>
-    <button class="icon-btn" id="themeBtn" title="Тема">🌙</button>
   </header>
 
   <main>
     <section id="houses" aria-label="Домики чисел"></section>
-    <section id="tray" aria-label="Банк карточек"></section>
+    
+    <section id="tray-container">
+      <div class="tray-header">
+        <span>📦 Карточки:</span>
+        <span id="trayCount">0 / 0</span>
+      </div>
+      <div id="tray" aria-label="Банк карточек"></div>
+    </section>
+    
     <div class="actions">
-      <button class="action-btn" id="sampleBtn">Показать образец</button>
-      <button class="action-btn warn" id="resetBtn">Сбросить прогресс</button>
+      <button class="action-btn primary" id="sampleBtn">👁️ Показать образец</button>
+      <button class="action-btn" id="resetBtn">🔄 Начать заново</button>
     </div>
   </main>
 </div>
@@ -184,40 +203,35 @@
 <div id="win">
   <h1>🎉 Победа! 🎉</h1>
   <p id="winText">Все домики собраны!</p>
-  <button class="action-btn primary" id="winAgain">Играть снова</button>
+  <button class="action-btn primary" id="winAgain" style="padding:12px 30px; font-size:1.1rem;">Играть снова</button>
 </div>
 <canvas id="confetti"></canvas>
 
 <script>
 "use strict";
 
-/* ==================== Константы ==================== */
 const LEVELS = {
   low: [2,3,4,5],
   high: [6,7,8,9,10],
   all: [2,3,4,5,6,7,8,9,10]
 };
-const STORAGE_KEY = "yaroslav_progress_v20";
-const THEME_KEY = "yaroslav_theme_v20";
+const STORAGE_KEY = "yaroslav_progress_v21";
+const THEME_KEY = "yaroslav_theme_v21";
 
-const HOUSE_COLORS = {
-  2:"#e57373", 3:"#ffb74d", 4:"#e6c200", 5:"#aed581",
-  6:"#4db6ac", 7:"#64b5f6", 8:"#9575cd", 9:"#f06292", 10:"#a1887f"
-};
-
-/* ==================== Состояние ==================== */
 const state = {
   level: "all",
   mode: "add",
   theme: "light",
+  // progress[mode][number] = array of strings (карточки) или null
   progress: { add: {}, sub: {} },
   selectedCard: null,
-  tray: [],        // массив {value, id}
+  tray: [], // { id, n, a, b, text }
+  trayInitialSize: 0,
   showGhosts: false,
   ghosts: {}
 };
 
-/* ==================== Загрузка/сохранение ==================== */
+/* ==================== Сохранение ==================== */
 function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -225,11 +239,10 @@ function loadProgress() {
       const data = JSON.parse(raw);
       if (data && data.add && data.sub) state.progress = data;
     }
-  } catch (e) { console.warn("progress load error", e); }
+  } catch (e) {}
 }
 function saveProgress() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress)); }
-  catch (e) { console.warn("progress save error", e); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress)); } catch (e) {}
 }
 function loadTheme() {
   const t = localStorage.getItem(THEME_KEY);
@@ -240,128 +253,113 @@ function saveTheme() { localStorage.setItem(THEME_KEY, state.theme); }
 /* ==================== Утилиты ==================== */
 function currentNumbers() { return LEVELS[state.level]; }
 function currentModeProgress() { return state.progress[state.mode]; }
-function ensureNumberProgress(n) {
+
+// Инициализация массива для домика: длина N-1, заполнен null
+function ensureHouseProgress(n) {
   const p = currentModeProgress();
-  if (!p[n]) p[n] = [null, null];
+  if (!p[n] || !Array.isArray(p[n]) || p[n].length !== n - 1) {
+    p[n] = Array(n - 1).fill(null);
+  }
   return p[n];
 }
+
 function isHouseComplete(n) {
   const p = currentModeProgress()[n];
-  return p && p[0] !== null && p[1] !== null;
+  if (!p || p.length !== n - 1) return false;
+  return p.every(v => v !== null);
 }
+
 function completedCount() { return currentNumbers().filter(isHouseComplete).length; }
 function totalNumbers() { return currentNumbers().length; }
 
-/* ==================== Генерация банка ==================== */
-/**
- * Собираем полный банк чисел для текущего уровня и режима.
- * В банк кладём все числа от 1 до 9, но с учётом того, сколько раз
- * каждое число нужно, чтобы покрыть все домики.
- *
- * Для режима "Сложение": каждый домик N требует пару (a, b), a+b=N.
- *   Берём все возможные пары: для N=2: (1,1); N=3: (1,2), (2,1); ...
- *   Но чтобы не перегружать банк, для каждого домика берём одну
- *   случайную пару (a,b) с a+b=N. Это даёт ровно 2 карточки на домик.
- *
- * Для режима "Вычитание": каждый домик N требует пару (a, b),
- *   где N - a = b, т.е. a + b = N (то же самое условие!).
- *   Берём одну случайную пару (a,b) с a+b=N.
- *
- * Итог: банк содержит ровно 2 карточки на домик, значения — случайные
- * пары, дающие в сумме N. Перемешиваем.
- */
+/* ==================== Банк карточек ==================== */
 function buildTrayFromScratch() {
-  const values = [];
+  const cards = [];
   currentNumbers().forEach(n => {
-    // все пары (a,b) с a+b=n, a>=1, b>=1
-    const pairs = [];
-    for (let a = 1; a <= n - 1; a++) {
-      const b = n - a;
-      if (b >= 1) pairs.push([a, b]);
+    if (state.mode === "add") {
+      // Все пары a+b=n (a от 1 до n-1)
+      for (let a = 1; a <= n - 1; a++) {
+        const b = n - a;
+        cards.push({ n, a, b, text: `${a}+${b}` });
+      }
+    } else {
+      // Все пары n-a=b (a от 1 до n-1)
+      for (let a = 1; a <= n - 1; a++) {
+        const b = n - a;
+        cards.push({ n, a, b, text: `${n}-${a}` }); // отображаем уменьшаемое и вычитаемое
+      }
     }
-    if (pairs.length === 0) return;
-    // выбираем случайную пару
-    const [a, b] = pairs[Math.floor(Math.random() * pairs.length)];
-    values.push(a, b);
   });
-  // перемешиваем
-  for (let i = values.length - 1; i > 0; i--) {
+  
+  // Перемешиваем
+  for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [values[i], values[j]] = [values[j], values[i]];
+    [cards[i], cards[j]] = [cards[j], cards[i]];
   }
+  
   let idCounter = 0;
-  state.tray = values.map(v => ({ value: v, id: ++idCounter }));
+  state.tray = cards.map(c => ({ ...c, id: ++idCounter }));
+  state.trayInitialSize = state.tray.length;
 }
 
-/**
- * Пересобрать банк с учётом уже стоящих карточек.
- * Для каждого домика смотрим, какие ячейки заполнены.
- * Незаполненные ячейки нужно "докрыть" карточками.
- * Но при этом карточка должна быть совместима с уже стоящей
- * (a+b=N или N-a=b — одно и то же).
- *
- * Проще: для каждого домика заново выбираем случайную пару (a,b) с a+b=N.
- * Если в ячейке уже стоит значение, которое не совпадает с выбранным —
- * это ошибка, но по логике игры такого быть не может (мы не даём
- * поставить неправильную карточку). Поэтому просто пересобираем банк
- * по тем значениям, которые ещё НЕ стоят в домиках, сохраняя
- * совместимость с уже стоящими.
- */
 function rebuildTrayFromProgress() {
-  const needed = [];
+  const cards = [];
   currentNumbers().forEach(n => {
-    const p = ensureNumberProgress(n);
-    // Собираем все пары (a,b), a+b=n, совместимые с текущим прогрессом
-    const compatible = [];
-    for (let a = 1; a <= n - 1; a++) {
-      const b = n - a;
-      if (b < 1) continue;
-      if (p[0] !== null && p[0] !== a) continue;
-      if (p[1] !== null && p[1] !== b) continue;
-      compatible.push([a, b]);
+    const p = currentModeProgress()[n];
+    if (!p || p.length !== n - 1) {
+      // Домик не тронут — добавляем все карточки
+      if (state.mode === "add") {
+        for (let a = 1; a <= n - 1; a++) cards.push({ n, a, b: n-a, text: `${a}+${n-a}` });
+      } else {
+        for (let a = 1; a <= n - 1; a++) cards.push({ n, a, b: n-a, text: `${n}-${a}` });
+      }
+    } else {
+      // Домик частично заполнен — добавляем только недостающие
+      // Сначала считаем, какие уже стоят
+      const placedSet = new Set(p.filter(v => v !== null));
+      if (state.mode === "add") {
+        for (let a = 1; a <= n - 1; a++) {
+          const text = `${a}+${n-a}`;
+          const reverseText = `${n-a}+${a}`;
+          if (!placedSet.has(text) && !placedSet.has(reverseText)) {
+            cards.push({ n, a, b: n-a, text });
+          }
+        }
+      } else {
+        for (let a = 1; a <= n - 1; a++) {
+          const text = `${n}-${a}`;
+          if (!placedSet.has(text)) {
+            cards.push({ n, a, b: n-a, text });
+          }
+        }
+      }
     }
-    if (compatible.length === 0) return; // ничего не нужно
-    // выбираем случайную совместимую пару
-    const [a, b] = compatible[Math.floor(Math.random() * compatible.length)];
-    // докладываем только те ячейки, которые ещё пусты
-    if (p[0] === null) needed.push(a);
-    if (p[1] === null) needed.push(b);
   });
-  for (let i = needed.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [needed[i], needed[j]] = [needed[j], needed[i]];
-  }
-  let idCounter = 0;
-  state.tray = needed.map(v => ({ value: v, id: ++idCounter }));
-}
 
-function takeFromTray(value) {
-  const idx = state.tray.findIndex(c => c.value === value);
-  if (idx === -1) return false;
-  state.tray.splice(idx, 1);
-  return true;
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cards[i], cards[j]] = [cards[j], cards[i]];
+  }
+
+  let idCounter = 0;
+  state.tray = cards.map(c => ({ ...c, id: ++idCounter }));
+  state.trayInitialSize = state.tray.length + (completedCount() > 0 ? 1 : 0); // для счётчика
 }
 
 /* ==================== Проверка размещения ==================== */
-function canPlace(n, c) {
-  const p = ensureNumberProgress(n);
-  const [a, b] = p;
+function canPlace(n, card) {
+  if (card.n !== n) return false;
+  const p = ensureHouseProgress(n);
+  if (p.every(v => v !== null)) return false; // домик полон
+  const placed = new Set(p.filter(v => v !== null));
+  
   if (state.mode === "add") {
-    if (a !== null && b !== null) return { ok:false };
-    if (a === null && b === null) {
-      return (c >= 1 && c <= n - 1) ? { ok:true, slotIndex:0 } : { ok:false };
-    }
-    if (a === null) return (b + c === n) ? { ok:true, slotIndex:0 } : { ok:false };
-    return (a + c === n) ? { ok:true, slotIndex:1 } : { ok:false };
+    const text = `${card.a}+${card.b}`;
+    const rev = `${card.b}+${card.a}`;
+    return !placed.has(text) && !placed.has(rev);
   } else {
-    if (a !== null && b !== null) return { ok:false };
-    if (a === null && b === null) {
-      return (c >= 1 && c <= n - 1) ? { ok:true, slotIndex:0 } : { ok:false };
-    }
-    if (a === null) {
-      return (n - c === b) ? { ok:true, slotIndex:0 } : { ok:false };
-    }
-    return (n - a === c) ? { ok:true, slotIndex:1 } : { ok:false };
+    const text = `${n}-${card.a}`;
+    return !placed.has(text);
   }
 }
 
@@ -370,10 +368,13 @@ const housesEl = document.getElementById("houses");
 const trayEl = document.getElementById("tray");
 const starsEl = document.getElementById("starsCount");
 const doneEl = document.getElementById("doneCount");
+const trayCountEl = document.getElementById("trayCount");
 
 function renderHeader() {
-  starsEl.textContent = completedCount();
-  doneEl.textContent = completedCount() + "/" + totalNumbers();
+  const c = completedCount(), t = totalNumbers();
+  doneEl.textContent = `Собрано: ${c} / ${t}`;
+  starsEl.textContent = c;
+  trayCountEl.textContent = `${state.tray.length} / ${state.trayInitialSize}`;
 }
 
 function renderHouses() {
@@ -386,38 +387,59 @@ function buildHouse(n) {
   house.className = "house"; house.dataset.number = n;
 
   const title = document.createElement("div");
-  title.className = "house-title";
-  title.style.color = HOUSE_COLORS[n] || "var(--num)";
+  title.className = "house-title"; title.dataset.n = n;
   title.textContent = n;
   title.addEventListener("click", (e) => { e.stopPropagation(); showHint(n); });
   house.appendChild(title);
 
-  const slots = document.createElement("div");
-  slots.className = "slots";
-  const p = ensureNumberProgress(n);
+  const slotsContainer = document.createElement("div");
+  slotsContainer.className = "house-slots";
 
-  const slot0 = document.createElement("div");
-  slot0.className = "slot"; slot0.dataset.slot = "0";
-  if (p[0] !== null) { slot0.textContent = p[0]; slot0.classList.add("filled"); }
-  else if (state.showGhosts && state.ghosts[n] && state.ghosts[n][0] !== undefined) {
-    slot0.textContent = state.ghosts[n][0]; slot0.classList.add("ghost");
+  const p = ensureHouseProgress(n);
+  for (let i = 0; i < n - 1; i++) {
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.dataset.index = i;
+    
+    if (p[i] !== null) {
+      slot.textContent = p[i];
+      slot.classList.add("filled");
+    } else if (state.showGhosts) {
+      // Образец: подсказываем, что должно быть
+      const ghost = getGhostText(n, i);
+      if (ghost) { slot.textContent = ghost; slot.classList.add("ghost"); }
+    }
+    slot.addEventListener("click", (e) => { e.stopPropagation(); onSlotClick(n, i); });
+    slotsContainer.appendChild(slot);
   }
 
-  const op = document.createElement("div");
-  op.className = "op-sign";
-  op.textContent = state.mode === "add" ? "+" : "−";
-
-  const slot1 = document.createElement("div");
-  slot1.className = "slot"; slot1.dataset.slot = "1";
-  if (p[1] !== null) { slot1.textContent = p[1]; slot1.classList.add("filled"); }
-  else if (state.showGhosts && state.ghosts[n] && state.ghosts[n][1] !== undefined) {
-    slot1.textContent = state.ghosts[n][1]; slot1.classList.add("ghost");
-  }
-
-  slots.appendChild(slot0); slots.appendChild(op); slots.appendChild(slot1);
-  house.appendChild(slots);
-  house.addEventListener("click", () => onHouseClick(n));
+  house.appendChild(slotsContainer);
   return house;
+}
+
+function getGhostText(n, i) {
+  // Просто показываем i+1 и n-(i+1), если этой пары ещё нет
+  const p = ensureHouseProgress(n);
+  const placed = new Set(p.filter(v => v !== null));
+  if (state.mode === "add") {
+    for (let a = 1; a <= n - 1; a++) {
+      const text = `${a}+${n-a}`;
+      const rev = `${n-a}+${a}`;
+      if (!placed.has(text) && !placed.has(rev)) {
+        placed.add(text); placed.add(rev);
+        return text;
+      }
+    }
+  } else {
+    for (let a = 1; a <= n - 1; a++) {
+      const text = `${n}-${a}`;
+      if (!placed.has(text)) {
+        placed.add(text);
+        return text;
+      }
+    }
+  }
+  return "";
 }
 
 function renderSingleHouse(n) {
@@ -429,16 +451,16 @@ function renderTray() {
   trayEl.innerHTML = "";
   if (state.tray.length === 0) {
     const empty = document.createElement("div");
-    empty.className = "tray-empty"; empty.textContent = "Банк пуст";
+    empty.style.color = "var(--muted)"; empty.style.padding = "10px";
+    empty.textContent = "Банк пуст";
     trayEl.appendChild(empty); return;
   }
-  const sorted = [...state.tray].sort((a,b) => a.value - b.value);
-  sorted.forEach(cardData => {
+  
+  state.tray.forEach(cardData => {
     const card = document.createElement("div");
     card.className = "card";
-    card.dataset.value = cardData.value;
     card.dataset.id = cardData.id;
-    card.textContent = cardData.value;
+    card.textContent = cardData.text;
     if (state.selectedCard && state.selectedCard.id === cardData.id) card.classList.add("selected");
     card.addEventListener("click", () => onCardClick(cardData));
     trayEl.appendChild(card);
@@ -451,88 +473,98 @@ function renderAll() {
 
 /* ==================== Взаимодействие ==================== */
 function onCardClick(cardData) {
-  if (state.selectedCard && state.selectedCard.id === cardData.id) state.selectedCard = null;
-  else state.selectedCard = cardData;
+  if (state.selectedCard && state.selectedCard.id === cardData.id) {
+    state.selectedCard = null;
+  } else {
+    state.selectedCard = cardData;
+  }
   renderTray();
 }
 
-function onHouseClick(n) {
+function onSlotClick(n, index) {
   if (!state.selectedCard) return;
-  const c = state.selectedCard.value;
-  const res = canPlace(n, c);
-  if (!res.ok) {
+  const card = state.selectedCard;
+  
+  if (!canPlace(n, card)) {
+    // Ошибка
     const house = housesEl.querySelector('.house[data-number="' + n + '"]');
-    if (house) {
-      house.animate(
-        [{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],
-        {duration:220}
-      );
-    }
-    beep(false); return;
+    if (house) house.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}], {duration:220});
+    beep(false);
+    return;
   }
-  const p = ensureNumberProgress(n);
-  p[res.slotIndex] = c;
-  takeFromTray(c);
+  
+  // Ставим карточку
+  const p = ensureHouseProgress(n);
+  p[index] = card.text;
+  takeFromTray(card.id);
   saveProgress();
   state.selectedCard = null;
+  
+  // Отрисовка
   renderSingleHouse(n); renderTray(); renderHeader();
-  const slot = housesEl.querySelector('.house[data-number="' + n + '"] .slot[data-slot="' + res.slotIndex + '"]');
-  if (slot) slot.classList.add("pop");
+  
+  // Анимация
+  const slots = housesEl.querySelectorAll('.house[data-number="' + n + '"] .slot');
+  if (slots[index]) slots[index].classList.add("pop");
   beep(true);
+  
   if (completedCount() === totalNumbers()) showWin();
+}
+
+function takeFromTray(id) {
+  const idx = state.tray.findIndex(c => c.id === id);
+  if (idx !== -1) state.tray.splice(idx, 1);
 }
 
 /* ==================== Подсказка ==================== */
 let hintTimer = null;
 function showHint(n) {
   const cards = trayEl.querySelectorAll(".card");
-  cards.forEach(card => card.classList.remove("hint-glow"));
-  cards.forEach(card => {
-    const c = parseInt(card.dataset.value, 10);
-    const res = canPlace(n, c);
-    if (res.ok) card.classList.add("hint-glow");
+  cards.forEach(cardEl => cardEl.classList.remove("hint-glow"));
+  
+  const targetHouse = housesEl.querySelector(`.house[data-number="${n}"]`);
+  if (targetHouse) {
+    targetHouse.animate([{transform:"scale(1)"},{transform:"scale(1.02)"},{transform:"scale(1)"}], {duration:400});
+  }
+  
+  cards.forEach(cardEl => {
+    const id = parseInt(cardEl.dataset.id, 10);
+    const cardData = state.tray.find(c => c.id === id);
+    if (cardData && canPlace(n, cardData)) {
+      cardEl.classList.add("hint-glow");
+    }
   });
+  
   if (hintTimer) clearTimeout(hintTimer);
   hintTimer = setTimeout(() => {
-    cards.forEach(card => card.classList.remove("hint-glow"));
+    cards.forEach(cardEl => cardEl.classList.remove("hint-glow"));
   }, 2000);
 }
 
 /* ==================== Образец ==================== */
 document.getElementById("sampleBtn").addEventListener("click", () => {
-  state.ghosts = {};
-  currentNumbers().forEach(n => {
-    const p = ensureNumberProgress(n);
-    // показываем первую подходящую пару (a,b), a+b=n
-    let a = 1, b = n - 1;
-    if (p[0] !== null) a = p[0];
-    if (p[1] !== null) b = p[1];
-    if (p[0] === null && p[1] !== null) a = n - p[1];
-    if (p[1] === null && p[0] !== null) b = n - p[0];
-    state.ghosts[n] = [a, b];
-  });
   state.showGhosts = true;
   renderHouses();
   setTimeout(() => {
-    state.showGhosts = false; state.ghosts = {}; renderHouses();
+    state.showGhosts = false;
+    renderHouses();
   }, 2500);
 });
 
-/* ==================== Сброс прогресса ==================== */
+/* ==================== Сброс ==================== */
 document.getElementById("resetBtn").addEventListener("click", () => {
-  if (!confirm("Сбросить прогресс текущего режима (" + (state.mode === "add" ? "сложение" : "вычитание") + ")?")) return;
+  if (!confirm("Сбросить прогресс текущего режима?")) return;
   state.progress[state.mode] = {};
-  state.selectedCard = null; state.showGhosts = false; state.ghosts = {};
+  state.selectedCard = null; state.showGhosts = false;
   saveProgress(); buildTrayFromScratch(); renderAll();
 });
 
 /* ==================== Победа ==================== */
 function showWin() {
   const win = document.getElementById("win");
-  const txt = document.getElementById("winText");
-  txt.textContent = "Все " + totalNumbers() + " домиков собраны в режиме «" +
-    (state.mode === "add" ? "Сложение" : "Вычитание") + "»!";
-  win.classList.add("show"); runConfetti();
+  document.getElementById("winText").textContent = "Все " + totalNumbers() + " домиков собраны!";
+  win.classList.add("show");
+  runConfetti();
 }
 document.getElementById("winAgain").addEventListener("click", () => {
   document.getElementById("win").classList.remove("show");
@@ -548,13 +580,8 @@ function runConfetti() {
   let h = canvas.height = window.innerHeight;
   const colors = ["#e57373","#ffb74d","#fff176","#aed581","#4db6ac","#64b5f6","#9575cd","#f06292"];
   const pieces = [];
-  for (let i = 0; i < 120; i++) {
-    pieces.push({
-      x: Math.random() * w, y: -20 - Math.random() * h * 0.5,
-      vx: (Math.random() - 0.5) * 2, vy: 2 + Math.random() * 3,
-      size: 6 + Math.random() * 6, color: colors[Math.floor(Math.random() * colors.length)],
-      rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.2
-    });
+  for (let i = 0; i < 100; i++) {
+    pieces.push({ x: Math.random()*w, y: -20, vx: (Math.random()-0.5)*2, vy: 2+Math.random()*3, size: 6+Math.random()*6, color: colors[Math.floor(Math.random()*colors.length)], rot: Math.random()*Math.PI, vr: (Math.random()-0.5)*0.2 });
   }
   let start = performance.now();
   function frame(now) {
@@ -563,8 +590,7 @@ function runConfetti() {
     pieces.forEach(p => {
       p.x += p.vx; p.y += p.vy; p.rot += p.vr;
       ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.6);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
       ctx.restore();
     });
     if (t < 3000) requestAnimationFrame(frame);
@@ -578,12 +604,10 @@ let audioCtx = null;
 function beep(good) {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
+    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
     o.connect(g); g.connect(audioCtx.destination);
     if (good) {
-      o.type = "sine";
-      o.frequency.setValueAtTime(660, audioCtx.currentTime);
+      o.type = "sine"; o.frequency.setValueAtTime(660, audioCtx.currentTime);
       o.frequency.exponentialRampToValueAtTime(990, audioCtx.currentTime + 0.12);
     } else {
       o.type = "square"; o.frequency.setValueAtTime(180, audioCtx.currentTime);
@@ -599,7 +623,6 @@ function applyTheme() {
   document.documentElement.setAttribute("data-theme", state.theme);
   const btn = document.getElementById("themeBtn");
   btn.textContent = state.theme === "dark" ? "☀️" : "🌙";
-  btn.title = state.theme === "dark" ? "Светлая тема" : "Тёмная тема";
 }
 document.getElementById("themeBtn").addEventListener("click", () => {
   state.theme = state.theme === "dark" ? "light" : "dark";
@@ -612,7 +635,7 @@ document.getElementById("segLevel").addEventListener("click", (e) => {
   if (!btn || btn.dataset.level === state.level) return;
   state.level = btn.dataset.level;
   document.querySelectorAll("#segLevel button").forEach(b => b.classList.toggle("active", b.dataset.level === state.level));
-  state.selectedCard = null; state.showGhosts = false; state.ghosts = {};
+  state.selectedCard = null; state.showGhosts = false;
   rebuildTrayFromProgress(); renderAll();
 });
 
@@ -621,7 +644,7 @@ document.getElementById("segMode").addEventListener("click", (e) => {
   if (!btn || btn.dataset.mode === state.mode) return;
   state.mode = btn.dataset.mode;
   document.querySelectorAll("#segMode button").forEach(b => b.classList.toggle("active", b.dataset.mode === state.mode));
-  state.selectedCard = null; state.showGhosts = false; state.ghosts = {};
+  state.selectedCard = null; state.showGhosts = false;
   rebuildTrayFromProgress(); renderAll();
 });
 
@@ -632,7 +655,13 @@ function init() {
   if (!state.progress.sub) state.progress.sub = {};
   document.querySelectorAll("#segLevel button").forEach(b => b.classList.toggle("active", b.dataset.level === state.level));
   document.querySelectorAll("#segMode button").forEach(b => b.classList.toggle("active", b.dataset.mode === state.mode));
-  rebuildTrayFromProgress(); renderAll();
+  
+  // При старте всегда полный банк (или восстанавливаем по прогрессу, если он был)
+  const isProgressEmpty = Object.keys(state.progress[state.mode]).length === 0;
+  if (isProgressEmpty) buildTrayFromScratch();
+  else rebuildTrayFromProgress();
+  
+  renderAll();
 }
 init();
 </script>
