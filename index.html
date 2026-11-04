@@ -29,22 +29,18 @@
     --btn-ghost-bg: #fff;
     --overlay-bg: rgba(255,255,255,0.96);
     
-    /* Прогресс-бар */
     --progress-bg: #e0e0e0;
     --progress-fill: linear-gradient(90deg, #4caf50, #8bc34a);
     --progress-glow: rgba(76, 175, 80, 0.6);
     
-    /* Цвета домиков */
     --c-2: #e53935; --c-3: #fb8c00; --c-4: #fdd835; --c-5: #7cb342;
     --c-6: #00897b; --c-7: #1e88e5; --c-8: #5e35b1; --c-9: #d81b60; --c-10: #6d4c41;
 
-    /* Неактивные домики */
     --inactive-house-bg: #e0e0e0;
     --inactive-house-border: #bdbdbd;
     --inactive-text: #757575;
     --inactive-slot-bg: #eeeeee;
 
-    /* Цвета цифр и знаков */
     --num-color: #1976d2;
     --op-color: #d32f2f;
   }
@@ -73,7 +69,6 @@
     --btn-ghost-bg: #1b2130;
     --overlay-bg: rgba(18,22,31,0.96);
     
-    /* Прогресс-бар (в темной теме) */
     --progress-bg: #2a3545;
     --progress-fill: linear-gradient(90deg, #66bb6a, #aed581);
     --progress-glow: rgba(102, 187, 106, 0.6);
@@ -108,7 +103,6 @@
     max-width: 1400px; margin: 0 auto; padding: 4px 6px;
   }
 
-  /* ===== Шапка ===== */
   .topbar {
     display: flex; justify-content: space-between; align-items: center;
     padding: 2px 0 6px; font-size: 14px; font-weight: bold; flex-shrink: 0;
@@ -117,53 +111,29 @@
   .topbar .title { color: var(--house-border); font-size: 16px; white-space: nowrap; }
   .topbar .score { color: var(--c-3); white-space: nowrap; }
 
-  /* ===== ПОЛОСА ПРОГРЕССА ===== */
   .progress-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    max-width: 500px;
-    margin: 0 10px;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 10px; max-width: 500px; margin: 0 10px;
   }
   .progress-wrapper {
-    flex: 1;
-    height: 16px;
-    background: var(--progress-bg);
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
+    flex: 1; height: 16px; background: var(--progress-bg);
+    border-radius: 8px; overflow: hidden; position: relative;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     border: 1px solid var(--house-border);
   }
   .progress-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--progress-fill);
-    border-radius: 8px;
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%; width: 0%; background: var(--progress-fill);
+    border-radius: 8px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
   }
-  
-  /* Анимация пульсации при росте */
-  .progress-fill.pulse {
-    animation: progress-pulse 0.6s ease-out;
-  }
+  .progress-fill.pulse { animation: progress-pulse 0.6s ease-out; }
   @keyframes progress-pulse {
     0% { box-shadow: 0 0 0 0 var(--progress-glow); }
     50% { box-shadow: 0 0 12px 4px var(--progress-glow); }
     100% { box-shadow: 0 0 0 0 var(--progress-glow); }
   }
+  .progress-text { font-size: 13px; color: var(--text); opacity: 0.8; white-space: nowrap; }
 
-  .progress-text {
-    font-size: 13px;
-    color: var(--text);
-    opacity: 0.8;
-    white-space: nowrap;
-  }
-
-  /* ===== ДОМИКИ ===== */
   .houses {
     display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px;
     flex-shrink: 0; margin-bottom: 6px; height: 50vh; 
@@ -177,19 +147,14 @@
   .house.done::after { content: '✅'; position: absolute; top: 2px; right: 2px; font-size: 12px; }
   .house.flash-bad { animation: flashBad 0.5s; }
   
-  /* НЕАКТИВНЫЙ ДОМИК */
   .house.inactive {
-    background: var(--inactive-house-bg);
-    border-color: var(--inactive-house-border);
-    pointer-events: none;
-    opacity: 0.85;
+    background: var(--inactive-house-bg); border-color: var(--inactive-house-border);
+    pointer-events: none; opacity: 0.85;
   }
   .house.inactive .house-title { filter: grayscale(1) opacity(0.5); }
   .house.inactive .slot-row { border-color: var(--inactive-house-border); background: var(--inactive-slot-bg); color: var(--inactive-text); }
-  .house.inactive .slot-row .num-blue, 
-  .house.inactive .slot-row .op-red, 
-  .house.inactive .slot-row .eq, 
-  .house.inactive .slot-row .result { color: var(--inactive-text); }
+  .house.inactive .slot-row .num-blue, .house.inactive .slot-row .op-red, 
+  .house.inactive .slot-row .eq, .house.inactive .slot-row .result { color: var(--inactive-text); }
   
   @keyframes flashBad { 0%, 100% { background: var(--house-bg); } 50% { background: #ffcdd2; border-color: #d32f2f; } }
 
@@ -236,7 +201,6 @@
   .eq { color: var(--op-color); }
   .result { color: var(--num-color); }
 
-  /* ===== ЛОТОК ===== */
   .tray-wrap {
     flex: 1; display: flex; flex-direction: column;
     background: var(--tray-bg); border: 2px dashed var(--tray-border);
@@ -259,7 +223,6 @@
   .card .op { color: var(--op-color); }
   .tray-empty { grid-column: 1 / -1; text-align: center; color: var(--text); opacity: 0.5; font-size: 13px; padding: 10px; }
 
-  /* ===== Нижняя панель управления ===== */
   .controls {
     display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
     justify-content: center; align-items: center; flex-shrink: 0;
@@ -285,11 +248,43 @@
   .overlay {
     position: fixed; inset: 0; background: var(--overlay-bg); display: flex; flex-direction: column;
     align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none;
-    transition: opacity 0.4s; z-index: 100; text-align: center;
+    transition: opacity 0.4s; z-index: 100; text-align: center; overflow-y: auto;
   }
   .overlay.show { opacity: 1; pointer-events: auto; }
   .overlay h2 { font-size: 32px; color: var(--house-border); margin-bottom: 10px; }
-  .overlay .big { font-size: 48px; margin: 14px 0; color: var(--c-3); }
+  .overlay .big { font-size: 48px; margin: 10px 0; color: var(--c-3); }
+
+  /* Стили для статистики */
+  .stats-container {
+    background: var(--house-bg);
+    border: 2px solid var(--btn-bg);
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin: 16px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 280px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--slot-border);
+    font-size: 15px;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { color: var(--text); opacity: 0.8; }
+  .stat-value { font-weight: bold; color: var(--text); display: flex; align-items: center; gap: 8px;}
+  
+  .stat-diff {
+    font-size: 13px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .stat-diff.up { color: #fff; background: #4caf50; }
+  .stat-diff.down { color: #fff; background: #f44336; }
+  .stat-diff.same { color: #fff; background: #9e9e9e; }
 
   .saved-badge {
     position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -299,13 +294,9 @@
   }
   .saved-badge.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .confetti {
-    position: fixed; width: 10px; height: 10px; top: -10px; z-index: 99;
-    animation: fall linear forwards;
-  }
+  .confetti { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 99; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
-  /* ===== АДАПТИВ ===== */
   @media (min-width: 1100px) {
     .houses { grid-template-columns: repeat(3, 1fr); height: auto; }
     .house { padding: 4px; }
@@ -322,20 +313,20 @@
     .houses::-webkit-scrollbar { height: 6px; }
     .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
     .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
-
     .house { min-width: 110px; scroll-snap-align: start; border-width: 2px; }
     .house-title { font-size: 14px; padding: 4px 0; }
     .slot-row { font-size: 14px; min-height: 26px; }
     .tray-wrap { flex: 0 0 35vh; }
     .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
-    
     .controls { gap: 4px; }
     .seg button { padding: 4px 8px; font-size: 11px; }
     .btn { padding: 6px 10px; font-size: 12px; }
-    
     .progress-container { max-width: none; margin: 0 4px; }
     .progress-wrapper { height: 12px; }
     .progress-text { font-size: 11px; }
+    
+    .stats-container { padding: 12px 16px; min-width: 240px; }
+    .stat-row { font-size: 14px; }
   }
 </style>
 </head>
@@ -345,7 +336,6 @@
   <div class="topbar">
     <div class="title">🏠 Состав чисел</div>
     
-    <!-- Новая полоса прогресса -->
     <div class="progress-container">
       <div class="progress-wrapper">
         <div class="progress-fill" id="progressFill"></div>
@@ -388,8 +378,13 @@
 
 <div class="overlay" id="overlay">
   <h2>🎉 Победа!</h2>
-  <p>Ты собрал все домики!</p>
   <div class="big">⭐ <span id="finalScore">0</span></div>
+  
+  <!-- Блок статистики -->
+  <div class="stats-container" id="statsContainer">
+    <!-- Данные заполнятся через JS -->
+  </div>
+
   <button class="btn" id="playAgain">Играть снова</button>
 </div>
 
@@ -397,16 +392,12 @@
 
 <script>
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
-  const LEVELS = {
-    low: [2,3,4,5],
-    high: [6,7,8,9,10],
-    all: [2,3,4,5,6,7,8,9,10]
-  };
+  const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v28';
-  const THEME_KEY = 'yaroslav_theme_v28';
+  const STORAGE_KEY = 'yaroslav_house_progress_v29';
+  const STATS_KEY = 'yaroslav_stats_v29';
+  const THEME_KEY = 'yaroslav_theme_v29';
 
-  // Генерация комбинаций: 0+n, a+(n-a), n+0
   const data = {};
   ALL_NUMBERS.forEach(n => {
     const list = [];
@@ -424,7 +415,11 @@
     filled: {},
     picked: null,
     trayOrder: [],
-    sampleOn: false
+    sampleOn: false,
+    // Новые поля для статистики текущего забега
+    sessionStartTime: Date.now(),
+    hintsUsed: 0,
+    errorsMade: 0
   };
 
   const $ = id => document.getElementById(id);
@@ -456,13 +451,8 @@
     return a;
   }
 
-  function getActiveNumbers() {
-    return LEVELS[state.level];
-  }
-
-  function getTotalCards() {
-    return getActiveNumbers().reduce((s, n) => s + data[n].length, 0);
-  }
+  function getActiveNumbers() { return LEVELS[state.level]; }
+  function getTotalCards() { return getActiveNumbers().reduce((s, n) => s + data[n].length, 0); }
 
   function saveProgress() {
     try {
@@ -471,7 +461,10 @@
         score: state.score,
         done: [...state.done],
         filled: state.filled,
-        trayOrder: state.trayOrder
+        trayOrder: state.trayOrder,
+        sessionStartTime: state.sessionStartTime,
+        hintsUsed: state.hintsUsed,
+        errorsMade: state.errorsMade
       }));
     } catch(e) {}
   }
@@ -482,11 +475,15 @@
       if (!raw) return false;
       const obj = JSON.parse(raw);
       if (!obj || typeof obj !== 'object') return false;
+      
       state.level = obj.level || 'all';
       state.score = obj.score ?? 0;
       state.done = Array.isArray(obj.done) ? obj.done : [];
       state.filled = obj.filled || {};
       state.trayOrder = Array.isArray(obj.trayOrder) ? obj.trayOrder : [];
+      state.sessionStartTime = obj.sessionStartTime || Date.now();
+      state.hintsUsed = obj.hintsUsed || 0;
+      state.errorsMade = obj.errorsMade || 0;
       
       document.querySelectorAll('#segLevel button').forEach(b => {
         b.classList.toggle('active', b.dataset.level === state.level);
@@ -514,7 +511,6 @@
   }
   function commit() { saveProgress(); showSavedBadge(); }
 
-  // Обновление полосы прогресса
   function updateProgressBar() {
     const activeNums = getActiveNumbers();
     const doneCount = activeNums.filter(n => state.done.includes(n)).length;
@@ -524,9 +520,8 @@
     const fill = $('progressFill');
     fill.style.width = percent + '%';
     
-    // Анимация пульсации
     fill.classList.remove('pulse');
-    void fill.offsetWidth; // Триггер рефлоу для перезапуска анимации
+    void fill.offsetWidth;
     fill.classList.add('pulse');
   }
 
@@ -638,6 +633,9 @@
   function highlightCardsForNumber(n) {
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     sndHint();
+    state.hintsUsed++; // Считаем подсказку
+    commit(); // Сохраняем, чтобы не потерять при перезагрузке
+
     const allCards = document.querySelectorAll('.card');
     allCards.forEach(card => card.classList.remove('hint-highlight'));
     allCards.forEach(card => {
@@ -668,7 +666,10 @@
     const { a, b, num } = state.picked;
 
     if (num !== n || a + b !== n) {
-      sndBad(); houseEl.classList.add('flash-bad');
+      sndBad(); 
+      state.errorsMade++; // Считаем ошибку
+      commit();
+      houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
       return;
     }
@@ -679,7 +680,10 @@
     });
 
     if (targetIdx === -1) {
-      sndBad(); houseEl.classList.add('flash-bad');
+      sndBad(); 
+      state.errorsMade++; // Считаем ошибку (карточка верная для числа, но такая уже стоит)
+      commit();
+      houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
       return;
     }
@@ -705,7 +709,6 @@
       state.done.push(n);
       sndHouseDone();
       
-      // Обновляем прогресс-бар при сборке домика
       $('doneCount').textContent = getActiveNumbers().filter(num => state.done.includes(num)).length;
       updateProgressBar();
       
@@ -725,7 +728,7 @@
     
     renderHouses();
     renderTray();
-    updateProgressBar(); // Обновляем полосу при полной перерисовке
+    updateProgressBar();
 
     $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
     $('sampleBtn').classList.toggle('active', state.sampleOn);
@@ -734,16 +737,103 @@
   function toggleSample() {
     state.sampleOn = !state.sampleOn;
     tone(state.sampleOn ? 660 : 440, 0.1);
+    if (state.sampleOn) {
+      state.hintsUsed++; // Считаем использование образца как подсказку
+      commit();
+    }
     renderHouses(); 
     $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
     $('sampleBtn').classList.toggle('active', state.sampleOn);
   }
 
+  // ================= ЛОГИКА СТАТИСТИКИ И ПОБЕДЫ =================
+
   function winGame() {
+    // 1. Считаем текущее время
+    const timeSpentMs = Date.now() - state.sessionStartTime;
+    const timeSpentSec = Math.floor(timeSpentMs / 1000);
+    const timeFormatted = `${Math.floor(timeSpentSec / 60)}:${String(timeSpentSec % 60).padStart(2, '0')}`;
+
+    // 2. Достаем прошлые рекорды
+    let statsHistory = {};
+    try {
+      statsHistory = JSON.parse(localStorage.getItem(STATS_KEY)) || {};
+    } catch (e) {}
+
+    const currentLevelKey = state.level; // 'low', 'high', 'all'
+    const prevRecord = statsHistory[currentLevelKey];
+
+    // 3. Формируем HTML для статистики
+    let statsHtml = '';
+    
+    // Строка: Время
+    let timeDiffHtml = '';
+    if (prevRecord) {
+      const diff = timeSpentSec - prevRecord.time;
+      if (diff < -1) timeDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)} сек</span>`;
+      else if (diff > 1) timeDiffHtml = `<span class="stat-diff down">↑ ${diff} сек</span>`;
+      else timeDiffHtml = `<span class="stat-diff same">=</span>`;
+    }
+    statsHtml += `<div class="stat-row">
+      <span class="stat-label">⏱️ Время:</span>
+      <span class="stat-value">${timeFormatted} ${timeDiffHtml}</span>
+    </div>`;
+
+    // Строка: Ошибки
+    let errDiffHtml = '';
+    if (prevRecord) {
+      const diff = state.errorsMade - prevRecord.errors;
+      if (diff < 0) errDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)}</span>`;
+      else if (diff > 0) errDiffHtml = `<span class="stat-diff down">↑ ${diff}</span>`;
+      else errDiffHtml = `<span class="stat-diff same">=</span>`;
+    }
+    statsHtml += `<div class="stat-row">
+      <span class="stat-label">❌ Ошибки:</span>
+      <span class="stat-value">${state.errorsMade} ${errDiffHtml}</span>
+    </div>`;
+
+    // Строка: Подсказки
+    let hintDiffHtml = '';
+    if (prevRecord) {
+      const diff = state.hintsUsed - prevRecord.hints;
+      if (diff < 0) hintDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)}</span>`;
+      else if (diff > 0) hintDiffHtml = `<span class="stat-diff down">↑ ${diff}</span>`;
+      else hintDiffHtml = `<span class="stat-diff same">=</span>`;
+    }
+    statsHtml += `<div class="stat-row">
+      <span class="stat-label">💡 Подсказки:</span>
+      <span class="stat-value">${state.hintsUsed} ${hintDiffHtml}</span>
+    </div>`;
+
+    // Строка: Уровень
+    const levelNames = { low: '2–5', high: '6–10', all: 'Все' };
+    statsHtml += `<div class="stat-row">
+      <span class="stat-label">📚 Уровень:</span>
+      <span class="stat-value">${levelNames[state.level]}</span>
+    </div>`;
+
+    $('statsContainer').innerHTML = statsHtml;
+
+    // 4. Сохраняем новый рекорд (только если он лучше или первый)
+    const isBetter = !prevRecord || 
+                     (timeSpentSec < prevRecord.time && state.errorsMade <= prevRecord.errors);
+    if (isBetter) {
+       statsHistory[currentLevelKey] = {
+         time: timeSpentSec,
+         errors: state.errorsMade,
+         hints: state.hintsUsed
+       };
+       localStorage.setItem(STATS_KEY, JSON.stringify(statsHistory));
+    }
+
+    // 5. Показываем оверлей и очищаем текущий прогресс
     $('finalScore').textContent = state.score;
     $('overlay').classList.add('show');
     sndWin();
     fireConfetti();
+    
+    // Удаляем прогресс, чтобы в следующий раз начать заново
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
   }
 
   function fireConfetti() {
@@ -768,6 +858,11 @@
     state.picked = null;
     state.trayOrder = [];
     state.sampleOn = false;
+    // Сброс сессии
+    state.sessionStartTime = Date.now();
+    state.hintsUsed = 0;
+    state.errorsMade = 0;
+    
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     $('overlay').classList.remove('show');
     $('houses').innerHTML = ''; 
@@ -795,6 +890,10 @@
     state.picked = null;
     state.sampleOn = false;
     state.trayOrder = []; 
+    // При смене уровня начинаем новую сессию
+    state.sessionStartTime = Date.now();
+    state.hintsUsed = 0;
+    state.errorsMade = 0;
     
     saveProgress();
     renderAll();
@@ -802,6 +901,10 @@
 
   loadTheme();
   const loaded = loadProgress();
+  // Если прогресс не загрузился, начинаем новую сессию
+  if (!loaded) {
+    state.sessionStartTime = Date.now();
+  }
   renderAll();
   
   if (loaded) {
