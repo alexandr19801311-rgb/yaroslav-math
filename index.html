@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Состав чисел 2-10 — собери домики (Ярослав)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 8px 10px;
+  }
+
+  /* ===== Шапка ===== */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 0 8px;
+    font-size: 16px; font-weight: bold;
+    flex-shrink: 0;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .topbar .title { color: #1976d2; font-size: 18px; }
+  .topbar .score { color: #fb8c00; }
+  .topbar .progress-text { color: #666; font-size: 14px; }
+
+  /* ===== Домики ===== */
+  .houses {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    flex-shrink: 0;
+    margin-bottom: 12px;
+  }
+  .house {
+    border: 2px solid #1976d2;
+    border-radius: 10px;
+    padding: 6px;
+    background: #fff;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .house:hover {
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
+  }
+  .house.done {
+    border-color: #388e3c;
+    background: #f1f8e9;
+    cursor: default;
+  }
+  .house.done:hover { box-shadow: none; }
+  .house.done::after {
+    content: '✅';
+    position: absolute; top: 4px; right: 8px;
+    font-size: 16px;
+  }
+  .house.flash-bad { animation: flashBad 0.5s; }
+  @keyframes flashBad {
+    0%, 100% { background: #fff; }
+    50% { background: #ffcdd2; border-color: #d32f2f; }
+  }
+  .house-title {
+    text-align: center;
+    font-size: 15px; font-weight: bold;
+    color: #fff;
+    padding: 3px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    pointer-events: none;
+  }
+  .house[data-num="2"]  .house-title { background: #e53935; }
+  .house[data-num="3"]  .house-title { background: #fb8c00; }
+  .house[data-num="4"]  .house-title { background: #fdd835; color: #333; }
+  .house[data-num="5"]  .house-title { background: #7cb342; }
+  .house[data-num="6"]  .house-title { background: #00897b; }
+  .house[data-num="7"]  .house-title { background: #1e88e5; }
+  .house[data-num="8"]  .house-title { background: #5e35b1; }
+  .house[data-num="9"]  .house-title { background: #d81b60; }
+  .house[data-num="10"] .house-title { background: #6d4c41; }
+
+  .slot-row {
+    display: grid;
+    grid-template-columns: 6mm 1fr;
+    align-items: center;
+    gap: 4px;
+    font-size: 15px; font-weight: bold;
+    padding: 2px 4px;
+    margin-bottom: 3px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    min-height: 32px;
+    pointer-events: none;
+  }
+  .slot-row .variant-num { color: #d32f2f; font-size: 13px; text-align: right; }
+  
+  .slot {
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px;
+    border: 2px dashed #bbb;
+    border-radius: 6px;
+    min-height: 28px;
+    padding: 0 6px;
+    color: #bbb;
+    font-size: 15px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .slot.filled {
+    border-style: solid;
+    border-color: #1976d2;
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+  .slot.ghost {
+    border-color: #b39ddb;
+    background: #f3e5f5;
+    color: #9575cd;
+    font-style: italic;
+  }
+  .slot .num-blue { color: #1976d2; }
+  .slot .op-red { color: #d32f2f; }
+  .slot .eq { color: #d32f2f; }
+  .slot .result { color: #1976d2; }
+  .slot.ghost .num-blue { color: #9575cd; }
+  .slot.ghost .op-red, .slot.ghost .eq, .slot.ghost .result { color: #9575cd; }
+
+  /* ===== Лоток ===== */
+  .tray-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff9c4;
+    border: 2px dashed #f57f17;
+    border-radius: 10px;
+    padding: 6px 8px;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .tray-header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; font-weight: bold; color: #e65100;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap; gap: 4px;
+  }
+  .tray-header .left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px;}
+  .tray-header .count { background: #fff; padding: 1px 8px; border-radius: 8px; font-size: 11px; color: #666; }
+  .tray-header .hint { font-size: 12px; font-weight: normal; color: #a0522d; white-space: nowrap; }
+
+  /* НОВОЕ: Шкала прогресса в лотке */
+  .progress-wrap {
+    flex: 1;
+    max-width: 300px;
+    height: 14px;
+    background: #ffe082;
+    border-radius: 7px;
+    border: 1px solid #f57f17;
+    position: relative;
+    overflow: hidden;
+    margin: 0 10px;
+    display: flex;
+    align-items: center;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff9800, #4caf50);
+    width: 0%;
+    transition: width 0.4s ease, background 0.3s;
+    border-radius: 6px;
+  }
+  .progress-text-inside {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    pointer-events: none;
+    line-height: 1;
+    top: 2px;
+  }
+
+  .tray-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+    gap: 5px;
+    align-content: flex-start;
+    overflow: hidden;
+    min-height: 0;
+    padding: 2px;
+  }
+
+  .card {
+    font-family: inherit;
+    font-size: 13px; font-weight: bold;
+    padding: 4px 2px;
+    border: 1.5px solid #1976d2;
+    background: #fff;
+    color: #1976d2;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s, border-color 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 1px;
+    min-height: 28px;
+    white-space: nowrap;
+  }
+  .card:hover { background: #e3f2fd; }
+  .card:active { transform: scale(0.96); }
+  .card.picked {
+    background: #bbdefb;
+    border-color: #0d47a1;
+    transform: scale(1.06);
+    box-shadow: 0 3px 8px rgba(13,71,161,0.3);
+    z-index: 10;
+  }
+  .card .op { color: #d32f2f; }
+
+  .tray-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    padding: 10px;
+    font-style: italic;
+  }
+
+  /* ===== Кнопки ===== */
+  .controls {
+    display: flex; gap: 8px;
+    margin-top: 8px;
+    justify-content: center;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: inherit; font-size: 14px; font-weight: bold;
+    padding: 8px 18px;
+    border: none; border-radius: 8px;
+    background: #1976d2; color: #fff;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn:hover { background: #1565c0; }
+  .btn:active { transform: scale(0.97); }
+  .btn.ghost { background: #fff; color: #1976d2; border: 2px solid #1976d2; }
+  .btn.ghost:hover { background: #e3f2fd; }
+  .btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
+
+  /* ===== Оверлей ===== */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(255,255,255,0.96);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s;
+    z-index: 100;
+    text-align: center;
+  }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+  .overlay h2 { font-size: 32px; color: #1976d2; margin-bottom: 10px; }
+  .overlay p { font-size: 18px; color: #555; margin-bottom: 6px; }
+  .overlay .big { font-size: 48px; margin: 14px 0; }
+
+  .confetti {
+    position: fixed; top: -20px; width: 10px; height: 16px;
+    pointer-events: none; z-index: 200;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0.6; }
+  }
+
+  .saved-badge {
+    position: fixed;
+    bottom: 16px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #388e3c; color: #fff;
+    padding: 8px 18px;
+    border-radius: 18px;
+    font-size: 13px; font-weight: bold;
+    box-shadow: 0 4px 12px rgba(56,142,60,0.4);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 150;
+    pointer-events: none;
+  }
+  .saved-badge.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== Адаптив ===== */
+  @media (max-width: 900px) {
+    .houses { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .slot-row { font-size: 14px; min-height: 30px; }
+    .progress-wrap { max-width: 150px; }
+    .tray-header .hint { display: none; }
+  }
+  @media (max-width: 560px) {
+    .app { padding: 4px 6px; }
+    .houses { gap: 5px; margin-bottom: 8px; }
+    .house { padding: 4px; }
+    .slot-row { grid-template-columns: 5mm 1fr; font-size: 13px; min-height: 26px; }
+    .slot { min-height: 24px; font-size: 13px; }
+    .card { font-size: 12px; padding: 3px; min-height: 24px; }
+    .tray-body { grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 3px; }
+    .progress-wrap { height: 10px; margin: 0 5px;}
+    .progress-text-inside { font-size: 8px; top: 1px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="title">🏠 Состав чисел 2-10</div>
+    <div class="progress-text">Собрано: <span id="doneCount">0</span> / 9</div>
+    <div class="score">⭐ <span id="score">0</span></div>
+  </div>
+
+  <div class="houses" id="houses"></div>
+
+  <div class="tray-wrap">
+    <div class="tray-header">
+      <div class="left">
+        <span>🗂️ Карточки:</span>
+        <span class="count" id="trayCount">0 / 63</span>
+        <!-- Шкала прогресса -->
+        <div class="progress-wrap">
+          <div class="progress-bar" id="progressBar"></div>
+          <div class="progress-text-inside" id="progressTextInside">0%</div>
+        </div>
+      </div>
+      <span class="hint">нажми карточку → потом домик</span>
+    </div>
+    <div class="tray-body" id="trayBody"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="sampleBtn">👁️ Показать образец</button>
+    <button class="btn ghost" id="resetBtn">🔄 Начать заново</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <h2>🎉 Победа!</h2>
+  <p>Ты собрал все 9 домиков!</p>
+  <div class="big">⭐ <span id="finalScore">0</span></div>
+  <button class="btn" id="playAgain">Играть снова</button>
+</div>
+
+<div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
+
+<script>
+  const NUMBERS = [2,3,4,5,6,7,8,9,10];
+  const data = {};
+  const TOTAL_CARDS = NUMBERS.reduce((s, n) => s + (n + 1), 0);
+  NUMBERS.forEach(n => {
+    const list = [];
+    for (let a = 0; a <= n; a++) list.push([a, n - a]);
+    data[n] = list;
+  });
+
+  const STORAGE_KEY = 'yaroslav_house_progress_v5';
+
+  const state = {
+    score: 0,
+    done: [],
+    filled: {},
+    picked: null,
+    trayOrder: {},
+    sampleOn: false
+  };
+
+  const $ = id => document.getElementById(id);
+
+  // Звуки
+  let audioCtx = null;
+  function tone(freq, dur = 0.12, type = 'sine') {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + dur);
+    } catch(e) {}
+  }
+  const sndPlace = () => tone(880, 0.08);
+  const sndBad = () => tone(220, 0.18, 'square');
+  const sndHouseDone = () => { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.12),i*100)); };
+  const sndWin = () => { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,0.15),i*120)); };
+
+  // Перемешивание
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Сохранение
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        score: state.score,
+        done: [...state.done],
+        filled: state.filled,
+        trayOrder: state.trayOrder
+      }));
+    } catch(e) {}
+  }
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const obj = JSON.parse(raw);
+      if (!obj || typeof obj !== 'object') return false;
+      state.score = obj.score ?? 0;
+      state.done = Array.isArray(obj.done) ? obj.done : [];
+      state.filled = obj.filled || {};
+      state.trayOrder = obj.trayOrder || {};
+      return true;
+    } catch(e) { return false; }
+  }
+  function showSavedBadge() {
+    const b = $('savedBadge');
+    b.classList.add('show');
+    clearTimeout(showSavedBadge._t);
+    showSavedBadge._t = setTimeout(() => b.classList.remove('show'), 1200);
+  }
+  function commit() { saveProgress(); showSavedBadge(); }
+
+  // Отрисовка домиков
+  function renderHouses() {
+    const container = $('houses');
+    container.innerHTML = '';
+    const doneSet = new Set(state.done);
+    
+    NUMBERS.forEach(n => {
+      const house = document.createElement('div');
+      house.className = 'house';
+      house.dataset.num = n;
+      if (doneSet.has(n)) house.classList.add('done');
+
+      house.addEventListener('click', () => onHouseClick(n, house));
+
+      const title = document.createElement('div');
+      title.className = 'house-title';
+      title.textContent = `ЧИСЛО ${n}`;
+      house.appendChild(title);
+
+      data[n].forEach(([a, b], idx) => {
+        const key = `${n}-${idx}`;
+        const row = document.createElement('div');
+        row.className = 'slot-row';
+
+        const vn = document.createElement('span');
+        vn.className = 'variant-num';
+        vn.textContent = `${idx + 1}.`;
+        row.appendChild(vn);
+
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+
+        const filled = state.filled[key];
+        if (filled) {
+          slot.classList.add('filled');
+          slot.innerHTML = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+        } else if (state.sampleOn) {
+          slot.classList.add('ghost');
+          slot.innerHTML = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+        } else {
+          slot.innerHTML = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
+        }
+        row.appendChild(slot);
+        house.appendChild(row);
+      });
+
+      container.appendChild(house);
+    });
+  }
+
+  // Отрисовка лотка
+  function renderTray() {
+    const body = $('trayBody');
+    body.innerHTML = '';
+
+    let totalUsed = 0;
+
+    const allCards = [];
+    NUMBERS.forEach(n => {
+      data[n].forEach(([a, b], idx) => {
+        if (!state.filled[`${n}-${idx}`]) {
+          allCards.push({ n, idx, a, b });
+        } else {
+          totalUsed++;
+        }
+      });
+    });
+
+    // Обновляем шкалу прогресса
+    const percent = Math.round((totalUsed / TOTAL_CARDS) * 100);
+    $('progressBar').style.width = percent + '%';
+    $('progressTextInside').textContent = percent + '%';
+    
+    // Если всё собрано, шкала становится зелёной
+    if (percent === 100) {
+      $('progressBar').style.background = '#4caf50';
+    } else {
+      $('progressBar').style.background = 'linear-gradient(90deg, #ff9800, #4caf50)';
+    }
+
+    if (!state.trayOrder || Object.keys(state.trayOrder).length === 0) {
+      state.trayOrder = shuffle(allCards);
+    }
+
+    const currentTray = state.trayOrder.filter(c => 
+      allCards.some(ac => ac.n === c.n && ac.idx === c.idx)
+    );
+    
+    const missing = allCards.filter(c => 
+      !currentTray.some(tc => tc.n === c.n && tc.idx === c.idx)
+    );
+    state.trayOrder = [...currentTray, ...missing];
+
+    state.trayOrder.forEach(({ n, idx, a, b }) => {
+      const card = document.createElement('button');
+      card.className = 'card';
+      card.dataset.num = n;
+      card.dataset.idx = idx;
+      card.innerHTML = `<span>${a}</span><span class="op">+</span><span>${b}</span>`;
+      if (state.picked && state.picked.num === n && state.picked.idx === idx) {
+        card.classList.add('picked');
+      }
+      card.addEventListener('click', () => onCardClick(n, idx, a, b));
+      body.appendChild(card);
+    });
+
+    if (body.children.length === 0) {
+      body.innerHTML = '<div class="tray-empty">Все карточки расставлены ✅</div>';
+    }
+    
+    $('trayCount').textContent = `${TOTAL_CARDS - totalUsed} / ${TOTAL_CARDS}`;
+  }
+
+  function onCardClick(n, idx, a, b) {
+    if (state.done.includes(n)) return;
+    if (state.filled[`${n}-${idx}`]) return;
+    
+    if (state.picked && state.picked.num === n && state.picked.idx === idx) {
+      state.picked = null;
+    } else {
+      state.picked = { num: n, idx, a, b };
+    }
+    renderAll();
+  }
+
+  function onHouseClick(n, houseEl) {
+    if (!state.picked) return; 
+    if (state.done.includes(n)) return; 
+
+    const { a, b, num } = state.picked;
+
+    if (num !== n || a + b !== n) {
+      sndBad();
+      houseEl.classList.add('flash-bad');
+      setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
+      return;
+    }
+
+    const targetIdx = data[n].findIndex(([expA, expB], i) => {
+      const isFilled = !!state.filled[`${n}-${i}`];
+      return !isFilled && expA === a && expB === b;
+    });
+
+    if (targetIdx === -1) {
+      sndBad();
+      houseEl.classList.add('flash-bad');
+      setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
+      return;
+    }
+
+    state.filled[`${n}-${targetIdx}`] = { a, b };
+    state.score++;
+    sndPlace();
+    state.picked = null;
+
+    const done = data[n].every((_, i) => state.filled[`${n}-${i}`]);
+    if (done && !state.done.includes(n)) {
+      state.done.push(n);
+      sndHouseDone();
+      setTimeout(() => {
+        if (state.done.length === NUMBERS.length) winGame();
+        else { commit(); renderAll(); }
+      }, 500);
+    } else {
+      commit();
+    }
+    renderAll();
+  }
+
+  function renderAll() {
+    $('score').textContent = state.score;
+    $('doneCount').textContent = state.done.length;
+    renderHouses();
+    renderTray();
+    $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть образец' : '👁️ Показать образец';
+    $('sampleBtn').classList.toggle('active', state.sampleOn);
+  }
+
+  function toggleSample() {
+    state.sampleOn = !state.sampleOn;
+    tone(state.sampleOn ? 660 : 440, 0.1);
+    renderAll();
+  }
+
+  function winGame() {
+    $('finalScore').textContent = state.score;
+    $('overlay').classList.add('show');
+    sndWin();
+    fireConfetti();
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  }
+
+  function fireConfetti() {
+    const colors = ['#e53935','#fb8c00','#fdd835','#7cb342','#1e88e5','#5e35b1','#d81b60'];
+    for (let i = 0; i < 80; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      el.style.animationDelay = (Math.random() * 0.6) + 's';
+      el.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+  }
+
+  function resetGame() {
+    state.score = 0;
+    state.done = [];
+    state.filled = {};
+    state.picked = null;
+    state.trayOrder = {};
+    state.sampleOn = false;
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+    $('overlay').classList.remove('show');
+    renderAll();
+  }
+
+  $('sampleBtn').addEventListener('click', toggleSample);
+  $('resetBtn').addEventListener('click', () => {
+    if (confirm('Начать заново? Все успехи сбросятся.')) resetGame();
+  });
+  $('playAgain').addEventListener('click', resetGame);
+
+  const loaded = loadProgress();
+  renderAll();
+  if (loaded) {
+    setTimeout(() => {
+      const b = $('savedBadge');
+      b.textContent = '↩️ Прогресс восстановлен';
+      b.classList.add('show');
+      setTimeout(() => b.classList.remove('show'), 1800);
+    }, 300);
+  }
+</script>
+
+</body>
+</html>
