@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Состав чисел 2-10 — собери домики (Ярослав)</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1976d2">
 <style>
   :root {
     --bg-grad: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
@@ -110,6 +112,8 @@
   }
   .topbar .title { color: var(--house-border); font-size: 16px; white-space: nowrap; }
   .topbar .score { color: var(--c-3); white-space: nowrap; }
+  .topbar .timer { color: #d32f2f; white-space: nowrap; display: none; font-size: 18px; }
+  .topbar .timer.active { display: block; }
 
   .progress-container {
     flex: 1; display: flex; align-items: center; justify-content: center;
@@ -226,7 +230,6 @@
   .controls {
     display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
     justify-content: center; align-items: center; flex-shrink: 0;
-    position: relative;
   }
   .seg { display: inline-flex; background: var(--house-bg); border-radius: 6px; padding: 3px; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
   .seg button {
@@ -243,19 +246,13 @@
   .btn:active { transform: scale(0.97); }
   .btn.ghost { background: var(--btn-ghost-bg); color: var(--btn-text); border: 2px solid var(--btn-bg); }
   .btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
+  .btn.time-mode { background: #f57f17; border-color: #f57f17; color: #fff; }
   .icon-btn { background: var(--btn-ghost-bg); border: 2px solid var(--btn-bg); color: var(--btn-text); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
 
-  /* Плашка с версией — фиксирована на экране */
   .version-badge {
-    position: fixed;
-    bottom: 8px;
-    right: 12px;
-    font-size: 10px;
-    color: var(--text);
-    opacity: 0.4;
-    font-weight: normal;
-    z-index: 200;
-    pointer-events: none; /* Чтобы не мешала кликам */
+    position: fixed; bottom: 8px; right: 12px;
+    font-size: 10px; color: var(--text); opacity: 0.4;
+    font-weight: normal; z-index: 200; pointer-events: none;
   }
 
   /* ===== Оверлей ===== */
@@ -269,13 +266,9 @@
   .overlay .big { font-size: 48px; margin: 10px 0; color: var(--c-3); }
 
   .stats-container {
-    background: var(--house-bg);
-    border: 2px solid var(--btn-bg);
-    border-radius: 12px;
-    padding: 16px 24px;
-    margin: 16px 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    min-width: 280px;
+    background: var(--house-bg); border: 2px solid var(--btn-bg);
+    border-radius: 12px; padding: 16px 24px; margin: 16px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 280px;
   }
   .stat-row {
     display: flex; justify-content: space-between; align-items: center;
@@ -290,13 +283,23 @@
   .stat-diff.down { color: #fff; background: #f44336; }
   .stat-diff.same { color: #fff; background: #9e9e9e; }
 
-  .overlay-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
+  /* Блок ачивок */
+  .achievements-wrap {
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px;
   }
+  .achievement {
+    font-size: 12px; padding: 6px 12px; border-radius: 20px;
+    background: var(--house-bg); border: 2px solid var(--btn-bg);
+    color: var(--text); display: flex; align-items: center; gap: 6px;
+  }
+  .achievement.unlocked {
+    background: #fff9c4; border-color: #f57f17; color: #e65100; font-weight: bold;
+  }
+  [data-theme="dark"] .achievement.unlocked {
+    background: #5c4a1a; border-color: #ffb300; color: #ffca28;
+  }
+
+  .overlay-actions { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
 
   .saved-badge {
     position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -330,7 +333,7 @@
     .slot-row { font-size: 14px; min-height: 26px; }
     .tray-wrap { flex: 0 0 35vh; }
     .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
-    .controls { gap: 4px; padding-bottom: 16px; /* Отступ снизу для версии */ }
+    .controls { gap: 4px; }
     .seg button { padding: 4px 8px; font-size: 11px; }
     .btn { padding: 6px 10px; font-size: 12px; }
     .progress-container { max-width: none; margin: 0 4px; }
@@ -340,11 +343,7 @@
     .stats-container { padding: 12px 16px; min-width: 240px; }
     .stat-row { font-size: 14px; }
     
-    .version-badge {
-      bottom: 6px;
-      right: 8px;
-      font-size: 9px;
-    }
+    .version-badge { bottom: 6px; right: 8px; font-size: 9px; }
   }
 </style>
 </head>
@@ -363,6 +362,7 @@
       </div>
     </div>
 
+    <div class="timer" id="timerDisplay">⏱️ 01:00</div>
     <div class="score">⭐ <span id="score">0</span></div>
   </div>
 
@@ -385,6 +385,7 @@
       <button data-level="all" class="active">Все</button>
     </div>
     
+    <button class="btn" id="timeBtn">⏱️ На время</button>
     <button class="icon-btn" id="themeBtn" title="Сменить тему">🌙</button>
     
     <div style="flex-grow: 1;"></div>
@@ -394,12 +395,13 @@
   </div>
 </div>
 
-<!-- Плашка версии вынесена из .app и зафиксирована -->
-<div class="version-badge">build v32</div>
+<div class="version-badge">build v33</div>
 
 <div class="overlay" id="overlay">
-  <h2>🎉 Победа!</h2>
-  <div class="big">⭐ <span id="finalScore">0</span></div>
+  <h2 id="overlayTitle">🎉 Победа!</h2>
+  <div class="big" id="overlayBig">⭐ <span id="finalScore">0</span></div>
+  
+  <div class="achievements-wrap" id="achievementsWrap"></div>
   
   <div class="stats-container" id="statsContainer"></div>
 
@@ -412,14 +414,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v32';
+  const BUILD_VERSION = 'v33';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v32';
-  const STATS_KEY = 'yaroslav_stats_v32';
-  const THEME_KEY = 'yaroslav_theme_v32';
+  const STORAGE_KEY = 'yaroslav_house_progress_v33';
+  const STATS_KEY = 'yaroslav_stats_v33';
+  const THEME_KEY = 'yaroslav_theme_v33';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v33';
 
   const data = {};
   ALL_NUMBERS.forEach(n => {
@@ -441,13 +444,32 @@
     sampleOn: false,
     sessionStartTime: Date.now(),
     hintsUsed: 0,
-    errorsMade: 0
+    errorsMade: 0,
+    // Режим на время
+    isTimeMode: false,
+    timeLeft: 60,
+    timerInterval: null,
+    // Ачивки
+    achievements: {}
   };
 
   const $ = id => document.getElementById(id);
   let audioCtx = null;
 
   console.log(`Запуск игры, сборка: ${BUILD_VERSION}`);
+
+  // ===== ОЗВУЧКА =====
+  const synth = window.speechSynthesis;
+  function speak(text) {
+    if (!synth) return;
+    // Отменяем предыдущую речь, чтобы не наслаивалась
+    synth.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'ru-RU';
+    utter.rate = 1.1; // Чуть быстрее для ребенка
+    utter.pitch = 1.2; // Немного выше (детский голос)
+    synth.speak(utter);
+  }
 
   function tone(freq, dur = 0.12, type = 'sine') {
     try {
@@ -516,6 +538,24 @@
     } catch(e) { return false; }
   }
 
+  // Ачивки
+  function loadAchievements() {
+    try {
+      const raw = localStorage.getItem(ACHIEVEMENTS_KEY);
+      if (raw) state.achievements = JSON.parse(raw);
+    } catch(e) {}
+  }
+  function saveAchievements() {
+    try { localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(state.achievements)); } catch(e) {}
+  }
+  function unlockAchievement(key) {
+    if (!state.achievements[key]) {
+      state.achievements[key] = true;
+      saveAchievements();
+      console.log(`Ачивка получена: ${key}`);
+    }
+  }
+
   function loadTheme() {
     const t = localStorage.getItem(THEME_KEY);
     if (t === 'dark' || t === 'light') state.theme = t;
@@ -547,6 +587,52 @@
     fill.classList.remove('pulse');
     void fill.offsetWidth;
     fill.classList.add('pulse');
+  }
+
+  // ===== РЕЖИМ НА ВРЕМЯ =====
+  function toggleTimeMode() {
+    if (state.isTimeMode) {
+      // Выключаем
+      state.isTimeMode = false;
+      state.timeLeft = 60;
+      clearInterval(state.timerInterval);
+      $('timeBtn').classList.remove('time-mode');
+      $('timeBtn').textContent = '⏱️ На время';
+      $('timerDisplay').classList.remove('active');
+      resetGame(); // Сбрасываем игру при выходе
+    } else {
+      // Включаем
+      state.isTimeMode = true;
+      state.timeLeft = 60;
+      $('timeBtn').classList.add('time-mode');
+      $('timeBtn').textContent = '⏱️ Выкл. время';
+      $('timerDisplay').classList.add('active');
+      $('timerDisplay').textContent = `⏱️ 01:00`;
+      
+      resetGame(); // Начинаем заново
+      
+      state.timerInterval = setInterval(() => {
+        state.timeLeft--;
+        const m = Math.floor(state.timeLeft / 60);
+        const s = state.timeLeft % 60;
+        $('timerDisplay').textContent = `⏱️ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        
+        if (state.timeLeft <= 0) {
+          clearInterval(state.timerInterval);
+          timeIsUp();
+        }
+      }, 1000);
+    }
+  }
+
+  function timeIsUp() {
+    speak("Время вышло!");
+    $('overlayTitle').textContent = '⌛ Время вышло!';
+    $('overlayBig').innerHTML = `Собрано домиков: ${state.done.length}`;
+    $('achievementsWrap').innerHTML = ''; // Скрываем ачивки
+    $('statsContainer').innerHTML = `<div class="stat-row"><span class="stat-label">Собрано за минуту:</span><span class="stat-value">${state.done.length} / ${getActiveNumbers().length}</span></div>`;
+    $('overlay').classList.add('show');
+    sndBad();
   }
 
   function renderSingleHouse(n, container) {
@@ -691,6 +777,7 @@
 
     if (num !== n || a + b !== n) {
       sndBad(); 
+      speak("Попробуй ещё раз"); // Озвучка ошибки
       state.errorsMade++;
       commit();
       houseEl.classList.add('flash-bad');
@@ -705,6 +792,7 @@
 
     if (targetIdx === -1) {
       sndBad(); 
+      speak("Такая карточка уже есть"); // Озвучка ошибки
       state.errorsMade++;
       commit();
       houseEl.classList.add('flash-bad');
@@ -715,6 +803,7 @@
     state.filled[`${n}-${targetIdx}`] = { a, b };
     state.score++;
     sndPlace();
+    speak("Верно!"); // Озвучка успеха
     state.picked = null;
 
     $('score').textContent = state.score;
@@ -771,6 +860,15 @@
   }
 
   function winGame() {
+    // 1. Озвучка победы
+    speak("Поздравляю, все домики собраны!");
+
+    // 2. Отключаем таймер, если он был
+    if (state.isTimeMode) {
+      clearInterval(state.timerInterval);
+    }
+
+    // 3. Считаем время и статистику
     const timeSpentMs = Date.now() - state.sessionStartTime;
     const timeSpentSec = Math.floor(timeSpentMs / 1000);
     const timeFormatted = `${Math.floor(timeSpentSec / 60)}:${String(timeSpentSec % 60).padStart(2, '0')}`;
@@ -786,7 +884,7 @@
     let statsHtml = '';
     
     let timeDiffHtml = '';
-    if (prevRecord) {
+    if (prevRecord && !state.isTimeMode) {
       const diff = timeSpentSec - prevRecord.time;
       if (diff < -1) timeDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)} сек</span>`;
       else if (diff > 1) timeDiffHtml = `<span class="stat-diff down">↑ ${diff} сек</span>`;
@@ -805,7 +903,7 @@
 
     let hintDiffHtml = '';
     if (prevRecord) {
-      const diff = state.hintsUsed - prevRecord.hints;
+      const diff = state.hintsUsed - prevRecord.hintsUsed; // Исправил баг с prevRecord.hints
       if (diff < 0) hintDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)}</span>`;
       else if (diff > 0) hintDiffHtml = `<span class="stat-diff down">↑ ${diff}</span>`;
       else hintDiffHtml = `<span class="stat-diff same">=</span>`;
@@ -817,13 +915,41 @@
 
     $('statsContainer').innerHTML = statsHtml;
 
+    // 4. Проверка ачивок
+    let achievementsHtml = '';
+    const achList = [
+      { id: 'perfect', title: 'Без ошибок', emoji: '🎯', cond: state.errorsMade === 0 },
+      { id: 'no_hints', title: 'Без подсказок', emoji: '🧠', cond: state.hintsUsed === 0 },
+      { id: 'fast', title: 'Скоростной', emoji: '⚡', cond: timeSpentSec < 60 && !state.isTimeMode },
+      { id: 'time_master', title: 'Мастер времени', emoji: '⏳', cond: state.isTimeMode && state.done.length === getActiveNumbers().length }
+    ];
+
+    achList.forEach(ach => {
+      if (ach.cond) {
+        unlockAchievement(ach.id);
+        achievementsHtml += `<div class="achievement unlocked">${ach.emoji} ${ach.title}</div>`;
+      } else {
+        // Показываем серую ачивку, если она уже получена ранее
+        if (state.achievements[ach.id]) {
+          achievementsHtml += `<div class="achievement unlocked" style="opacity: 0.5;">${ach.emoji} ${ach.title}</div>`;
+        } else {
+          achievementsHtml += `<div class="achievement">${ach.emoji} ${ach.title}</div>`;
+        }
+      }
+    });
+
+    $('achievementsWrap').innerHTML = achievementsHtml;
+
+    // 5. Сохраняем рекорд
     const isBetter = !prevRecord || (timeSpentSec < prevRecord.time && state.errorsMade <= prevRecord.errors);
-    if (isBetter) {
-       statsHistory[currentLevelKey] = { time: timeSpentSec, errors: state.errorsMade, hints: state.hintsUsed };
+    if (isBetter && !state.isTimeMode) {
+       statsHistory[currentLevelKey] = { time: timeSpentSec, errors: state.errorsMade, hintsUsed: state.hintsUsed };
        localStorage.setItem(STATS_KEY, JSON.stringify(statsHistory));
     }
 
-    $('finalScore').textContent = state.score;
+    // 6. Показываем оверлей
+    $('overlayTitle').textContent = '🎉 Победа!';
+    $('overlayBig').innerHTML = `⭐ <span id="finalScore">${state.score}</span>`;
     $('overlay').classList.add('show');
     sndWin();
     fireConfetti();
@@ -857,6 +983,24 @@
     state.hintsUsed = 0;
     state.errorsMade = 0;
     
+    // Если таймер был запущен, сбрасываем его
+    if (state.isTimeMode) {
+      state.timeLeft = 60;
+      $('timerDisplay').textContent = `⏱️ 01:00`;
+      clearInterval(state.timerInterval);
+      state.timerInterval = setInterval(() => {
+        state.timeLeft--;
+        const m = Math.floor(state.timeLeft / 60);
+        const s = state.timeLeft % 60;
+        $('timerDisplay').textContent = `⏱️ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        
+        if (state.timeLeft <= 0) {
+          clearInterval(state.timerInterval);
+          timeIsUp();
+        }
+      }, 1000);
+    }
+    
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     $('overlay').classList.remove('show');
     $('houses').innerHTML = ''; 
@@ -864,26 +1008,24 @@
   }
 
   $('resetStatsBtn').addEventListener('click', () => {
-    if (confirm('Удалить все рекорды? (Время, ошибки и подсказки по всем уровням будут обнулены)')) {
+    if (confirm('Удалить все рекорды и достижения? (Время, ошибки, подсказки и ачивки будут обнулены)')) {
       try {
         localStorage.removeItem(STATS_KEY);
+        localStorage.removeItem(ACHIEVEMENTS_KEY);
+        state.achievements = {};
         
         const b = $('savedBadge');
-        b.textContent = '🗑️ Рекорды сброшены';
+        b.textContent = '🗑️ Рекорды и достижения сброшены';
         b.classList.add('show');
         setTimeout(() => b.classList.remove('show'), 1500);
-
-        $('statsContainer').innerHTML = `
-          <div class="stat-row"><span class="stat-label">⏱️ Время:</span><span class="stat-value">${$('statsContainer').querySelectorAll('.stat-value')[0].textContent.split(' ')[0]} <span class="stat-diff same">=</span></span></div>
-          <div class="stat-row"><span class="stat-label">❌ Ошибки:</span><span class="stat-value">${state.errorsMade} <span class="stat-diff same">=</span></span></div>
-          <div class="stat-row"><span class="stat-label">💡 Подсказки:</span><span class="stat-value">${state.hintsUsed} <span class="stat-diff same">=</span></span></div>
-          <div class="stat-row"><span class="stat-label">📚 Уровень:</span><span class="stat-value">${({ low: '2–5', high: '6–10', all: 'Все' })[state.level]}</span></div>
-        `;
+        
+        $('overlay').classList.remove('show');
       } catch(e) {}
     }
   });
 
   $('sampleBtn').addEventListener('click', toggleSample);
+  $('timeBtn').addEventListener('click', toggleTimeMode);
   $('resetBtn').addEventListener('click', () => {
     if (confirm('Начать заново? Все успехи сбросятся.')) resetGame();
   });
@@ -912,7 +1054,15 @@
     renderAll();
   });
 
+  // Инициализация PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed: ', err));
+    });
+  }
+
   loadTheme();
+  loadAchievements();
   const loaded = loadProgress();
   if (!loaded) state.sessionStartTime = Date.now();
   renderAll();
