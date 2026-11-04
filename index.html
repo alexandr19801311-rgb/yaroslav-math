@@ -62,237 +62,102 @@
     transition: background .25s, color .25s;
     overflow: hidden;
   }
-  #app {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    height: 100dvh;
-  }
+  #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
   /* ---------- Шапка ---------- */
   header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 14px;
-    padding: 8px 14px;
-    background: var(--panel);
-    box-shadow: 0 2px 10px rgba(30,60,120,.08);
-    z-index: 5;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+    padding: 8px 14px; background: var(--panel);
+    box-shadow: 0 2px 10px rgba(30,60,120,.08); z-index: 5;
   }
-  .brand {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: var(--num);
-    white-space: nowrap;
-  }
+  .brand { font-size: 1.1rem; font-weight: bold; color: var(--num); white-space: nowrap; }
   .brand small { color: var(--muted); font-weight: normal; font-size: .8rem; }
   .spacer { flex: 1 1 auto; }
-  .stats {
-    display: flex;
-    gap: 14px;
-    font-size: .95rem;
-    color: var(--muted);
-    white-space: nowrap;
-  }
+  .stats { display: flex; gap: 14px; font-size: .95rem; color: var(--muted); white-space: nowrap; }
   .stats b { color: var(--star); }
   .stats .done b { color: var(--num); }
-  /* Сегмент-переключатели */
-  .seg {
-    display: inline-flex;
-    background: var(--btn-bg);
-    border-radius: 10px;
-    padding: 3px;
-    gap: 3px;
-  }
+  .seg { display: inline-flex; background: var(--btn-bg); border-radius: 10px; padding: 3px; gap: 3px; }
   .seg button {
-    font-family: inherit;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    padding: 6px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: .9rem;
-    transition: background .15s, color .15s;
-    white-space: nowrap;
+    font-family: inherit; border: none; background: transparent; color: var(--muted);
+    padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: .9rem;
+    transition: background .15s, color .15s; white-space: nowrap;
   }
-  .seg button.active {
-    background: var(--btn-active);
-    color: var(--btn-active-text);
-    font-weight: bold;
-  }
+  .seg button.active { background: var(--btn-active); color: var(--btn-active-text); font-weight: bold; }
   .icon-btn {
-    font-family: inherit;
-    border: none;
-    background: var(--btn-bg);
-    color: var(--text);
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 1.2rem;
+    font-family: inherit; border: none; background: var(--btn-bg); color: var(--text);
+    width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 1.2rem;
     display: inline-flex; align-items: center; justify-content: center;
     transition: background .15s, transform .1s;
   }
   .icon-btn:active { transform: scale(.94); }
-  .label-sm {
-    font-size: .72rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .04em;
-  }
+  .label-sm { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
   .control-group { display: flex; flex-direction: column; gap: 2px; }
 
   /* ---------- Игровое поле ---------- */
-  main {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    padding: 10px;
-    gap: 10px;
-  }
+  main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; padding: 10px; gap: 10px; }
   #houses {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 10px;
-    overflow: auto;
+    flex: 1 1 auto; min-height: 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+    gap: 10px; overflow: auto;
   }
   .house {
-    background: var(--house-bg);
-    border-radius: 14px;
-    box-shadow: var(--house-shadow);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 6px;
-    cursor: pointer;
-    transition: transform .1s, box-shadow .15s;
-    min-height: 90px;
-    position: relative;
+    background: var(--house-bg); border-radius: 14px; box-shadow: var(--house-shadow);
+    display: flex; flex-direction: column; align-items: center; padding: 6px;
+    cursor: pointer; transition: transform .1s, box-shadow .15s; min-height: 90px; position: relative;
   }
   .house:active { transform: scale(.985); }
   .house-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 2px 0 6px;
-    cursor: pointer;
-    user-select: none;
-    padding: 0 8px;
-    border-radius: 8px;
-    transition: background .15s;
+    font-size: 1.5rem; font-weight: bold; margin: 2px 0 6px; cursor: pointer;
+    user-select: none; padding: 0 8px; border-radius: 8px; transition: background .15s;
   }
   .house-title:active { background: var(--hint); }
-  .slots {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex: 1 1 auto;
-  }
+  .slots { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; }
   .slot {
-    width: 46px; height: 46px;
-    border-radius: 10px;
-    background: var(--slot-bg);
-    border: 2px dashed var(--slot-border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: var(--num);
+    width: 46px; height: 46px; border-radius: 10px; background: var(--slot-bg);
+    border: 2px dashed var(--slot-border); display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; font-weight: bold; color: var(--num);
     transition: transform .18s, background .18s, border-color .18s, color .18s;
   }
-  .slot.filled {
-    background: var(--card-sel);
-    border: 2px solid var(--card-sel-border);
-    border-style: solid;
-  }
+  .slot.filled { background: var(--card-sel); border: 2px solid var(--card-sel-border); border-style: solid; }
   .slot.pop { animation: slot-pop .35s ease; }
   @keyframes slot-pop {
     0% { transform: scale(1); }
     40% { transform: scale(1.35); background: var(--slot-pop); color: #fff; border-color: var(--slot-pop); }
     100% { transform: scale(1); }
   }
-  .slot.ghost {
-    color: var(--ghost);
-    border-color: var(--ghost);
-    border-style: dashed;
-    opacity: .85;
-  }
-  .op-sign {
-    color: var(--op);
-    font-size: 1.2rem;
-    font-weight: bold;
-    user-select: none;
-  }
+  .slot.ghost { color: var(--ghost); border-color: var(--ghost); border-style: dashed; opacity: .85; }
+  .op-sign { color: var(--op); font-size: 1.2rem; font-weight: bold; user-select: none; }
 
   /* ---------- Банк карточек ---------- */
   #tray {
-    flex: 0 0 auto;
-    background: var(--panel);
-    border-radius: 14px;
-    box-shadow: var(--house-shadow);
-    padding: 8px 10px;
-    max-height: 38vh;
-    overflow: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-content: flex-start;
+    flex: 0 0 auto; background: var(--panel); border-radius: 14px; box-shadow: var(--house-shadow);
+    padding: 8px 10px; max-height: 38vh; overflow: auto;
+    display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; min-height: 64px;
   }
   .card {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    background: var(--card-bg);
-    border: 2px solid var(--card-border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: var(--num);
-    cursor: pointer;
+    width: 48px; height: 48px; border-radius: 12px; background: var(--card-bg);
+    border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: bold; color: var(--num); cursor: pointer;
     transition: transform .1s, background .15s, border-color .15s, box-shadow .15s;
     user-select: none;
   }
   .card:active { transform: scale(.94); }
   .card.selected {
-    background: var(--card-sel);
-    border-color: var(--card-sel-border);
-    box-shadow: 0 0 0 3px var(--card-sel-border) inset;
-    transform: translateY(-2px);
+    background: var(--card-sel); border-color: var(--card-sel-border);
+    box-shadow: 0 0 0 3px var(--card-sel-border) inset; transform: translateY(-2px);
   }
-  .card.hint-glow {
-    animation: hint-glow .6s ease;
-    box-shadow: 0 0 0 4px var(--hint);
-  }
+  .card.hint-glow { animation: hint-glow .6s ease; box-shadow: 0 0 0 4px var(--hint); }
   @keyframes hint-glow {
     0%, 100% { box-shadow: 0 0 0 4px var(--hint); }
     50% { box-shadow: 0 0 0 8px var(--hint); }
   }
-  .card.used { visibility: hidden; pointer-events: none; }
-  .tray-empty {
-    color: var(--muted);
-    font-size: .95rem;
-    padding: 10px;
-  }
+  .tray-empty { color: var(--muted); font-size: .95rem; padding: 10px; }
 
   /* ---------- Кнопки внизу ---------- */
-  .actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .action-btn {
-    font-family: inherit;
-    flex: 1 1 auto;
-    min-width: 130px;
-    border: none;
-    background: var(--btn-bg);
-    color: var(--text);
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-size: .95rem;
-    cursor: pointer;
-    transition: background .15s, transform .1s;
+    font-family: inherit; flex: 1 1 auto; min-width: 130px; border: none;
+    background: var(--btn-bg); color: var(--text); padding: 10px 14px; border-radius: 12px;
+    font-size: .95rem; cursor: pointer; transition: background .15s, transform .1s;
   }
   .action-btn:active { transform: scale(.97); }
   .action-btn.primary { background: var(--num); color: #fff; }
@@ -300,17 +165,9 @@
 
   /* ---------- Оверлей победы ---------- */
   #win {
-    position: fixed;
-    inset: 0;
-    background: var(--win-bg);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 18px;
-    z-index: 50;
-    padding: 24px;
-    text-align: center;
+    position: fixed; inset: 0; background: var(--win-bg); display: none;
+    align-items: center; justify-content: center; flex-direction: column; gap: 18px;
+    z-index: 50; padding: 24px; text-align: center;
   }
   #win.show { display: flex; }
   #win h1 { font-size: 2rem; margin: 0; color: var(--num); }
@@ -318,32 +175,22 @@
   #win .action-btn { flex: 0 0 auto; min-width: 180px; }
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
 
-  /* ---------- Планшет альбомная: 9 колонок ---------- */
+  /* ---------- Планшет альбомная ---------- */
   @media (min-width: 700px) and (orientation: landscape) {
-    #houses {
-      grid-template-columns: repeat(9, 1fr);
-      grid-template-rows: 1fr;
-    }
+    #houses { grid-template-columns: repeat(9, 1fr); grid-template-rows: 1fr; }
     .house { min-height: 0; }
     .slot { width: 40px; height: 40px; font-size: 1.1rem; }
     .house-title { font-size: 1.3rem; }
     #tray { max-height: 45vh; }
   }
 
-  /* ---------- Телефон портрет: карусель ---------- */
+  /* ---------- Телефон портрет ---------- */
   @media (max-width: 699px) {
     #houses {
-      display: flex;
-      flex-direction: row;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scroll-snap-type: x mandatory;
-      gap: 10px;
+      display: flex; flex-direction: row; overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory; gap: 10px;
     }
-    #houses .house {
-      flex: 0 0 78%;
-      scroll-snap-align: center;
-    }
+    #houses .house { flex: 0 0 78%; scroll-snap-align: center; }
     #tray { max-height: 35vh; }
     header { padding: 6px 10px; gap: 6px 10px; }
     .brand { font-size: 1rem; }
@@ -405,33 +252,30 @@
 "use strict";
 
 /* ==================== Константы ==================== */
-const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
 const LEVELS = {
   low: [2,3,4,5],
   high: [6,7,8,9,10],
   all: [2,3,4,5,6,7,8,9,10]
 };
-const STORAGE_KEY = "yaroslav_progress_v18";
-const THEME_KEY = "yaroslav_theme_v18";
+const STORAGE_KEY = "yaroslav_progress_v19";
+const THEME_KEY = "yaroslav_theme_v19";
 
 const HOUSE_COLORS = {
-  2:"#e57373", 3:"#ffb74d", 4:"#fff176", 5:"#aed581",
+  2:"#e57373", 3:"#ffb74d", 4:"#e6c200", 5:"#aed581",
   6:"#4db6ac", 7:"#64b5f6", 8:"#9575cd", 9:"#f06292", 10:"#a1887f"
 };
 
 /* ==================== Состояние ==================== */
 const state = {
   level: "all",
-  mode: "add",      // "add" | "sub"
+  mode: "add",
   theme: "light",
-  // progress[mode][number] = [slot0|null, slot1|null]
-  progress: {
-    add: {},
-    sub: {}
-  },
-  selectedCard: null,   // значение выбранной карточки
-  usedCards: [],        // значения карточек, уже стоящих в домиках (для банка)
-  showGhosts: false
+  progress: { add: {}, sub: {} },
+  selectedCard: null,
+  // Банк: массив объектов {value, id} — id уникален, чтобы убрать конкретную карточку
+  tray: [],
+  showGhosts: false,
+  ghosts: {} // временные образцы для пустых ячеек
 };
 
 /* ==================== Загрузка/сохранение ==================== */
@@ -440,9 +284,7 @@ function loadProgress() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const data = JSON.parse(raw);
-      if (data && data.add && data.sub) {
-        state.progress = data;
-      }
+      if (data && data.add && data.sub) state.progress = data;
     }
   } catch (e) { console.warn("progress load error", e); }
 }
@@ -454,17 +296,11 @@ function loadTheme() {
   const t = localStorage.getItem(THEME_KEY);
   if (t === "dark" || t === "light") state.theme = t;
 }
-function saveTheme() {
-  localStorage.setItem(THEME_KEY, state.theme);
-}
+function saveTheme() { localStorage.setItem(THEME_KEY, state.theme); }
 
 /* ==================== Утилиты ==================== */
-function currentNumbers() {
-  return LEVELS[state.level];
-}
-function currentModeProgress() {
-  return state.progress[state.mode];
-}
+function currentNumbers() { return LEVELS[state.level]; }
+function currentModeProgress() { return state.progress[state.mode]; }
 function ensureNumberProgress(n) {
   const p = currentModeProgress();
   if (!p[n]) p[n] = [null, null];
@@ -474,65 +310,119 @@ function isHouseComplete(n) {
   const p = currentModeProgress()[n];
   return p && p[0] !== null && p[1] !== null;
 }
-function isHouseEmpty(n) {
-  const p = currentModeProgress()[n];
-  return !p || (p[0] === null && p[1] === null);
-}
 function completedCount() {
   return currentNumbers().filter(isHouseComplete).length;
 }
-function totalNumbers() {
-  return currentNumbers().length;
-}
-function recomputeUsedCards() {
-  // Карточки в банке — это 1..9, каждая по одному экземпляру,
-  // но т.к. в домике 2 ячейки и чисел 9, а карточек нужно больше —
-  // банк генерирует "виртуальные" карточки: для каждого числа 1..9
-  // столько копий, сколько нужно по всем домикам? 
-  // Упростим: банк всегда содержит карточки 1..9, и любая карточка
-  // может использоваться многократно. Чтобы не усложнять — банк
-  // не "тратится", а карточки-подсказки подсвечиваются.
-  // usedCards нужен только для подсветки образца. Оставим пустым.
-  state.usedCards = [];
+function totalNumbers() { return currentNumbers().length; }
+
+/* ==================== Генерация банка ==================== */
+/**
+ * Для текущего уровня и режима строим список значений карточек,
+ * которые должны быть в банке. Каждый домик требует 2 карточки.
+ * Режим add: a + b = n. Берём a = 1, b = n-1 (для n=2: 1 и 1).
+ * Режим sub: n - a = b. Берём a = 1, b = n-1 (для n=2: 1 и 1).
+ * Для n=2: add → [1,1]; sub → [1,1].
+ * Для n=3: add → [1,2]; sub → [1,2].
+ * и т.д. Так получается "эталонный" набор. Перемешиваем.
+ */
+function buildTrayFromScratch() {
+  const values = [];
+  currentNumbers().forEach(n => {
+    if (state.mode === "add") {
+      // a + b = n
+      const a = 1, b = n - 1;
+      values.push(a, b);
+    } else {
+      // n - a = b
+      const a = 1, b = n - 1;
+      values.push(a, b);
+    }
+  });
+  // перемешиваем
+  for (let i = values.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [values[i], values[j]] = [values[j], values[i]];
+  }
+  let idCounter = 0;
+  state.tray = values.map(v => ({ value: v, id: ++idCounter }));
 }
 
-/* ==================== Логика проверки размещения ==================== */
 /**
- * Проверяет, можно ли карточку c поставить в домик числа N.
- * Возвращает {ok:true, slotIndex:0|1} или {ok:false}.
- * Режим add: N = a + b. Карточка c подходит в свободную ячейку,
- *   если вторая ячейка пуста ИЛИ вторая ячейка = N - c.
- * Режим sub: N - a = b. Карточка c подходит:
- *   - если обе пусты: ставим c в slot0 (тогда slot1 должен быть N-c)
- *     или в slot1 (тогда slot0 должен быть N-c). Примем: c идёт в slot0,
- *     а slot1 = N - c (если 1<=N-c<=9).
- *   - если slot0 занят a: c идёт в slot1, если N - a === c.
- *   - если slot1 занят b: c идёт в slot0, если N - c === b.
+ * Пересобрать банк с учётом уже стоящих карточек.
+ * Для каждого домика смотрим, какие ячейки заполнены.
+ * Незаполненные ячейки нужно "докрыть" карточками.
+ * При этом уже стоящие в домиках карточки в банк не попадают.
+ */
+function rebuildTrayFromProgress() {
+  const needed = []; // значения, которые ещё нужны
+  currentNumbers().forEach(n => {
+    const p = ensureNumberProgress(n);
+    // Какие значения должны стоять в домике n по эталону
+    const a = 1, b = n - 1;
+    // Какие уже стоят
+    if (p[0] === null) needed.push(a);
+    if (p[1] === null) needed.push(b);
+  });
+  // перемешиваем
+  for (let i = needed.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [needed[i], needed[j]] = [needed[j], needed[i]];
+  }
+  let idCounter = 0;
+  state.tray = needed.map(v => ({ value: v, id: ++idCounter }));
+}
+
+/**
+ * Удалить из банка одну карточку с указанным значением.
+ * Возвращает true, если удалось.
+ */
+function takeFromTray(value) {
+  const idx = state.tray.findIndex(c => c.value === value);
+  if (idx === -1) return false;
+  state.tray.splice(idx, 1);
+  return true;
+}
+
+/* ==================== Проверка размещения ==================== */
+/**
+ * Возвращает {ok:true, slotIndex} или {ok:false}.
  */
 function canPlace(n, c) {
   const p = ensureNumberProgress(n);
   const [a, b] = p;
   if (state.mode === "add") {
     if (a !== null && b !== null) return { ok:false };
-    if (a === null && b === null) return { ok:true, slotIndex:0 };
+    if (a === null && b === null) {
+      return (c >= 1 && c <= n - 1) ? { ok:true, slotIndex:0 } : { ok:false };
+    }
     if (a === null) return (b + c === n) ? { ok:true, slotIndex:0 } : { ok:false };
-    // b === null
     return (a + c === n) ? { ok:true, slotIndex:1 } : { ok:false };
   } else {
-    // sub: N - a = b
+    // sub: n - a = b
     if (a !== null && b !== null) return { ok:false };
     if (a === null && b === null) {
-      // c в slot0, slot1 = N - c
-      if (n - c >= 1 && n - c <= 9) return { ok:true, slotIndex:0 };
-      return { ok:false };
+      return (c >= 1 && c <= n - 1) ? { ok:true, slotIndex:0 } : { ok:false };
     }
     if (a === null) {
-      // b занят: c в slot0, если N - c === b
+      // b занят: c в slot0, если n - c === b
       return (n - c === b) ? { ok:true, slotIndex:0 } : { ok:false };
     }
-    // b === null: c в slot1, если N - a === c
+    // b === null: c в slot1, если n - a === c
     return (n - a === c) ? { ok:true, slotIndex:1 } : { ok:false };
   }
+}
+
+/**
+ * Проверяем, что в домике нет "неправильных" комбинаций.
+ * В режиме add: a + b должно быть n.
+ * В режиме sub: n - a должно быть b.
+ */
+function houseIsValid(n) {
+  const p = currentModeProgress()[n];
+  if (!p) return true;
+  if (p[0] === null || p[1] === null) return true; // недособрано — ок
+  if (state.mode === "add") return p[0] + p[1] === n;
+  return n - p[0] === p[1];
 }
 
 /* ==================== Отрисовка ==================== */
@@ -548,13 +438,7 @@ function renderHeader() {
 
 function renderHouses() {
   housesEl.innerHTML = "";
-  const numbers = currentNumbers();
-  // Сетка 3x3 под ПК: если чисел <9, всё равно оставляем сетку,
-  // но домиков будет меньше. Для красоты дополним пустыми? Нет — просто
-  // grid сам растянет.
-  numbers.forEach(n => {
-    housesEl.appendChild(buildHouse(n));
-  });
+  currentNumbers().forEach(n => housesEl.appendChild(buildHouse(n)));
 }
 
 function buildHouse(n) {
@@ -566,49 +450,31 @@ function buildHouse(n) {
   title.className = "house-title";
   title.style.color = HOUSE_COLORS[n] || "var(--num)";
   title.textContent = n;
-  title.addEventListener("click", (e) => {
-    e.stopPropagation();
-    showHint(n);
-  });
+  title.addEventListener("click", (e) => { e.stopPropagation(); showHint(n); });
   house.appendChild(title);
 
   const slots = document.createElement("div");
   slots.className = "slots";
 
   const p = ensureNumberProgress(n);
-  // В режиме сложения: a + b = n (между ячейками "+")
-  // В режиме вычитания: n - a = b (между ячейками "−", после n идёт "="? 
-  //   Нет: домик показывает N, внутри: [a] − [b]? Педагогически:
-  //   N − a = b, т.е. в домике показываем [a] и [b], а N — заголовок.
-  //   Между ячейками ставим "−" и "=" не нужен, т.к. N в заголовке.
-  //   Для наглядности: [a] − [b]? Нет, это N − a = b.
-  //   Покажем: (N) − [a] = [b]? Заголовок уже N.
-  //   Тогда внутри: "−" [a] "=" [b]? Слишком громоздко.
-  //   Компромисс: показываем [a] и [b] с знаком "−" между ними,
-  //   а заголовок N означает "N − a = b". Ребёнок поймёт из режима.
-  //   Но чтобы было однозначно, поставим перед первым слотом "N −"?
-  //   Проще: слева от слотов маленький знак "−" и "=".
-  //   Итог: [slots] = [a] [−] [b], а N в заголовке = уменьшаемое.
-  //   Это может путать. Сделаем явно: в заголовке "N", внутри "N − [a] = [b]"
-  //   не влезет. Поэтому: [a] [−] [b], а над домиком N — это N.
-  //   Принимаем: в режиме sub домик N означает N − a = b,
-  //   отображаем [a] [−] [b]. Подсказка по заголовку объяснит.
-  
+
   const slot0 = document.createElement("div");
-  slot0.className = "slot";
-  slot0.dataset.slot = "0";
+  slot0.className = "slot"; slot0.dataset.slot = "0";
   if (p[0] !== null) { slot0.textContent = p[0]; slot0.classList.add("filled"); }
-  else if (state.showGhosts) { slot0.textContent = ghostValue(n, 0); slot0.classList.add("ghost"); }
+  else if (state.showGhosts && state.ghosts[n] && state.ghosts[n][0] !== undefined) {
+    slot0.textContent = state.ghosts[n][0]; slot0.classList.add("ghost");
+  }
 
   const op = document.createElement("div");
   op.className = "op-sign";
   op.textContent = state.mode === "add" ? "+" : "−";
 
   const slot1 = document.createElement("div");
-  slot1.className = "slot";
-  slot1.dataset.slot = "1";
+  slot1.className = "slot"; slot1.dataset.slot = "1";
   if (p[1] !== null) { slot1.textContent = p[1]; slot1.classList.add("filled"); }
-  else if (state.showGhosts) { slot1.textContent = ghostValue(n, 1); slot1.classList.add("ghost"); }
+  else if (state.showGhosts && state.ghosts[n] && state.ghosts[n][1] !== undefined) {
+    slot1.textContent = state.ghosts[n][1]; slot1.classList.add("ghost");
+  }
 
   slots.appendChild(slot0);
   slots.appendChild(op);
@@ -619,40 +485,32 @@ function buildHouse(n) {
   return house;
 }
 
-function ghostValue(n, slotIndex) {
-  // Образец: подбираем пару
-  if (state.mode === "add") {
-    // a + b = n; возьмём a = 1, b = n-1 (если n>2), иначе a=1,b=1 для n=2
-    if (n === 2) return 1;
-    const a = 1, b = n - 1;
-    return slotIndex === 0 ? a : b;
-  } else {
-    // n - a = b; возьмём a = 1, b = n-1
-    if (n === 2) return slotIndex === 0 ? 1 : 1;
-    const a = 1, b = n - 1;
-    return slotIndex === 0 ? a : b;
-  }
-}
-
 function renderSingleHouse(n) {
   const old = housesEl.querySelector('.house[data-number="' + n + '"]');
-  if (old) {
-    const fresh = buildHouse(n);
-    old.replaceWith(fresh);
-  }
+  if (old) old.replaceWith(buildHouse(n));
 }
 
 function renderTray() {
   trayEl.innerHTML = "";
-  for (let c = 1; c <= 9; c++) {
+  if (state.tray.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "tray-empty";
+    empty.textContent = "Банк пуст";
+    trayEl.appendChild(empty);
+    return;
+  }
+  // Сортируем по значению для удобства (но id сохраняем)
+  const sorted = [...state.tray].sort((a,b) => a.value - b.value);
+  sorted.forEach(cardData => {
     const card = document.createElement("div");
     card.className = "card";
-    card.dataset.value = c;
-    card.textContent = c;
-    if (state.selectedCard === c) card.classList.add("selected");
-    card.addEventListener("click", () => onCardClick(c));
+    card.dataset.value = cardData.value;
+    card.dataset.id = cardData.id;
+    card.textContent = cardData.value;
+    if (state.selectedCard && state.selectedCard.id === cardData.id) card.classList.add("selected");
+    card.addEventListener("click", () => onCardClick(cardData));
     trayEl.appendChild(card);
-  }
+  });
 }
 
 function renderAll() {
@@ -663,24 +521,20 @@ function renderAll() {
 }
 
 /* ==================== Взаимодействие ==================== */
-function onCardClick(c) {
-  if (state.selectedCard === c) {
+function onCardClick(cardData) {
+  if (state.selectedCard && state.selectedCard.id === cardData.id) {
     state.selectedCard = null;
   } else {
-    state.selectedCard = c;
+    state.selectedCard = cardData;
   }
-  renderTray(); // перерисовываем только банк (сохраняем скролл)
+  renderTray();
 }
 
 function onHouseClick(n) {
-  if (state.selectedCard === null) {
-    // нет выбранной карточки — можно показать подсказку по домику
-    return;
-  }
-  const c = state.selectedCard;
+  if (!state.selectedCard) return;
+  const c = state.selectedCard.value;
   const res = canPlace(n, c);
   if (!res.ok) {
-    // неверно — лёгкая тряска
     const house = housesEl.querySelector('.house[data-number="' + n + '"]');
     if (house) {
       house.animate(
@@ -691,28 +545,25 @@ function onHouseClick(n) {
     beep(false);
     return;
   }
-  // ставим
+  // ставим карточку
   const p = ensureNumberProgress(n);
   p[res.slotIndex] = c;
+  // убираем карточку из банка
+  takeFromTray(c);
   saveProgress();
   state.selectedCard = null;
   renderSingleHouse(n);
   renderTray();
   renderHeader();
-  // анимация pop
   const slot = housesEl.querySelector('.house[data-number="' + n + '"] .slot[data-slot="' + res.slotIndex + '"]');
-  if (slot) { slot.classList.add("pop"); }
+  if (slot) slot.classList.add("pop");
   beep(true);
-  // проверка победы
-  if (completedCount() === totalNumbers()) {
-    showWin();
-  }
+  if (completedCount() === totalNumbers()) showWin();
 }
 
 /* ==================== Подсказка ==================== */
 let hintTimer = null;
 function showHint(n) {
-  // подсветить карточки, которые подходят в домик n
   const cards = trayEl.querySelectorAll(".card");
   cards.forEach(card => card.classList.remove("hint-glow"));
   cards.forEach(card => {
@@ -728,11 +579,18 @@ function showHint(n) {
 
 /* ==================== Образец ==================== */
 document.getElementById("sampleBtn").addEventListener("click", () => {
+  // Строим образец: для каждого домика — эталонные a, b
+  state.ghosts = {};
+  currentNumbers().forEach(n => {
+    const p = ensureNumberProgress(n);
+    const a = 1, b = n - 1;
+    state.ghosts[n] = [p[0] !== null ? p[0] : a, p[1] !== null ? p[1] : b];
+  });
   state.showGhosts = true;
   renderHouses();
-  // через 2.5 сек убрать призраков
   setTimeout(() => {
     state.showGhosts = false;
+    state.ghosts = {};
     renderHouses();
   }, 2500);
 });
@@ -743,7 +601,9 @@ document.getElementById("resetBtn").addEventListener("click", () => {
   state.progress[state.mode] = {};
   state.selectedCard = null;
   state.showGhosts = false;
+  state.ghosts = {};
   saveProgress();
+  buildTrayFromScratch();
   renderAll();
 });
 
@@ -761,6 +621,7 @@ document.getElementById("winAgain").addEventListener("click", () => {
   state.progress[state.mode] = {};
   state.selectedCard = null;
   saveProgress();
+  buildTrayFromScratch();
   renderAll();
 });
 
@@ -774,14 +635,10 @@ function runConfetti() {
   const pieces = [];
   for (let i = 0; i < 120; i++) {
     pieces.push({
-      x: Math.random() * w,
-      y: -20 - Math.random() * h * 0.5,
-      vx: (Math.random() - 0.5) * 2,
-      vy: 2 + Math.random() * 3,
-      size: 6 + Math.random() * 6,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      rot: Math.random() * Math.PI,
-      vr: (Math.random() - 0.5) * 0.2
+      x: Math.random() * w, y: -20 - Math.random() * h * 0.5,
+      vx: (Math.random() - 0.5) * 2, vy: 2 + Math.random() * 3,
+      size: 6 + Math.random() * 6, color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.2
     });
   }
   let start = performance.now();
@@ -790,9 +647,7 @@ function runConfetti() {
     ctx.clearRect(0, 0, w, h);
     pieces.forEach(p => {
       p.x += p.vx; p.y += p.vy; p.rot += p.vr;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
       ctx.fillStyle = p.color;
       ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.6);
       ctx.restore();
@@ -821,8 +676,7 @@ function beep(good) {
     }
     g.gain.setValueAtTime(0.12, audioCtx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-    o.start();
-    o.stop(audioCtx.currentTime + 0.22);
+    o.start(); o.stop(audioCtx.currentTime + 0.22);
   } catch (e) {}
 }
 
@@ -835,32 +689,33 @@ function applyTheme() {
 }
 document.getElementById("themeBtn").addEventListener("click", () => {
   state.theme = state.theme === "dark" ? "light" : "dark";
-  saveTheme();
-  applyTheme();
+  saveTheme(); applyTheme();
 });
 
 /* ==================== Переключатели ==================== */
 document.getElementById("segLevel").addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-level]");
-  if (!btn) return;
-  const lvl = btn.dataset.level;
-  if (lvl === state.level) return;
-  state.level = lvl;
-  document.querySelectorAll("#segLevel button").forEach(b => b.classList.toggle("active", b.dataset.level === lvl));
+  if (!btn || btn.dataset.level === state.level) return;
+  state.level = btn.dataset.level;
+  document.querySelectorAll("#segLevel button").forEach(b => b.classList.toggle("active", b.dataset.level === state.level));
   state.selectedCard = null;
   state.showGhosts = false;
+  state.ghosts = {};
+  // Пересобираем банк с учётом прогресса
+  rebuildTrayFromProgress();
   renderAll();
 });
 
 document.getElementById("segMode").addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-mode]");
-  if (!btn) return;
-  const mode = btn.dataset.mode;
-  if (mode === state.mode) return;
-  state.mode = mode;
-  document.querySelectorAll("#segMode button").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  if (!btn || btn.dataset.mode === state.mode) return;
+  state.mode = btn.dataset.mode;
+  document.querySelectorAll("#segMode button").forEach(b => b.classList.toggle("active", b.dataset.mode === state.mode));
   state.selectedCard = null;
   state.showGhosts = false;
+  state.ghosts = {};
+  // При смене режима — прогресс другого режима, банк пересобираем
+  rebuildTrayFromProgress();
   renderAll();
 });
 
@@ -868,18 +723,15 @@ document.getElementById("segMode").addEventListener("click", (e) => {
 function init() {
   loadProgress();
   loadTheme();
-  // гарантируем структуру прогресса
   if (!state.progress.add) state.progress.add = {};
   if (!state.progress.sub) state.progress.sub = {};
-  // восстановим активные кнопки по состоянию (по умолчанию all/add)
   document.querySelectorAll("#segLevel button").forEach(b => b.classList.toggle("active", b.dataset.level === state.level));
   document.querySelectorAll("#segMode button").forEach(b => b.classList.toggle("active", b.dataset.mode === state.mode));
+  // Банк строим с учётом уже имеющегося прогресса
+  rebuildTrayFromProgress();
   renderAll();
 }
 init();
-
-// сброс скролла карусели при смене уровня — не нужен
-window.addEventListener("resize", () => { /* ничего */ });
 </script>
 </body>
 </html>
