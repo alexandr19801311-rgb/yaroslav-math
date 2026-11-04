@@ -112,8 +112,6 @@
   }
   .topbar .title { color: var(--house-border); font-size: 16px; white-space: nowrap; }
   .topbar .score { color: var(--c-3); white-space: nowrap; }
-  .topbar .timer { color: #d32f2f; white-space: nowrap; display: none; font-size: 18px; }
-  .topbar .timer.active { display: block; }
 
   .progress-container {
     flex: 1; display: flex; align-items: center; justify-content: center;
@@ -246,7 +244,6 @@
   .btn:active { transform: scale(0.97); }
   .btn.ghost { background: var(--btn-ghost-bg); color: var(--btn-text); border: 2px solid var(--btn-bg); }
   .btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
-  .btn.time-mode { background: #f57f17; border-color: #f57f17; color: #fff; }
   .icon-btn { background: var(--btn-ghost-bg); border: 2px solid var(--btn-bg); color: var(--btn-text); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
 
   .version-badge {
@@ -360,7 +357,6 @@
       </div>
     </div>
 
-    <div class="timer" id="timerDisplay">⏱️ 01:00</div>
     <div class="score">⭐ <span id="score">0</span></div>
   </div>
 
@@ -383,7 +379,6 @@
       <button data-level="all" class="active">Все</button>
     </div>
     
-    <button class="btn" id="timeBtn">⏱️ На время</button>
     <button class="icon-btn" id="themeBtn" title="Сменить тему">🌙</button>
     
     <div style="flex-grow: 1;"></div>
@@ -393,7 +388,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v35</div>
+<div class="version-badge">build v36</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -412,15 +407,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v35';
+  const BUILD_VERSION = 'v36';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v35';
-  const STATS_KEY = 'yaroslav_stats_v35';
-  const THEME_KEY = 'yaroslav_theme_v35';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v35';
+  const STORAGE_KEY = 'yaroslav_house_progress_v36';
+  const STATS_KEY = 'yaroslav_stats_v36';
+  const THEME_KEY = 'yaroslav_theme_v36';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v36';
 
   const data = {};
   ALL_NUMBERS.forEach(n => {
@@ -443,11 +438,7 @@
     sessionStartTime: Date.now(),
     hintsUsed: 0,
     errorsMade: 0,
-    isTimeMode: false,
-    timeLeft: 60,
-    timerInterval: null,
-    achievements: {},
-    isGameOver: false
+    achievements: {}
   };
 
   const $ = id => document.getElementById(id);
@@ -574,55 +565,6 @@
     fill.classList.add('pulse');
   }
 
-  function toggleTimeMode() {
-    if (state.isTimeMode) {
-      state.isTimeMode = false;
-      state.timeLeft = 60;
-      clearInterval(state.timerInterval);
-      $('timeBtn').classList.remove('time-mode');
-      $('timeBtn').textContent = '⏱️ На время';
-      $('timerDisplay').classList.remove('active');
-      resetGame();
-    } else {
-      state.isTimeMode = true;
-      state.timeLeft = 60;
-      $('timeBtn').classList.add('time-mode');
-      $('timeBtn').textContent = '⏱️ Выкл. время';
-      $('timerDisplay').classList.add('active');
-      $('timerDisplay').textContent = `⏱️ 01:00`;
-      
-      resetGame();
-      
-      // Очищаем старый интервал перед созданием нового
-      if (state.timerInterval) clearInterval(state.timerInterval);
-      
-      state.timerInterval = setInterval(() => {
-        state.timeLeft--;
-        const m = Math.floor(state.timeLeft / 60);
-        const s = state.timeLeft % 60;
-        $('timerDisplay').textContent = `⏱️ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        
-        if (state.timeLeft <= 0) {
-          clearInterval(state.timerInterval);
-          timeIsUp();
-        }
-      }, 1000);
-    }
-  }
-
-  function timeIsUp() {
-    if (state.isGameOver) return; // Защита от повторного срабатывания
-    state.isGameOver = true;
-    clearInterval(state.timerInterval); // Останавливаем таймер
-
-    $('overlayTitle').textContent = '⌛ Время вышло!';
-    $('overlayBig').innerHTML = `Собрано домиков: ${state.done.length} / ${getActiveNumbers().length}`;
-    $('achievementsWrap').innerHTML = ''; 
-    $('statsContainer').innerHTML = `<div class="stat-row"><span class="stat-label">Результат:</span><span class="stat-value">${state.done.length} из ${getActiveNumbers().length}</span></div>`;
-    $('overlay').classList.add('show');
-    sndBad();
-  }
-
   function renderSingleHouse(n, container) {
     const doneSet = new Set(state.done);
     const house = document.createElement('div');
@@ -634,7 +576,6 @@
 
     const newHouse = house.cloneNode(false); 
     newHouse.addEventListener('click', (e) => {
-      if (state.isGameOver) return;
       if (e.target.classList.contains('house-title')) {
         highlightCardsForNumber(n);
       } else {
@@ -730,7 +671,6 @@
   }
 
   function highlightCardsForNumber(n) {
-    if (state.isGameOver) return;
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     sndHint();
     state.hintsUsed++; 
@@ -748,7 +688,6 @@
   }
 
   function onCardClick(n, idx, a, b) {
-    if (state.isGameOver) return;
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     if (state.filled[`${n}-${idx}`]) return;
     if (state.picked && state.picked.num === n && state.picked.idx === idx) {
@@ -761,7 +700,6 @@
   }
 
   function onHouseClick(n, houseEl) {
-    if (state.isGameOver) return;
     if (!state.picked) return; 
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return; 
 
@@ -837,7 +775,6 @@
   }
 
   function toggleSample() {
-    if (state.isGameOver) return;
     state.sampleOn = !state.sampleOn;
     tone(state.sampleOn ? 660 : 440, 0.1);
     if (state.sampleOn) {
@@ -850,13 +787,6 @@
   }
 
   function winGame() {
-    if (state.isGameOver) return;
-    state.isGameOver = true;
-    
-    if (state.isTimeMode) {
-      clearInterval(state.timerInterval);
-    }
-
     const timeSpentMs = Date.now() - state.sessionStartTime;
     const timeSpentSec = Math.floor(timeSpentMs / 1000);
     const timeFormatted = `${Math.floor(timeSpentSec / 60)}:${String(timeSpentSec % 60).padStart(2, '0')}`;
@@ -872,7 +802,7 @@
     let statsHtml = '';
     
     let timeDiffHtml = '';
-    if (prevRecord && !state.isTimeMode) {
+    if (prevRecord) {
       const diff = timeSpentSec - prevRecord.time;
       if (diff < -1) timeDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)} сек</span>`;
       else if (diff > 1) timeDiffHtml = `<span class="stat-diff down">↑ ${diff} сек</span>`;
@@ -907,8 +837,7 @@
     const achList = [
       { id: 'perfect', title: 'Без ошибок', emoji: '🎯', cond: state.errorsMade === 0 },
       { id: 'no_hints', title: 'Без подсказок', emoji: '🧠', cond: state.hintsUsed === 0 },
-      { id: 'fast', title: 'Скоростной', emoji: '⚡', cond: timeSpentSec < 60 && !state.isTimeMode },
-      { id: 'time_master', title: 'Мастер времени', emoji: '⏳', cond: state.isTimeMode && state.done.length === getActiveNumbers().length }
+      { id: 'fast', title: 'Скоростной', emoji: '⚡', cond: timeSpentSec < 60 }
     ];
 
     achList.forEach(ach => {
@@ -927,7 +856,7 @@
     $('achievementsWrap').innerHTML = achievementsHtml;
 
     const isBetter = !prevRecord || (timeSpentSec < prevRecord.time && state.errorsMade <= prevRecord.errors);
-    if (isBetter && !state.isTimeMode) {
+    if (isBetter) {
        statsHistory[currentLevelKey] = { time: timeSpentSec, errors: state.errorsMade, hintsUsed: state.hintsUsed };
        localStorage.setItem(STATS_KEY, JSON.stringify(statsHistory));
     }
@@ -957,7 +886,6 @@
   }
 
   function resetGame() {
-    state.isGameOver = false;
     state.score = 0;
     state.done = [];
     state.filled = {};
@@ -967,23 +895,6 @@
     state.sessionStartTime = Date.now();
     state.hintsUsed = 0;
     state.errorsMade = 0;
-    
-    if (state.isTimeMode) {
-      state.timeLeft = 60;
-      $('timerDisplay').textContent = `⏱️ 01:00`;
-      clearInterval(state.timerInterval);
-      state.timerInterval = setInterval(() => {
-        state.timeLeft--;
-        const m = Math.floor(state.timeLeft / 60);
-        const s = state.timeLeft % 60;
-        $('timerDisplay').textContent = `⏱️ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        
-        if (state.timeLeft <= 0) {
-          clearInterval(state.timerInterval);
-          timeIsUp();
-        }
-      }, 1000);
-    }
     
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     $('overlay').classList.remove('show');
@@ -1009,7 +920,6 @@
   });
 
   $('sampleBtn').addEventListener('click', toggleSample);
-  $('timeBtn').addEventListener('click', toggleTimeMode);
   $('resetBtn').addEventListener('click', () => {
     if (confirm('Начать заново? Все успехи сбросятся.')) resetGame();
   });
