@@ -226,6 +226,7 @@
   .controls {
     display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
     justify-content: center; align-items: center; flex-shrink: 0;
+    position: relative; /* Для позиционирования версии */
   }
   .seg { display: inline-flex; background: var(--house-bg); border-radius: 6px; padding: 3px; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
   .seg button {
@@ -243,6 +244,26 @@
   .btn.ghost { background: var(--btn-ghost-bg); color: var(--btn-text); border: 2px solid var(--btn-bg); }
   .btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
   .icon-btn { background: var(--btn-ghost-bg); border: 2px solid var(--btn-bg); color: var(--btn-text); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+
+  /* Плашка с версией */
+  .version-badge {
+    position: absolute;
+    right: 10px;
+    bottom: -12px;
+    font-size: 10px;
+    color: var(--text);
+    opacity: 0.5;
+    font-weight: normal;
+  }
+  @media (max-width: 768px) {
+    .version-badge {
+      position: static;
+      width: 100%;
+      text-align: right;
+      margin-top: 4px;
+      bottom: auto;
+    }
+  }
 
   /* ===== Оверлей ===== */
   .overlay {
@@ -276,7 +297,6 @@
   .stat-diff.down { color: #fff; background: #f44336; }
   .stat-diff.same { color: #fff; background: #9e9e9e; }
 
-  /* Блок кнопок в оверлее */
   .overlay-actions {
     display: flex;
     gap: 12px;
@@ -372,6 +392,9 @@
 
     <button class="btn" id="sampleBtn">👁️ Образец</button>
     <button class="btn ghost" id="resetBtn">🔄 Заново</button>
+    
+    <!-- Плашка с версией сборки -->
+    <div class="version-badge">build v32</div>
   </div>
 </div>
 
@@ -381,7 +404,6 @@
   
   <div class="stats-container" id="statsContainer"></div>
 
-  <!-- Блок с кнопками в оверлее -->
   <div class="overlay-actions">
     <button class="btn" id="playAgain">Играть снова</button>
     <button class="btn ghost" id="resetStatsBtn" style="color: #d32f2f; border-color: #d32f2f;">🗑️ Сбросить рекорды</button>
@@ -391,12 +413,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
+  // КОНСТАНТА ВЕРСИИ ДЛЯ JS (чтобы можно было выводить в консоль при отладке)
+  const BUILD_VERSION = 'v32';
+
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v31';
-  const STATS_KEY = 'yaroslav_stats_v31';
-  const THEME_KEY = 'yaroslav_theme_v31';
+  const STORAGE_KEY = 'yaroslav_house_progress_v32';
+  const STATS_KEY = 'yaroslav_stats_v32';
+  const THEME_KEY = 'yaroslav_theme_v32';
 
   const data = {};
   ALL_NUMBERS.forEach(n => {
@@ -423,6 +448,8 @@
 
   const $ = id => document.getElementById(id);
   let audioCtx = null;
+
+  console.log(`Запуск игры, сборка: ${BUILD_VERSION}`);
 
   function tone(freq, dur = 0.12, type = 'sine') {
     try {
@@ -838,19 +865,16 @@
     renderAll();
   }
 
-  // Сброс статистики (теперь в оверлее)
   $('resetStatsBtn').addEventListener('click', () => {
     if (confirm('Удалить все рекорды? (Время, ошибки и подсказки по всем уровням будут обнулены)')) {
       try {
         localStorage.removeItem(STATS_KEY);
         
-        // Показываем уведомление
         const b = $('savedBadge');
         b.textContent = '🗑️ Рекорды сброшены';
         b.classList.add('show');
         setTimeout(() => b.classList.remove('show'), 1500);
 
-        // Очищаем блок статистики в оверлее, так как сравнивать больше не с чем
         $('statsContainer').innerHTML = `
           <div class="stat-row"><span class="stat-label">⏱️ Время:</span><span class="stat-value">${$('statsContainer').querySelectorAll('.stat-value')[0].textContent.split(' ')[0]} <span class="stat-diff same">=</span></span></div>
           <div class="stat-row"><span class="stat-label">❌ Ошибки:</span><span class="stat-value">${state.errorsMade} <span class="stat-diff same">=</span></span></div>
