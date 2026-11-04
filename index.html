@@ -38,6 +38,10 @@
     --inactive-house-border: #bdbdbd;
     --inactive-text: #757575;
     --inactive-slot-bg: #eeeeee;
+
+    /* Цвета цифр и знаков */
+    --num-color: #1976d2;
+    --op-color: #d32f2f;
   }
 
   [data-theme="dark"] {
@@ -70,8 +74,12 @@
     /* Неактивные домики в темной теме */
     --inactive-house-bg: #2a2a35;
     --inactive-house-border: #444455;
-    --inactive-text: #888899;
+    --inactive-text: #a0a0b0;
     --inactive-slot-bg: #333340;
+
+    /* Цвета цифр и знаков для тёмной темы (БЕЛЫЕ цифры) */
+    --num-color: #ffffff;
+    --op-color: #ef5350;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -157,21 +165,23 @@
     color: var(--slot-border); pointer-events: none; min-height: 22px; padding: 1px; line-height: 1;
     transition: background 0.2s, border-color 0.2s;
   }
-  .slot-row.filled { border-style: solid; border-color: var(--slot-filled-border); background: var(--slot-filled-bg); color: var(--slot-filled-border); }
+  .slot-row.filled { border-style: solid; border-color: var(--slot-filled-border); background: var(--slot-filled-bg); }
 
   @keyframes slot-pop {
     0% { transform: scale(1); }
     40% { transform: scale(1.15); background: #c8e6c9; border-color: #388e3c; color: #2e7d32; }
-    100% { transform: scale(1); background: var(--slot-filled-bg); border-color: var(--slot-filled-border); color: var(--slot-filled-border); }
+    100% { transform: scale(1); background: var(--slot-filled-bg); border-color: var(--slot-filled-border); }
   }
   .slot-row.pop-anim { animation: slot-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 2; }
 
-  .slot-row.ghost { border-color: #b39ddb; background: rgba(179,157,219,0.1); color: #9575cd; font-style: italic; }
-  .num-blue { color: var(--house-border); }
-  .op-red { color: #d32f2f; }
-  .eq { color: #d32f2f; }
-  .result { color: var(--house-border); }
+  .slot-row.ghost { border-color: #b39ddb; background: rgba(179,157,219,0.1); font-style: italic; }
   .slot-row.ghost .num-blue, .slot-row.ghost .op-red, .slot-row.ghost .eq, .slot-row.ghost .result { color: #9575cd; }
+
+  /* Цвета цифр и знаков — теперь через переменные */
+  .num-blue { color: var(--num-color); }
+  .op-red { color: var(--op-color); }
+  .eq { color: var(--op-color); }
+  .result { color: var(--num-color); }
 
   /* ===== ЛОТОК ===== */
   .tray-wrap {
@@ -189,13 +199,13 @@
 
   .card {
     font-family: inherit; font-size: 14px; font-weight: bold; padding: 4px 0;
-    border: 1.5px solid var(--card-border); background: var(--card-bg); color: var(--house-border);
+    border: 1.5px solid var(--card-border); background: var(--card-bg); color: var(--num-color);
     border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 1px;
     min-height: 32px; transition: transform 0.2s, background 0.2s, box-shadow 0.2s, opacity 0.2s;
   }
   .card.picked { background: var(--card-picked-bg); border-color: var(--card-picked-border); box-shadow: 0 2px 6px rgba(13,71,161,0.3); transform: scale(1.05); }
   .card.hint-highlight { background: var(--card-hint-bg); border-color: var(--card-hint-border); box-shadow: 0 0 8px rgba(251, 192, 45, 0.8); transform: scale(1.05); z-index: 10; }
-  .card .op { color: #d32f2f; }
+  .card .op { color: var(--op-color); }
   .tray-empty { grid-column: 1 / -1; text-align: center; color: var(--text); opacity: 0.5; font-size: 13px; padding: 10px; }
 
   /* ===== Нижняя панель управления ===== */
@@ -331,8 +341,8 @@
     all: [2,3,4,5,6,7,8,9,10]
   };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v26';
-  const THEME_KEY = 'yaroslav_theme_v26';
+  const STORAGE_KEY = 'yaroslav_house_progress_v27';
+  const THEME_KEY = 'yaroslav_theme_v27';
 
   // Генерация комбинаций: 0+n, a+(n-a), n+0
   const data = {};
@@ -442,7 +452,6 @@
   }
   function commit() { saveProgress(); showSavedBadge(); }
 
-  // Отрисовка ОДНОГО домика
   function renderSingleHouse(n, container) {
     const doneSet = new Set(state.done);
     const house = document.createElement('div');
@@ -497,7 +506,6 @@
     else container.appendChild(newHouse);
   }
 
-  // Отрисовка ВСЕХ домиков (все 9 на месте, неактивные серые)
   function renderHouses() {
     const container = $('houses');
     container.innerHTML = '';
