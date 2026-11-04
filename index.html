@@ -2,69 +2,69 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<!-- Отключаем масштабирование пальцами, чтобы игра не "прыгала" -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Состав чисел 2-10 — собери домики (Ярослав)</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  
   html, body {
     font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
     background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-    height: 100vh;
-    overflow: hidden;
+    /* Изменено: вместо жесткого 100vh и overflow: hidden делаем гибкую высоту */
+    height: 100dvh; /* dynamic viewport height - лучше работает на мобильных */
+    min-height: 100vh;
+    overflow-y: auto; /* Разрешаем скролл, если совсем не влезает */
+    overflow-x: hidden;
     user-select: none;
     -webkit-user-select: none;
   }
+  
   .app {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100dvh;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 8px 10px;
+    padding: 6px 10px;
   }
 
   /* ===== Шапка ===== */
   .topbar {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 4px 0 8px;
-    font-size: 16px; font-weight: bold;
+    padding: 2px 0 6px;
+    font-size: 15px; font-weight: bold;
     flex-shrink: 0;
-    flex-wrap: wrap; gap: 6px;
+    flex-wrap: wrap; gap: 4px;
   }
-  .topbar .title { color: #1976d2; font-size: 18px; }
+  .topbar .title { color: #1976d2; font-size: 16px; }
   .topbar .score { color: #fb8c00; }
-  .topbar .progress-text { color: #666; font-size: 14px; }
+  .topbar .progress-text { color: #666; font-size: 13px; }
 
   /* ===== Домики ===== */
   .houses {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 6px;
     flex-shrink: 0;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   .house {
     border: 2px solid #1976d2;
-    border-radius: 10px;
-    padding: 6px;
+    border-radius: 8px;
+    padding: 4px;
     background: #fff;
     position: relative;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
   }
-  .house:hover {
-    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
-  }
-  .house.done {
-    border-color: #388e3c;
-    background: #f1f8e9;
-    cursor: default;
-  }
+  .house:hover { box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2); }
+  .house.done { border-color: #388e3c; background: #f1f8e9; cursor: default; }
   .house.done:hover { box-shadow: none; }
   .house.done::after {
     content: '✅';
-    position: absolute; top: 4px; right: 8px;
-    font-size: 16px;
+    position: absolute; top: 3px; right: 5px;
+    font-size: 14px;
   }
   .house.flash-bad { animation: flashBad 0.5s; }
   @keyframes flashBad {
@@ -73,11 +73,11 @@
   }
   .house-title {
     text-align: center;
-    font-size: 15px; font-weight: bold;
+    font-size: 14px; font-weight: bold;
     color: #fff;
-    padding: 3px;
-    border-radius: 5px;
-    margin-bottom: 5px;
+    padding: 2px;
+    border-radius: 4px;
+    margin-bottom: 3px;
     pointer-events: none;
   }
   .house[data-num="2"]  .house-title { background: #e53935; }
@@ -92,28 +92,28 @@
 
   .slot-row {
     display: grid;
-    grid-template-columns: 6mm 1fr;
+    grid-template-columns: 5mm 1fr;
     align-items: center;
-    gap: 4px;
-    font-size: 15px; font-weight: bold;
-    padding: 2px 4px;
-    margin-bottom: 3px;
+    gap: 3px;
+    font-size: 14px; font-weight: bold;
+    padding: 1px 3px;
+    margin-bottom: 2px;
     background: #f5f5f5;
     border-radius: 4px;
-    min-height: 32px;
+    min-height: 28px;
     pointer-events: none;
   }
-  .slot-row .variant-num { color: #d32f2f; font-size: 13px; text-align: right; }
+  .slot-row .variant-num { color: #d32f2f; font-size: 12px; text-align: right; }
   
   .slot {
     display: flex; align-items: center; justify-content: center;
-    gap: 4px;
-    border: 2px dashed #bbb;
-    border-radius: 6px;
-    min-height: 28px;
-    padding: 0 6px;
+    gap: 3px;
+    border: 1.5px dashed #bbb;
+    border-radius: 5px;
+    min-height: 24px;
+    padding: 0 4px;
     color: #bbb;
-    font-size: 15px;
+    font-size: 14px;
     transition: background 0.15s, border-color 0.15s;
   }
   .slot.filled {
@@ -122,12 +122,7 @@
     background: #e3f2fd;
     color: #1976d2;
   }
-  .slot.ghost {
-    border-color: #b39ddb;
-    background: #f3e5f5;
-    color: #9575cd;
-    font-style: italic;
-  }
+  .slot.ghost { border-color: #b39ddb; background: #f3e5f5; color: #9575cd; font-style: italic; }
   .slot .num-blue { color: #1976d2; }
   .slot .op-red { color: #d32f2f; }
   .slot .eq { color: #d32f2f; }
@@ -137,15 +132,14 @@
 
   /* ===== Лоток ===== */
   .tray-wrap {
-    flex: 1;
+    flex: 1; /* Растягивает лоток на оставшееся место */
     display: flex;
     flex-direction: column;
     background: #fff9c4;
     border: 2px dashed #f57f17;
     border-radius: 10px;
     padding: 6px 8px;
-    min-height: 0;
-    overflow: hidden;
+    min-height: 120px; /* Минимальная высота, чтобы не схлопнулся */
   }
   .tray-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -155,10 +149,9 @@
     flex-wrap: wrap; gap: 4px;
   }
   .tray-header .left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px;}
-  .tray-header .count { background: #fff; padding: 1px 8px; border-radius: 8px; font-size: 11px; color: #666; }
+  .tray-header .count { background: #fff; padding: 1px 6px; border-radius: 8px; font-size: 11px; color: #666; }
   .tray-header .hint { font-size: 12px; font-weight: normal; color: #a0522d; white-space: nowrap; }
 
-  /* НОВОЕ: Шкала прогресса в лотке */
   .progress-wrap {
     flex: 1;
     max-width: 300px;
@@ -197,8 +190,7 @@
     grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
     gap: 5px;
     align-content: flex-start;
-    overflow: hidden;
-    min-height: 0;
+    overflow: hidden; /* Прячем скролл внутри, чтобы не ломать общий вид */
     padding: 2px;
   }
 
@@ -239,14 +231,14 @@
   /* ===== Кнопки ===== */
   .controls {
     display: flex; gap: 8px;
-    margin-top: 8px;
+    margin-top: 6px;
     justify-content: center;
     flex-shrink: 0;
     flex-wrap: wrap;
   }
   .btn {
     font-family: inherit; font-size: 14px; font-weight: bold;
-    padding: 8px 18px;
+    padding: 6px 14px;
     border: none; border-radius: 8px;
     background: #1976d2; color: #fff;
     cursor: pointer;
@@ -303,23 +295,49 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  /* ===== Адаптив ===== */
-  @media (max-width: 900px) {
-    .houses { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .slot-row { font-size: 14px; min-height: 30px; }
+  /* ===== АДАПТИВ ПОД ПЛАНШЕТЫ И ТЕЛЕФОНЫ ===== */
+  
+  @media (max-width: 1024px) {
+    /* Планшеты в портретном режиме (ширина до 1024px) */
+    .houses {
+      grid-template-columns: repeat(2, 1fr); /* 2 колонки домиков вместо 3 */
+      gap: 6px;
+    }
+    .slot-row { min-height: 26px; font-size: 13px; }
+    .slot { min-height: 22px; font-size: 13px; }
+    .house-title { font-size: 13px; }
+    .tray-header .hint { display: none; } /* Скрываем подсказку, чтобы не занимала место */
     .progress-wrap { max-width: 150px; }
-    .tray-header .hint { display: none; }
   }
-  @media (max-width: 560px) {
+
+  @media (max-width: 768px) {
+    /* Маленькие планшеты / большие телефоны */
     .app { padding: 4px 6px; }
-    .houses { gap: 5px; margin-bottom: 8px; }
-    .house { padding: 4px; }
-    .slot-row { grid-template-columns: 5mm 1fr; font-size: 13px; min-height: 26px; }
-    .slot { min-height: 24px; font-size: 13px; }
+    .topbar { font-size: 13px; padding: 2px 0 4px; }
+    .topbar .title { font-size: 14px; }
+    .houses { gap: 4px; margin-bottom: 6px; }
+    .house { padding: 3px; }
+    .slot-row { grid-template-columns: 4mm 1fr; font-size: 12px; min-height: 24px; }
+    .slot { min-height: 20px; font-size: 12px; }
+    .variant-num { font-size: 10px; }
     .card { font-size: 12px; padding: 3px; min-height: 24px; }
-    .tray-body { grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 3px; }
-    .progress-wrap { height: 10px; margin: 0 5px;}
+    .tray-body { grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 4px; }
+    .progress-wrap { height: 10px; margin: 0 4px; }
     .progress-text-inside { font-size: 8px; top: 1px;}
+    .controls { margin-top: 4px; }
+    .btn { padding: 5px 10px; font-size: 12px; }
+  }
+
+  @media (max-width: 480px) {
+    /* Телефоны (вертикально) */
+    .houses { gap: 3px; }
+    .house { padding: 2px; border-width: 1px; }
+    .house-title { font-size: 11px; padding: 1px; margin-bottom: 2px; }
+    .slot-row { grid-template-columns: 3.5mm 1fr; font-size: 11px; min-height: 22px; padding: 0 2px;}
+    .slot { min-height: 18px; font-size: 11px; }
+    .variant-num { font-size: 9px; }
+    .card { font-size: 11px; padding: 2px; min-height: 22px; }
+    .tray-body { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 3px; }
   }
 </style>
 </head>
@@ -339,13 +357,11 @@
       <div class="left">
         <span>🗂️ Карточки:</span>
         <span class="count" id="trayCount">0 / 63</span>
-        <!-- Шкала прогресса -->
         <div class="progress-wrap">
           <div class="progress-bar" id="progressBar"></div>
           <div class="progress-text-inside" id="progressTextInside">0%</div>
         </div>
       </div>
-      <span class="hint">нажми карточку → потом домик</span>
     </div>
     <div class="tray-body" id="trayBody"></div>
   </div>
@@ -388,7 +404,6 @@
 
   const $ = id => document.getElementById(id);
 
-  // Звуки
   let audioCtx = null;
   function tone(freq, dur = 0.12, type = 'sine') {
     try {
@@ -407,7 +422,6 @@
   const sndHouseDone = () => { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.12),i*100)); };
   const sndWin = () => { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,0.15),i*120)); };
 
-  // Перемешивание
   function shuffle(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -417,7 +431,6 @@
     return a;
   }
 
-  // Сохранение
   function saveProgress() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -449,7 +462,6 @@
   }
   function commit() { saveProgress(); showSavedBadge(); }
 
-  // Отрисовка домиков
   function renderHouses() {
     const container = $('houses');
     container.innerHTML = '';
@@ -460,7 +472,6 @@
       house.className = 'house';
       house.dataset.num = n;
       if (doneSet.has(n)) house.classList.add('done');
-
       house.addEventListener('click', () => onHouseClick(n, house));
 
       const title = document.createElement('div');
@@ -494,18 +505,15 @@
         row.appendChild(slot);
         house.appendChild(row);
       });
-
       container.appendChild(house);
     });
   }
 
-  // Отрисовка лотка
   function renderTray() {
     const body = $('trayBody');
     body.innerHTML = '';
 
     let totalUsed = 0;
-
     const allCards = [];
     NUMBERS.forEach(n => {
       data[n].forEach(([a, b], idx) => {
@@ -517,12 +525,10 @@
       });
     });
 
-    // Обновляем шкалу прогресса
     const percent = Math.round((totalUsed / TOTAL_CARDS) * 100);
     $('progressBar').style.width = percent + '%';
     $('progressTextInside').textContent = percent + '%';
     
-    // Если всё собрано, шкала становится зелёной
     if (percent === 100) {
       $('progressBar').style.background = '#4caf50';
     } else {
@@ -536,7 +542,6 @@
     const currentTray = state.trayOrder.filter(c => 
       allCards.some(ac => ac.n === c.n && ac.idx === c.idx)
     );
-    
     const missing = allCards.filter(c => 
       !currentTray.some(tc => tc.n === c.n && tc.idx === c.idx)
     );
@@ -558,14 +563,12 @@
     if (body.children.length === 0) {
       body.innerHTML = '<div class="tray-empty">Все карточки расставлены ✅</div>';
     }
-    
     $('trayCount').textContent = `${TOTAL_CARDS - totalUsed} / ${TOTAL_CARDS}`;
   }
 
   function onCardClick(n, idx, a, b) {
     if (state.done.includes(n)) return;
     if (state.filled[`${n}-${idx}`]) return;
-    
     if (state.picked && state.picked.num === n && state.picked.idx === idx) {
       state.picked = null;
     } else {
