@@ -2,8 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<!-- viewport-fit=cover важен для iPad, чтобы максимально использовать высоту экрана -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Состав чисел 2-10 — собери домики (Ярослав)</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -11,8 +10,9 @@
   html, body {
     font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
     background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-    height: 100dvh; /* Динамическая высота - учитывает панели браузера на планшете */
-    overflow: hidden; /* Никакой прокрутки всей страницы */
+    /* Убираем жесткую фиксацию, разрешаем прокрутку */
+    min-height: 100vh;
+    overflow-y: auto; 
     user-select: none;
     -webkit-user-select: none;
   }
@@ -20,16 +20,15 @@
   .app {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 4px 8px;
+    padding: 6px 8px;
   }
 
   /* ===== Шапка ===== */
   .topbar {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 2px 0 4px;
+    padding: 4px 0;
     font-size: 14px; font-weight: bold;
     flex-shrink: 0;
   }
@@ -37,26 +36,27 @@
   .topbar .score { color: #fb8c00; }
   .topbar .progress-text { color: #666; font-size: 13px; }
 
-  /* ===== Домики ===== */
+  /* ===== Домики (Максимально компактные) ===== */
   .houses {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
-    flex-shrink: 0; /* Домики жестко держат свою высоту */
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки на планшете */
+    gap: 4px;
     margin-bottom: 6px;
   }
+  /* Для телефонов - 2 колонки */
+  @media (max-width: 600px) {
+    .houses { grid-template-columns: repeat(2, 1fr); }
+  }
+
   .house {
-    border: 2px solid #1976d2;
+    border: 1.5px solid #1976d2;
     border-radius: 6px;
     padding: 3px;
     background: #fff;
     position: relative;
     cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
   }
-  .house:hover { box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2); }
   .house.done { border-color: #388e3c; background: #f1f8e9; cursor: default; }
-  .house.done:hover { box-shadow: none; }
   .house.done::after {
     content: '✅';
     position: absolute; top: 2px; right: 4px;
@@ -69,10 +69,10 @@
   }
   .house-title {
     text-align: center;
-    font-size: 13px; font-weight: bold;
+    font-size: 12px; font-weight: bold;
     color: #fff;
     padding: 1px;
-    border-radius: 4px;
+    border-radius: 3px;
     margin-bottom: 2px;
     pointer-events: none;
   }
@@ -91,12 +91,12 @@
     grid-template-columns: 4mm 1fr;
     align-items: center;
     gap: 2px;
-    font-size: 12px; font-weight: bold;
-    padding: 0 2px;
+    font-size: 11px; font-weight: bold;
+    padding: 1px 2px;
     margin-bottom: 1px;
     background: #f5f5f5;
     border-radius: 3px;
-    min-height: 22px;
+    min-height: 20px;
     pointer-events: none;
   }
   .slot-row .variant-num { color: #d32f2f; font-size: 10px; text-align: right; }
@@ -106,10 +106,9 @@
     gap: 2px;
     border: 1px dashed #bbb;
     border-radius: 4px;
-    min-height: 18px;
+    min-height: 16px;
     color: #bbb;
-    font-size: 12px;
-    transition: background 0.15s, border-color 0.15s;
+    font-size: 11px;
   }
   .slot.filled {
     border-style: solid;
@@ -127,64 +126,47 @@
 
   /* ===== Лоток ===== */
   .tray-wrap {
-    flex: 1; /* Занимает всё оставшееся место */
     display: flex;
     flex-direction: column;
     background: #fff9c4;
     border: 2px dashed #f57f17;
     border-radius: 8px;
     padding: 4px 6px;
-    min-height: 60px;
-    overflow: hidden;
+    margin-bottom: 6px;
   }
   .tray-header {
     display: flex; justify-content: space-between; align-items: center;
     font-size: 12px; font-weight: bold; color: #e65100;
     margin-bottom: 4px;
-    flex-shrink: 0;
   }
-  .tray-header .left { display: flex; align-items: center; gap: 6px; flex: 1;}
-  .tray-header .count { background: #fff; padding: 0px 6px; border-radius: 8px; font-size: 11px; color: #666; }
+  .tray-header .left { display: flex; align-items: center; gap: 6px; }
+  .tray-header .count { background: #fff; padding: 0px 6px; border-radius: 8px; font-size: 10px; color: #666; }
   
   .progress-wrap {
     flex: 1;
-    max-width: 200px;
+    max-width: 150px;
     height: 10px;
     background: #ffe082;
     border-radius: 5px;
     border: 1px solid #f57f17;
     position: relative;
     overflow: hidden;
-    margin: 0 5px;
-    display: flex;
-    align-items: center;
+    margin: 0 10px;
   }
   .progress-bar {
     height: 100%;
     background: linear-gradient(90deg, #ff9800, #4caf50);
     width: 0%;
-    transition: width 0.4s ease;
     border-radius: 4px;
-  }
-  .progress-text-inside {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    font-size: 8px;
-    color: #fff;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.5);
-    pointer-events: none;
-    top: 1px;
   }
 
   .tray-body {
-    flex: 1;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
     gap: 4px;
-    align-content: flex-start;
-    overflow-y: auto; /* Внутренняя прокрутка для карточек */
     padding: 2px;
+    max-height: 40vh; /* Ограничиваем высоту банка, чтобы он не выдавливал домики */
+    overflow-y: auto; /* Внутри банка будет прокрутка */
   }
 
   .card {
@@ -198,16 +180,11 @@
     cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 1px;
     min-height: 24px;
-    white-space: nowrap;
   }
-  .card:hover { background: #e3f2fd; }
-  .card:active { transform: scale(0.95); }
   .card.picked {
     background: #bbdefb;
     border-color: #0d47a1;
-    transform: scale(1.05);
     box-shadow: 0 2px 6px rgba(13,71,161,0.3);
-    z-index: 10;
   }
   .card .op { color: #d32f2f; }
 
@@ -217,19 +194,17 @@
     color: #999;
     font-size: 12px;
     padding: 10px;
-    font-style: italic;
   }
 
   /* ===== Кнопки ===== */
   .controls {
     display: flex; gap: 6px;
-    margin-top: 4px;
     justify-content: center;
-    flex-shrink: 0;
+    padding-bottom: 10px;
   }
   .btn {
     font-family: inherit; font-size: 13px; font-weight: bold;
-    padding: 5px 12px;
+    padding: 6px 16px;
     border: none; border-radius: 6px;
     background: #1976d2; color: #fff;
     cursor: pointer;
@@ -253,15 +228,6 @@
   .overlay h2 { font-size: 32px; color: #1976d2; margin-bottom: 10px; }
   .overlay p { font-size: 18px; color: #555; margin-bottom: 6px; }
   .overlay .big { font-size: 48px; margin: 14px 0; }
-
-  .confetti {
-    position: fixed; top: -20px; width: 10px; height: 16px;
-    pointer-events: none; z-index: 200;
-    animation: fall linear forwards;
-  }
-  @keyframes fall {
-    to { transform: translateY(110vh) rotate(720deg); opacity: 0.6; }
-  }
 
   .saved-badge {
     position: fixed;
@@ -301,7 +267,6 @@
         <span class="count" id="trayCount">0 / 63</span>
         <div class="progress-wrap">
           <div class="progress-bar" id="progressBar"></div>
-          <div class="progress-text-inside" id="progressTextInside">0%</div>
         </div>
       </div>
     </div>
@@ -333,7 +298,7 @@
     data[n] = list;
   });
 
-  const STORAGE_KEY = 'yaroslav_house_progress_v7';
+  const STORAGE_KEY = 'yaroslav_house_progress_v8';
 
   const state = {
     score: 0,
@@ -469,10 +434,6 @@
 
     const percent = Math.round((totalUsed / TOTAL_CARDS) * 100);
     $('progressBar').style.width = percent + '%';
-    $('progressTextInside').textContent = percent + '%';
-    
-    if (percent === 100) $('progressBar').style.background = '#4caf50';
-    else $('progressBar').style.background = 'linear-gradient(90deg, #ff9800, #4caf50)';
 
     if (!state.trayOrder || Object.keys(state.trayOrder).length === 0) {
       state.trayOrder = shuffle(allCards);
