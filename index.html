@@ -254,7 +254,6 @@
   .overlay h2 { font-size: 32px; color: var(--house-border); margin-bottom: 10px; }
   .overlay .big { font-size: 48px; margin: 10px 0; color: var(--c-3); }
 
-  /* Стили для статистики */
   .stats-container {
     background: var(--house-bg);
     border: 2px solid var(--btn-bg);
@@ -265,26 +264,26 @@
     min-width: 280px;
   }
   .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--slot-border);
-    font-size: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--slot-border); font-size: 15px;
   }
   .stat-row:last-child { border-bottom: none; }
   .stat-label { color: var(--text); opacity: 0.8; }
   .stat-value { font-weight: bold; color: var(--text); display: flex; align-items: center; gap: 8px;}
   
-  .stat-diff {
-    font-size: 13px;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
+  .stat-diff { font-size: 13px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
   .stat-diff.up { color: #fff; background: #4caf50; }
   .stat-diff.down { color: #fff; background: #f44336; }
   .stat-diff.same { color: #fff; background: #9e9e9e; }
+
+  /* Блок кнопок в оверлее */
+  .overlay-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 
   .saved-badge {
     position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -380,12 +379,13 @@
   <h2>🎉 Победа!</h2>
   <div class="big">⭐ <span id="finalScore">0</span></div>
   
-  <!-- Блок статистики -->
-  <div class="stats-container" id="statsContainer">
-    <!-- Данные заполнятся через JS -->
-  </div>
+  <div class="stats-container" id="statsContainer"></div>
 
-  <button class="btn" id="playAgain">Играть снова</button>
+  <!-- Блок с кнопками в оверлее -->
+  <div class="overlay-actions">
+    <button class="btn" id="playAgain">Играть снова</button>
+    <button class="btn ghost" id="resetStatsBtn" style="color: #d32f2f; border-color: #d32f2f;">🗑️ Сбросить рекорды</button>
+  </div>
 </div>
 
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
@@ -394,9 +394,9 @@
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v29';
-  const STATS_KEY = 'yaroslav_stats_v29';
-  const THEME_KEY = 'yaroslav_theme_v29';
+  const STORAGE_KEY = 'yaroslav_house_progress_v31';
+  const STATS_KEY = 'yaroslav_stats_v31';
+  const THEME_KEY = 'yaroslav_theme_v31';
 
   const data = {};
   ALL_NUMBERS.forEach(n => {
@@ -416,7 +416,6 @@
     picked: null,
     trayOrder: [],
     sampleOn: false,
-    // Новые поля для статистики текущего забега
     sessionStartTime: Date.now(),
     hintsUsed: 0,
     errorsMade: 0
@@ -633,8 +632,8 @@
   function highlightCardsForNumber(n) {
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     sndHint();
-    state.hintsUsed++; // Считаем подсказку
-    commit(); // Сохраняем, чтобы не потерять при перезагрузке
+    state.hintsUsed++; 
+    commit(); 
 
     const allCards = document.querySelectorAll('.card');
     allCards.forEach(card => card.classList.remove('hint-highlight'));
@@ -667,7 +666,7 @@
 
     if (num !== n || a + b !== n) {
       sndBad(); 
-      state.errorsMade++; // Считаем ошибку
+      state.errorsMade++;
       commit();
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
@@ -681,7 +680,7 @@
 
     if (targetIdx === -1) {
       sndBad(); 
-      state.errorsMade++; // Считаем ошибку (карточка верная для числа, но такая уже стоит)
+      state.errorsMade++;
       commit();
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
@@ -738,7 +737,7 @@
     state.sampleOn = !state.sampleOn;
     tone(state.sampleOn ? 660 : 440, 0.1);
     if (state.sampleOn) {
-      state.hintsUsed++; // Считаем использование образца как подсказку
+      state.hintsUsed++; 
       commit();
     }
     renderHouses(); 
@@ -746,27 +745,21 @@
     $('sampleBtn').classList.toggle('active', state.sampleOn);
   }
 
-  // ================= ЛОГИКА СТАТИСТИКИ И ПОБЕДЫ =================
-
   function winGame() {
-    // 1. Считаем текущее время
     const timeSpentMs = Date.now() - state.sessionStartTime;
     const timeSpentSec = Math.floor(timeSpentMs / 1000);
     const timeFormatted = `${Math.floor(timeSpentSec / 60)}:${String(timeSpentSec % 60).padStart(2, '0')}`;
 
-    // 2. Достаем прошлые рекорды
     let statsHistory = {};
     try {
       statsHistory = JSON.parse(localStorage.getItem(STATS_KEY)) || {};
     } catch (e) {}
 
-    const currentLevelKey = state.level; // 'low', 'high', 'all'
+    const currentLevelKey = state.level;
     const prevRecord = statsHistory[currentLevelKey];
 
-    // 3. Формируем HTML для статистики
     let statsHtml = '';
     
-    // Строка: Время
     let timeDiffHtml = '';
     if (prevRecord) {
       const diff = timeSpentSec - prevRecord.time;
@@ -774,12 +767,8 @@
       else if (diff > 1) timeDiffHtml = `<span class="stat-diff down">↑ ${diff} сек</span>`;
       else timeDiffHtml = `<span class="stat-diff same">=</span>`;
     }
-    statsHtml += `<div class="stat-row">
-      <span class="stat-label">⏱️ Время:</span>
-      <span class="stat-value">${timeFormatted} ${timeDiffHtml}</span>
-    </div>`;
+    statsHtml += `<div class="stat-row"><span class="stat-label">⏱️ Время:</span><span class="stat-value">${timeFormatted} ${timeDiffHtml}</span></div>`;
 
-    // Строка: Ошибки
     let errDiffHtml = '';
     if (prevRecord) {
       const diff = state.errorsMade - prevRecord.errors;
@@ -787,12 +776,8 @@
       else if (diff > 0) errDiffHtml = `<span class="stat-diff down">↑ ${diff}</span>`;
       else errDiffHtml = `<span class="stat-diff same">=</span>`;
     }
-    statsHtml += `<div class="stat-row">
-      <span class="stat-label">❌ Ошибки:</span>
-      <span class="stat-value">${state.errorsMade} ${errDiffHtml}</span>
-    </div>`;
+    statsHtml += `<div class="stat-row"><span class="stat-label">❌ Ошибки:</span><span class="stat-value">${state.errorsMade} ${errDiffHtml}</span></div>`;
 
-    // Строка: Подсказки
     let hintDiffHtml = '';
     if (prevRecord) {
       const diff = state.hintsUsed - prevRecord.hints;
@@ -800,39 +785,24 @@
       else if (diff > 0) hintDiffHtml = `<span class="stat-diff down">↑ ${diff}</span>`;
       else hintDiffHtml = `<span class="stat-diff same">=</span>`;
     }
-    statsHtml += `<div class="stat-row">
-      <span class="stat-label">💡 Подсказки:</span>
-      <span class="stat-value">${state.hintsUsed} ${hintDiffHtml}</span>
-    </div>`;
+    statsHtml += `<div class="stat-row"><span class="stat-label">💡 Подсказки:</span><span class="stat-value">${state.hintsUsed} ${hintDiffHtml}</span></div>`;
 
-    // Строка: Уровень
     const levelNames = { low: '2–5', high: '6–10', all: 'Все' };
-    statsHtml += `<div class="stat-row">
-      <span class="stat-label">📚 Уровень:</span>
-      <span class="stat-value">${levelNames[state.level]}</span>
-    </div>`;
+    statsHtml += `<div class="stat-row"><span class="stat-label">📚 Уровень:</span><span class="stat-value">${levelNames[state.level]}</span></div>`;
 
     $('statsContainer').innerHTML = statsHtml;
 
-    // 4. Сохраняем новый рекорд (только если он лучше или первый)
-    const isBetter = !prevRecord || 
-                     (timeSpentSec < prevRecord.time && state.errorsMade <= prevRecord.errors);
+    const isBetter = !prevRecord || (timeSpentSec < prevRecord.time && state.errorsMade <= prevRecord.errors);
     if (isBetter) {
-       statsHistory[currentLevelKey] = {
-         time: timeSpentSec,
-         errors: state.errorsMade,
-         hints: state.hintsUsed
-       };
+       statsHistory[currentLevelKey] = { time: timeSpentSec, errors: state.errorsMade, hints: state.hintsUsed };
        localStorage.setItem(STATS_KEY, JSON.stringify(statsHistory));
     }
 
-    // 5. Показываем оверлей и очищаем текущий прогресс
     $('finalScore').textContent = state.score;
     $('overlay').classList.add('show');
     sndWin();
     fireConfetti();
     
-    // Удаляем прогресс, чтобы в следующий раз начать заново
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
   }
 
@@ -858,7 +828,6 @@
     state.picked = null;
     state.trayOrder = [];
     state.sampleOn = false;
-    // Сброс сессии
     state.sessionStartTime = Date.now();
     state.hintsUsed = 0;
     state.errorsMade = 0;
@@ -868,6 +837,29 @@
     $('houses').innerHTML = ''; 
     renderAll();
   }
+
+  // Сброс статистики (теперь в оверлее)
+  $('resetStatsBtn').addEventListener('click', () => {
+    if (confirm('Удалить все рекорды? (Время, ошибки и подсказки по всем уровням будут обнулены)')) {
+      try {
+        localStorage.removeItem(STATS_KEY);
+        
+        // Показываем уведомление
+        const b = $('savedBadge');
+        b.textContent = '🗑️ Рекорды сброшены';
+        b.classList.add('show');
+        setTimeout(() => b.classList.remove('show'), 1500);
+
+        // Очищаем блок статистики в оверлее, так как сравнивать больше не с чем
+        $('statsContainer').innerHTML = `
+          <div class="stat-row"><span class="stat-label">⏱️ Время:</span><span class="stat-value">${$('statsContainer').querySelectorAll('.stat-value')[0].textContent.split(' ')[0]} <span class="stat-diff same">=</span></span></div>
+          <div class="stat-row"><span class="stat-label">❌ Ошибки:</span><span class="stat-value">${state.errorsMade} <span class="stat-diff same">=</span></span></div>
+          <div class="stat-row"><span class="stat-label">💡 Подсказки:</span><span class="stat-value">${state.hintsUsed} <span class="stat-diff same">=</span></span></div>
+          <div class="stat-row"><span class="stat-label">📚 Уровень:</span><span class="stat-value">${({ low: '2–5', high: '6–10', all: 'Все' })[state.level]}</span></div>
+        `;
+      } catch(e) {}
+    }
+  });
 
   $('sampleBtn').addEventListener('click', toggleSample);
   $('resetBtn').addEventListener('click', () => {
@@ -890,7 +882,6 @@
     state.picked = null;
     state.sampleOn = false;
     state.trayOrder = []; 
-    // При смене уровня начинаем новую сессию
     state.sessionStartTime = Date.now();
     state.hintsUsed = 0;
     state.errorsMade = 0;
@@ -901,10 +892,7 @@
 
   loadTheme();
   const loaded = loadProgress();
-  // Если прогресс не загрузился, начинаем новую сессию
-  if (!loaded) {
-    state.sessionStartTime = Date.now();
-  }
+  if (!loaded) state.sessionStartTime = Date.now();
   renderAll();
   
   if (loaded) {
