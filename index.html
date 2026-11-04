@@ -35,7 +35,7 @@
   }
   #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
   
-  /* ---------- Шапка (только заголовок и счетчики) ---------- */
+  /* ---------- Шапка ---------- */
   header {
     display: flex; align-items: center; justify-content: space-between; 
     padding: 8px 12px; background: var(--panel); box-shadow: 0 2px 6px rgba(0,0,0,.05); z-index: 5;
@@ -53,7 +53,7 @@
     display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding-bottom: 4px;
   }
   .house {
-    flex: 1 0 80px; min-width: 80px;
+    flex: 1 0 70px; min-width: 70px;
     background: var(--house-bg); border-radius: 8px; box-shadow: var(--house-shadow);
     display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--row-border);
   }
@@ -109,7 +109,7 @@
   .card.hint-glow { animation: hint-glow .6s ease; box-shadow: 0 0 0 4px var(--hint); }
   @keyframes hint-glow { 50% { box-shadow: 0 0 0 8px var(--hint); } }
 
-  /* ---------- Нижняя панель (навигация + кнопки) ---------- */
+  /* ---------- Нижняя панель ---------- */
   .bottom-bar {
     display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
     padding: 8px 12px; background: var(--panel); box-shadow: 0 -2px 6px rgba(0,0,0,.05); z-index: 5;
@@ -143,7 +143,7 @@
   #win h1 { font-size: 2rem; margin: 0; color: var(--num); }
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
 
-  /* Мобильная адаптация (телефоны) */
+  /* Мобильная адаптация */
   @media (max-width: 600px) {
     .brand { font-size: 0.95rem; }
     .stats { font-size: 0.8rem; gap: 8px; }
@@ -185,17 +185,12 @@
     </section>
   </main>
 
-  <!-- Нижняя панель: навигация и кнопки в одну линию -->
+  <!-- Нижняя панель: навигация и кнопки -->
   <div class="bottom-bar">
     <div class="seg" id="segLevel">
       <button data-level="low">2–5</button>
       <button data-level="high">6–10</button>
       <button data-level="all" class="active">Все</button>
-    </div>
-    
-    <div class="seg" id="segMode">
-      <button data-mode="add" class="active">➕ Слож.</button>
-      <button data-mode="sub">➖ Вычит.</button>
     </div>
 
     <button class="icon-btn" id="themeBtn" title="Тема">🌙</button>
@@ -222,14 +217,14 @@ const LEVELS = {
   high: [6,7,8,9,10],
   all: [2,3,4,5,6,7,8,9,10]
 };
-const STORAGE_KEY = "yaroslav_progress_v22";
-const THEME_KEY = "yaroslav_theme_v22";
+const STORAGE_KEY = "yaroslav_progress_v23";
+const THEME_KEY = "yaroslav_theme_v23";
 
 const state = {
   level: "all",
-  mode: "add",
   theme: "light",
-  progress: { add: {}, sub: {} },
+  // Теперь только один режим - сложение
+  progress: {},
   selectedCard: null,
   tray: [],
   trayInitialSize: 0,
@@ -242,7 +237,7 @@ function loadProgress() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const data = JSON.parse(raw);
-      if (data && data.add && data.sub) state.progress = data;
+      if (data) state.progress = data;
     }
   } catch (e) {}
 }
@@ -257,19 +252,31 @@ function saveTheme() { localStorage.setItem(THEME_KEY, state.theme); }
 
 /* ==================== Утилиты ==================== */
 function currentNumbers() { return LEVELS[state.level]; }
-function currentModeProgress() { return state.progress[state.mode]; }
 
-function ensureHouseProgress(n) {
-  const p = currentModeProgress();
-  if (!p[n] || !Array.isArray(p[n]) || p[n].length !== n - 1) {
-    p[n] = Array(n - 1).fill(null);
+// Получаем все возможные строки для домика N
+function getHouseCombinations(n) {
+  const combos = [];
+  // Сначала с нулями
+  combos.push(`0+${n}`);
+  combos.push(`${n}+0`);
+  // Потом обычные
+  for (let a = 1; a <= n - 1; a++) {
+    combos.push(`${a}+${n-a}`);
   }
-  return p[n];
+  return combos;
+}
+
+// Инициализация прогресса для домика (массив строк или null)
+function ensureHouseProgress(n) {
+  if (!state.progress[n] || !Array.isArray(state.progress[n]) || state.progress[n].length !== n + 1) {
+    state.progress[n] = Array(n + 1).fill(null); // n+1, так как 0+n, n+0 и n-1 вариантов
+  }
+  return state.progress[n];
 }
 
 function isHouseComplete(n) {
-  const p = currentModeProgress()[n];
-  if (!p || p.length !== n - 1) return false;
+  const p = state.progress[n];
+  if (!p || p.length !== n + 1) return false;
   return p.every(v => v !== null);
 }
 
@@ -280,24 +287,12 @@ function totalNumbers() { return currentNumbers().length; }
 function buildTrayFromScratch() {
   const cards = [];
   currentNumbers().forEach(n => {
-    if (state.mode === "add") {
-      // Добавляем с 0: 0+n, n+0, и все остальные a+(n-a)
-      cards.push({ n, a: 0, b: n, text: `0+${n}` });
-      cards.push({ n, a: n, b: 0, text: `${n}+0` });
-      for (let a = 1; a <= n - 1; a++) {
-        const b = n - a;
-        cards.push({ n, a, b, text: `${a}+${b}` });
-      }
-    } else {
-      // Вычитание: n-a=b. 
-      // a=0: n-0=n. a=n: n-n=0.
-      cards.push({ n, a: 0, b: n, text: `${n}-0` });
-      cards.push({ n, a: n, b: 0, text: `${n}-${n}` });
-      for (let a = 1; a <= n - 1; a++) {
-        const b = n - a;
-        cards.push({ n, a, b, text: `${n}-${a}` });
-      }
-    }
+    const combos = getHouseCombinations(n);
+    combos.forEach(text => {
+      // парсим a и b для проверки
+      const [a, b] = text.split('+').map(Number);
+      cards.push({ n, a, b, text });
+    });
   });
   
   // Перемешиваем
@@ -314,38 +309,22 @@ function buildTrayFromScratch() {
 function rebuildTrayFromProgress() {
   const cards = [];
   currentNumbers().forEach(n => {
-    const p = currentModeProgress()[n];
-    if (!p || p.length !== n - 1) {
-      // Домик не тронут
-      if (state.mode === "add") {
-        cards.push({ n, a: 0, b: n, text: `0+${n}` });
-        cards.push({ n, a: n, b: 0, text: `${n}+0` });
-        for (let a = 1; a <= n - 1; a++) cards.push({ n, a, b: n-a, text: `${a}+${n-a}` });
-      } else {
-        cards.push({ n, a: 0, b: n, text: `${n}-0` });
-        cards.push({ n, a: n, b: 0, text: `${n}-${n}` });
-        for (let a = 1; a <= n - 1; a++) cards.push({ n, a, b: n-a, text: `${n}-${a}` });
-      }
+    const p = state.progress[n];
+    if (!p || p.length !== n + 1) {
+      // Домик пуст - кидаем все карточки
+      getHouseCombinations(n).forEach(text => {
+        const [a, b] = text.split('+').map(Number);
+        cards.push({ n, a, b, text });
+      });
     } else {
-      // Домик частично заполнен
+      // Домик частично заполнен - кидаем только недостающие
       const placedSet = new Set(p.filter(v => v !== null));
-      if (state.mode === "add") {
-        if (!placedSet.has(`0+${n}`)) cards.push({ n, a: 0, b: n, text: `0+${n}` });
-        if (!placedSet.has(`${n}+0`)) cards.push({ n, a: n, b: 0, text: `${n}+0` });
-        for (let a = 1; a <= n - 1; a++) {
-          const text = `${a}+${n-a}`, rev = `${n-a}+${a}`;
-          if (!placedSet.has(text) && !placedSet.has(rev)) {
-            cards.push({ n, a, b: n-a, text });
-          }
+      getHouseCombinations(n).forEach(text => {
+        if (!placedSet.has(text)) {
+          const [a, b] = text.split('+').map(Number);
+          cards.push({ n, a, b, text });
         }
-      } else {
-        if (!placedSet.has(`${n}-0`)) cards.push({ n, a: 0, b: n, text: `${n}-0` });
-        if (!placedSet.has(`${n}-${n}`)) cards.push({ n, a: n, b: 0, text: `${n}-${n}` });
-        for (let a = 1; a <= n - 1; a++) {
-          const text = `${n}-${a}`;
-          if (!placedSet.has(text)) cards.push({ n, a, b: n-a, text });
-        }
-      }
+      });
     }
   });
 
@@ -363,16 +342,11 @@ function rebuildTrayFromProgress() {
 function canPlace(n, card) {
   if (card.n !== n) return false;
   const p = ensureHouseProgress(n);
-  if (p.every(v => v !== null)) return false; 
-  const placed = new Set(p.filter(v => v !== null));
+  if (p.every(v => v !== null)) return false; // домик полон
   
-  if (state.mode === "add") {
-    const text = card.text;
-    const rev = `${card.b}+${card.a}`;
-    return !placed.has(text) && !placed.has(rev);
-  } else {
-    return !placed.has(card.text);
-  }
+  // Нельзя ставить одинаковые карточки (например, две "1+2" в один домик)
+  const placed = new Set(p.filter(v => v !== null));
+  return !placed.has(card.text);
 }
 
 /* ==================== Отрисовка ==================== */
@@ -408,7 +382,7 @@ function buildHouse(n) {
   slotsContainer.className = "house-slots";
 
   const p = ensureHouseProgress(n);
-  for (let i = 0; i < n - 1; i++) {
+  for (let i = 0; i < n + 1; i++) {
     const slot = document.createElement("div");
     slot.className = "slot";
     slot.dataset.index = i;
@@ -417,8 +391,15 @@ function buildHouse(n) {
       slot.textContent = p[i];
       slot.classList.add("filled");
     } else if (state.showGhosts) {
-      const ghost = getGhostText(n, i);
-      if (ghost) { slot.textContent = ghost; slot.classList.add("ghost"); }
+      // Ищем первую свободную комбинацию для образца
+      const placedSet = new Set(p.filter(v => v !== null));
+      const combos = getHouseCombinations(n);
+      const ghost = combos.find(c => !placedSet.has(c));
+      if (ghost) { 
+        slot.textContent = ghost; 
+        slot.classList.add("ghost"); 
+        placedSet.add(ghost); // чтобы следующий слот не показал то же самое
+      }
     }
     slot.addEventListener("click", (e) => { e.stopPropagation(); onSlotClick(n, i); });
     slotsContainer.appendChild(slot);
@@ -426,28 +407,6 @@ function buildHouse(n) {
 
   house.appendChild(slotsContainer);
   return house;
-}
-
-function getGhostText(n, i) {
-  const p = ensureHouseProgress(n);
-  const placed = new Set(p.filter(v => v !== null));
-  
-  if (state.mode === "add") {
-    if (!placed.has(`0+${n}`) && !placed.has(`${n}+0`)) return `0+${n}`;
-    for (let a = 1; a <= n - 1; a++) {
-      const text = `${a}+${n-a}`;
-      const rev = `${n-a}+${a}`;
-      if (!placed.has(text) && !placed.has(rev)) return text;
-    }
-  } else {
-    if (!placed.has(`${n}-0`)) return `${n}-0`;
-    if (!placed.has(`${n}-${n}`)) return `${n}-${n}`;
-    for (let a = 1; a <= n - 1; a++) {
-      const text = `${n}-${a}`;
-      if (!placed.has(text)) return text;
-    }
-  }
-  return "";
 }
 
 function renderSingleHouse(n) {
@@ -550,8 +509,8 @@ document.getElementById("sampleBtn").addEventListener("click", () => {
 
 /* ==================== Сброс ==================== */
 document.getElementById("resetBtn").addEventListener("click", () => {
-  if (!confirm("Сбросить прогресс текущего режима?")) return;
-  state.progress[state.mode] = {};
+  if (!confirm("Сбросить прогресс?")) return;
+  state.progress = {};
   state.selectedCard = null; state.showGhosts = false;
   saveProgress(); buildTrayFromScratch(); renderAll();
 });
@@ -565,7 +524,7 @@ function showWin() {
 }
 document.getElementById("winAgain").addEventListener("click", () => {
   document.getElementById("win").classList.remove("show");
-  state.progress[state.mode] = {}; state.selectedCard = null;
+  state.progress = {}; state.selectedCard = null;
   saveProgress(); buildTrayFromScratch(); renderAll();
 });
 
@@ -636,24 +595,13 @@ document.getElementById("segLevel").addEventListener("click", (e) => {
   rebuildTrayFromProgress(); renderAll();
 });
 
-document.getElementById("segMode").addEventListener("click", (e) => {
-  const btn = e.target.closest("button[data-mode]");
-  if (!btn || btn.dataset.mode === state.mode) return;
-  state.mode = btn.dataset.mode;
-  document.querySelectorAll("#segMode button").forEach(b => b.classList.toggle("active", b.dataset.mode === state.mode));
-  state.selectedCard = null; state.showGhosts = false;
-  rebuildTrayFromProgress(); renderAll();
-});
-
 /* ==================== Инициализация ==================== */
 function init() {
   loadProgress(); loadTheme();
-  if (!state.progress.add) state.progress.add = {};
-  if (!state.progress.sub) state.progress.sub = {};
+  if (!state.progress) state.progress = {};
   document.querySelectorAll("#segLevel button").forEach(b => b.classList.toggle("active", b.dataset.level === state.level));
-  document.querySelectorAll("#segMode button").forEach(b => b.classList.toggle("active", b.dataset.mode === state.mode));
   
-  const isProgressEmpty = Object.keys(state.progress[state.mode]).length === 0;
+  const isProgressEmpty = Object.keys(state.progress).length === 0;
   if (isProgressEmpty) buildTrayFromScratch();
   else rebuildTrayFromProgress();
   
