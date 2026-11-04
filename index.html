@@ -9,7 +9,7 @@
     --bg: #f0f4f8; --panel: #ffffff; --text: #1a2233; --muted: #5b6b85;
     --num: #1976d2; --op: #d32f2f; --card-bg: #ffffff; --card-border: #90caf9;
     --card-sel: #bbdefb; --card-sel-border: #1976d2; --house-bg: #ffffff;
-    --house-shadow: 0 2px 6px rgba(0,0,0,.1); --row-bg: #f4f7fb; --row-border: #cfd8e3;
+    --house-shadow: 0 1px 4px rgba(0,0,0,.08); --row-bg: #f4f7fb; --row-border: #cfd8e3;
     --slot-pop: #7ed957; --ghost: #b39ddb; --hint: #ffd54f; --star: #f5b301;
     --btn-bg: #e3f2fd; --btn-text: #1976d2; --btn-active: #1976d2; --btn-active-text: #ffffff;
     --win-bg: rgba(255,255,255,.95); --tray-bg: #fff9e6; --tray-border: #ffcc80;
@@ -28,55 +28,37 @@
     --house-6: #26a69a; --house-7: #42a5f5; --house-8: #ab47bc; --house-9: #ec407a; --house-10: #8d6e63;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; height: 100%; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
   body {
-    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
-    background: var(--bg); color: var(--text); transition: background .25s, color .25s; overflow: hidden;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text); transition: background .25s, color .25s;
   }
   #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
   
-  /* ---------- Шапка ---------- */
+  /* ---------- Шапка (только заголовок и счетчики) ---------- */
   header {
-    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; 
-    gap: 10px; padding: 10px 16px; background: var(--panel); box-shadow: 0 2px 8px rgba(0,0,0,.08); z-index: 5;
+    display: flex; align-items: center; justify-content: space-between; 
+    padding: 8px 12px; background: var(--panel); box-shadow: 0 2px 6px rgba(0,0,0,.05); z-index: 5;
   }
-  .header-left { display: flex; align-items: center; gap: 16px; }
-  .brand { font-size: 1.3rem; font-weight: bold; color: var(--num); white-space: nowrap; }
-  .stats { display: flex; gap: 16px; font-size: 1rem; font-weight: bold; color: var(--muted); white-space: nowrap; }
+  .brand { font-size: 1.1rem; font-weight: 800; color: var(--num); white-space: nowrap; }
+  .stats { display: flex; gap: 12px; font-size: 0.95rem; font-weight: bold; color: var(--muted); white-space: nowrap; }
   .stats .stars { color: var(--star); }
-  .header-controls { display: flex; align-items: center; gap: 12px; }
-  
-  .seg { display: inline-flex; background: var(--btn-bg); border-radius: 8px; padding: 3px; gap: 2px; }
-  .seg button {
-    font-family: inherit; border: none; background: transparent; color: var(--btn-text);
-    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: .9rem; font-weight: bold;
-    transition: background .15s, color .15s;
-  }
-  .seg button.active { background: var(--btn-active); color: var(--btn-active-text); }
-  .icon-btn {
-    font-family: inherit; border: none; background: var(--btn-bg); color: var(--btn-text);
-    width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1rem;
-    display: flex; align-items: center; justify-content: center;
-  }
 
   /* ---------- Игровое поле ---------- */
-  main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; padding: 10px; gap: 10px; }
+  main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; padding: 8px; gap: 8px; }
   
   /* Домики */
   #houses {
     flex: 1 1 auto; min-height: 0;
-    display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden;
-    padding-bottom: 6px;
+    display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding-bottom: 4px;
   }
   .house {
-    flex: 1 0 90px; min-width: 90px;
+    flex: 1 0 80px; min-width: 80px;
     background: var(--house-bg); border-radius: 8px; box-shadow: var(--house-shadow);
-    display: flex; flex-direction: column; overflow: hidden;
-    border: 2px solid transparent; transition: transform .1s, border-color .15s;
+    display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--row-border);
   }
-  .house:active { transform: scale(.99); }
   .house-title {
-    color: #fff; text-align: center; font-size: 1.2rem; font-weight: bold;
+    color: #fff; text-align: center; font-size: 1.1rem; font-weight: bold;
     padding: 6px 0; cursor: pointer; user-select: none;
   }
   .house-title[data-n="2"] { background: var(--house-2); }
@@ -95,26 +77,23 @@
   }
   .slot {
     background: var(--row-bg); border: 2px dashed var(--row-border);
-    border-radius: 6px; padding: 6px 2px; text-align: center; font-size: .95rem;
-    font-weight: bold; color: var(--num); min-height: 32px;
+    border-radius: 6px; padding: 4px 2px; text-align: center; font-size: 0.9rem;
+    font-weight: bold; color: var(--num); min-height: 30px;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all .15s; white-space: nowrap;
   }
-  .slot.filled {
-    background: var(--card-bg); border: 2px solid var(--card-border); border-style: solid;
-    cursor: default;
-  }
+  .slot.filled { background: var(--card-bg); border: 2px solid var(--card-border); border-style: solid; cursor: default; }
   .slot.ghost { color: var(--ghost); border-color: var(--ghost); border-style: dashed; opacity: .8; }
   .slot.pop { animation: slot-pop .35s ease; }
   @keyframes slot-pop { 40% { transform: scale(1.1); background: var(--slot-pop); color: #fff; border-color: var(--slot-pop); } }
 
   /* Банк карточек */
   #tray-container {
-    flex: 0 0 auto; background: var(--tray-bg); border: 3px dashed var(--tray-border);
-    border-radius: 12px; padding: 10px; display: flex; flex-direction: column; max-height: 35vh;
+    flex: 0 0 auto; background: var(--tray-bg); border: 2px dashed var(--tray-border);
+    border-radius: 10px; padding: 8px; display: flex; flex-direction: column; max-height: 35vh;
   }
   .tray-header {
-    font-size: .9rem; font-weight: bold; color: #f57c00; margin-bottom: 8px;
+    font-size: 0.85rem; font-weight: bold; color: #f57c00; margin-bottom: 6px;
     display: flex; justify-content: space-between;
   }
   #tray {
@@ -122,20 +101,35 @@
   }
   .card {
     background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 8px;
-    padding: 6px 10px; font-size: 1rem; font-weight: bold; color: var(--num);
-    cursor: pointer; transition: all .1s; user-select: none;
+    padding: 4px 8px; font-size: 0.95rem; font-weight: bold; color: var(--num);
+    cursor: pointer; transition: all .1s; user-select: none; display: flex; align-items: center; justify-content: center;
   }
   .card:active { transform: scale(.95); }
   .card.selected { background: var(--card-sel); border-color: var(--card-sel-border); box-shadow: 0 0 0 2px var(--card-sel-border); }
   .card.hint-glow { animation: hint-glow .6s ease; box-shadow: 0 0 0 4px var(--hint); }
   @keyframes hint-glow { 50% { box-shadow: 0 0 0 8px var(--hint); } }
 
-  /* Кнопки */
-  .actions { display: flex; gap: 10px; justify-content: center; padding-bottom: 10px; }
+  /* ---------- Нижняя панель (навигация + кнопки) ---------- */
+  .bottom-bar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+    padding: 8px 12px; background: var(--panel); box-shadow: 0 -2px 6px rgba(0,0,0,.05); z-index: 5;
+  }
+  .seg { display: inline-flex; background: var(--btn-bg); border-radius: 8px; padding: 3px; gap: 2px; }
+  .seg button {
+    font-family: inherit; border: none; background: transparent; color: var(--btn-text);
+    padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold;
+    transition: background .15s, color .15s; white-space: nowrap;
+  }
+  .seg button.active { background: var(--btn-active); color: var(--btn-active-text); }
+  .icon-btn {
+    font-family: inherit; border: none; background: var(--btn-bg); color: var(--btn-text);
+    width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+  }
   .action-btn {
     font-family: inherit; border: none; background: var(--btn-bg); color: var(--btn-text);
-    padding: 10px 20px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer;
+    display: flex; align-items: center; gap: 4px; white-space: nowrap;
   }
   .action-btn.primary { background: var(--btn-active); color: #fff; }
   .action-btn:active { transform: scale(.97); }
@@ -149,36 +143,33 @@
   #win h1 { font-size: 2rem; margin: 0; color: var(--num); }
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
 
-  /* Мобильная адаптация */
-  @media (max-width: 800px) {
-    .house { flex: 0 0 110px; min-width: 110px; scroll-snap-align: start; }
-    #houses { scroll-snap-type: x mandatory; }
-    .header-left, .header-controls { width: 100%; justify-content: space-between; }
-    .stats { font-size: .85rem; }
+  /* Мобильная адаптация (телефоны) */
+  @media (max-width: 600px) {
+    .brand { font-size: 0.95rem; }
+    .stats { font-size: 0.8rem; gap: 8px; }
+    .house { flex: 0 0 75px; min-width: 75px; }
+    .slot { font-size: 0.8rem; padding: 4px 0; }
+    .bottom-bar { padding: 6px; gap: 6px; }
+    .seg button { padding: 4px 6px; font-size: 0.8rem; }
+    .action-btn { padding: 6px 10px; font-size: 0.8rem; }
+    #tray-container { max-height: 40vh; }
+  }
+
+  /* Планшет (альбомная) */
+  @media (min-width: 700px) and (orientation: landscape) {
+    .house { flex: 1; min-width: 0; }
+    .house-title { font-size: 1.2rem; }
+    .slot { font-size: 1rem; min-height: 36px; }
   }
 </style>
 </head>
 <body>
 <div id="app">
   <header>
-    <div class="header-left">
-      <div class="brand">🏠 Состав чисел</div>
-      <div class="stats">
-        <span class="done" id="doneCount">Собрано: 0 / 9</span>
-        <span class="stars">⭐ <b id="starsCount">0</b></span>
-      </div>
-    </div>
-    <div class="header-controls">
-      <div class="seg" id="segLevel">
-        <button data-level="low">2–5</button>
-        <button data-level="high">6–10</button>
-        <button data-level="all" class="active">Все</button>
-      </div>
-      <div class="seg" id="segMode">
-        <button data-mode="add" class="active">➕ Сложение</button>
-        <button data-mode="sub">➖ Вычитание</button>
-      </div>
-      <button class="icon-btn" id="themeBtn" title="Тема">🌙</button>
+    <div class="brand">🏠 Состав чисел</div>
+    <div class="stats">
+      <span class="done" id="doneCount">Собрано: 0 / 9</span>
+      <span class="stars">⭐ <b id="starsCount">0</b></span>
     </div>
   </header>
 
@@ -192,12 +183,28 @@
       </div>
       <div id="tray" aria-label="Банк карточек"></div>
     </section>
-    
-    <div class="actions">
-      <button class="action-btn primary" id="sampleBtn">👁️ Показать образец</button>
-      <button class="action-btn" id="resetBtn">🔄 Начать заново</button>
-    </div>
   </main>
+
+  <!-- Нижняя панель: навигация и кнопки в одну линию -->
+  <div class="bottom-bar">
+    <div class="seg" id="segLevel">
+      <button data-level="low">2–5</button>
+      <button data-level="high">6–10</button>
+      <button data-level="all" class="active">Все</button>
+    </div>
+    
+    <div class="seg" id="segMode">
+      <button data-mode="add" class="active">➕ Слож.</button>
+      <button data-mode="sub">➖ Вычит.</button>
+    </div>
+
+    <button class="icon-btn" id="themeBtn" title="Тема">🌙</button>
+
+    <div style="flex-grow: 1;"></div>
+
+    <button class="action-btn primary" id="sampleBtn">👁️ Образец</button>
+    <button class="action-btn" id="resetBtn">🔄 Заново</button>
+  </div>
 </div>
 
 <div id="win">
@@ -215,20 +222,18 @@ const LEVELS = {
   high: [6,7,8,9,10],
   all: [2,3,4,5,6,7,8,9,10]
 };
-const STORAGE_KEY = "yaroslav_progress_v21";
-const THEME_KEY = "yaroslav_theme_v21";
+const STORAGE_KEY = "yaroslav_progress_v22";
+const THEME_KEY = "yaroslav_theme_v22";
 
 const state = {
   level: "all",
   mode: "add",
   theme: "light",
-  // progress[mode][number] = array of strings (карточки) или null
   progress: { add: {}, sub: {} },
   selectedCard: null,
-  tray: [], // { id, n, a, b, text }
+  tray: [],
   trayInitialSize: 0,
-  showGhosts: false,
-  ghosts: {}
+  showGhosts: false
 };
 
 /* ==================== Сохранение ==================== */
@@ -254,7 +259,6 @@ function saveTheme() { localStorage.setItem(THEME_KEY, state.theme); }
 function currentNumbers() { return LEVELS[state.level]; }
 function currentModeProgress() { return state.progress[state.mode]; }
 
-// Инициализация массива для домика: длина N-1, заполнен null
 function ensureHouseProgress(n) {
   const p = currentModeProgress();
   if (!p[n] || !Array.isArray(p[n]) || p[n].length !== n - 1) {
@@ -277,16 +281,21 @@ function buildTrayFromScratch() {
   const cards = [];
   currentNumbers().forEach(n => {
     if (state.mode === "add") {
-      // Все пары a+b=n (a от 1 до n-1)
+      // Добавляем с 0: 0+n, n+0, и все остальные a+(n-a)
+      cards.push({ n, a: 0, b: n, text: `0+${n}` });
+      cards.push({ n, a: n, b: 0, text: `${n}+0` });
       for (let a = 1; a <= n - 1; a++) {
         const b = n - a;
         cards.push({ n, a, b, text: `${a}+${b}` });
       }
     } else {
-      // Все пары n-a=b (a от 1 до n-1)
+      // Вычитание: n-a=b. 
+      // a=0: n-0=n. a=n: n-n=0.
+      cards.push({ n, a: 0, b: n, text: `${n}-0` });
+      cards.push({ n, a: n, b: 0, text: `${n}-${n}` });
       for (let a = 1; a <= n - 1; a++) {
         const b = n - a;
-        cards.push({ n, a, b, text: `${n}-${a}` }); // отображаем уменьшаемое и вычитаемое
+        cards.push({ n, a, b, text: `${n}-${a}` });
       }
     }
   });
@@ -307,30 +316,34 @@ function rebuildTrayFromProgress() {
   currentNumbers().forEach(n => {
     const p = currentModeProgress()[n];
     if (!p || p.length !== n - 1) {
-      // Домик не тронут — добавляем все карточки
+      // Домик не тронут
       if (state.mode === "add") {
+        cards.push({ n, a: 0, b: n, text: `0+${n}` });
+        cards.push({ n, a: n, b: 0, text: `${n}+0` });
         for (let a = 1; a <= n - 1; a++) cards.push({ n, a, b: n-a, text: `${a}+${n-a}` });
       } else {
+        cards.push({ n, a: 0, b: n, text: `${n}-0` });
+        cards.push({ n, a: n, b: 0, text: `${n}-${n}` });
         for (let a = 1; a <= n - 1; a++) cards.push({ n, a, b: n-a, text: `${n}-${a}` });
       }
     } else {
-      // Домик частично заполнен — добавляем только недостающие
-      // Сначала считаем, какие уже стоят
+      // Домик частично заполнен
       const placedSet = new Set(p.filter(v => v !== null));
       if (state.mode === "add") {
+        if (!placedSet.has(`0+${n}`)) cards.push({ n, a: 0, b: n, text: `0+${n}` });
+        if (!placedSet.has(`${n}+0`)) cards.push({ n, a: n, b: 0, text: `${n}+0` });
         for (let a = 1; a <= n - 1; a++) {
-          const text = `${a}+${n-a}`;
-          const reverseText = `${n-a}+${a}`;
-          if (!placedSet.has(text) && !placedSet.has(reverseText)) {
+          const text = `${a}+${n-a}`, rev = `${n-a}+${a}`;
+          if (!placedSet.has(text) && !placedSet.has(rev)) {
             cards.push({ n, a, b: n-a, text });
           }
         }
       } else {
+        if (!placedSet.has(`${n}-0`)) cards.push({ n, a: 0, b: n, text: `${n}-0` });
+        if (!placedSet.has(`${n}-${n}`)) cards.push({ n, a: n, b: 0, text: `${n}-${n}` });
         for (let a = 1; a <= n - 1; a++) {
           const text = `${n}-${a}`;
-          if (!placedSet.has(text)) {
-            cards.push({ n, a, b: n-a, text });
-          }
+          if (!placedSet.has(text)) cards.push({ n, a, b: n-a, text });
         }
       }
     }
@@ -343,23 +356,22 @@ function rebuildTrayFromProgress() {
 
   let idCounter = 0;
   state.tray = cards.map(c => ({ ...c, id: ++idCounter }));
-  state.trayInitialSize = state.tray.length + (completedCount() > 0 ? 1 : 0); // для счётчика
+  state.trayInitialSize = state.tray.length; 
 }
 
 /* ==================== Проверка размещения ==================== */
 function canPlace(n, card) {
   if (card.n !== n) return false;
   const p = ensureHouseProgress(n);
-  if (p.every(v => v !== null)) return false; // домик полон
+  if (p.every(v => v !== null)) return false; 
   const placed = new Set(p.filter(v => v !== null));
   
   if (state.mode === "add") {
-    const text = `${card.a}+${card.b}`;
+    const text = card.text;
     const rev = `${card.b}+${card.a}`;
     return !placed.has(text) && !placed.has(rev);
   } else {
-    const text = `${n}-${card.a}`;
-    return !placed.has(text);
+    return !placed.has(card.text);
   }
 }
 
@@ -405,7 +417,6 @@ function buildHouse(n) {
       slot.textContent = p[i];
       slot.classList.add("filled");
     } else if (state.showGhosts) {
-      // Образец: подсказываем, что должно быть
       const ghost = getGhostText(n, i);
       if (ghost) { slot.textContent = ghost; slot.classList.add("ghost"); }
     }
@@ -418,25 +429,22 @@ function buildHouse(n) {
 }
 
 function getGhostText(n, i) {
-  // Просто показываем i+1 и n-(i+1), если этой пары ещё нет
   const p = ensureHouseProgress(n);
   const placed = new Set(p.filter(v => v !== null));
+  
   if (state.mode === "add") {
+    if (!placed.has(`0+${n}`) && !placed.has(`${n}+0`)) return `0+${n}`;
     for (let a = 1; a <= n - 1; a++) {
       const text = `${a}+${n-a}`;
       const rev = `${n-a}+${a}`;
-      if (!placed.has(text) && !placed.has(rev)) {
-        placed.add(text); placed.add(rev);
-        return text;
-      }
+      if (!placed.has(text) && !placed.has(rev)) return text;
     }
   } else {
+    if (!placed.has(`${n}-0`)) return `${n}-0`;
+    if (!placed.has(`${n}-${n}`)) return `${n}-${n}`;
     for (let a = 1; a <= n - 1; a++) {
       const text = `${n}-${a}`;
-      if (!placed.has(text)) {
-        placed.add(text);
-        return text;
-      }
+      if (!placed.has(text)) return text;
     }
   }
   return "";
@@ -486,24 +494,20 @@ function onSlotClick(n, index) {
   const card = state.selectedCard;
   
   if (!canPlace(n, card)) {
-    // Ошибка
     const house = housesEl.querySelector('.house[data-number="' + n + '"]');
     if (house) house.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}], {duration:220});
     beep(false);
     return;
   }
   
-  // Ставим карточку
   const p = ensureHouseProgress(n);
   p[index] = card.text;
   takeFromTray(card.id);
   saveProgress();
   state.selectedCard = null;
   
-  // Отрисовка
   renderSingleHouse(n); renderTray(); renderHeader();
   
-  // Анимация
   const slots = housesEl.querySelectorAll('.house[data-number="' + n + '"] .slot');
   if (slots[index]) slots[index].classList.add("pop");
   beep(true);
@@ -523,16 +527,12 @@ function showHint(n) {
   cards.forEach(cardEl => cardEl.classList.remove("hint-glow"));
   
   const targetHouse = housesEl.querySelector(`.house[data-number="${n}"]`);
-  if (targetHouse) {
-    targetHouse.animate([{transform:"scale(1)"},{transform:"scale(1.02)"},{transform:"scale(1)"}], {duration:400});
-  }
+  if (targetHouse) targetHouse.animate([{transform:"scale(1)"},{transform:"scale(1.02)"},{transform:"scale(1)"}], {duration:400});
   
   cards.forEach(cardEl => {
     const id = parseInt(cardEl.dataset.id, 10);
     const cardData = state.tray.find(c => c.id === id);
-    if (cardData && canPlace(n, cardData)) {
-      cardEl.classList.add("hint-glow");
-    }
+    if (cardData && canPlace(n, cardData)) cardEl.classList.add("hint-glow");
   });
   
   if (hintTimer) clearTimeout(hintTimer);
@@ -545,10 +545,7 @@ function showHint(n) {
 document.getElementById("sampleBtn").addEventListener("click", () => {
   state.showGhosts = true;
   renderHouses();
-  setTimeout(() => {
-    state.showGhosts = false;
-    renderHouses();
-  }, 2500);
+  setTimeout(() => { state.showGhosts = false; renderHouses(); }, 2500);
 });
 
 /* ==================== Сброс ==================== */
@@ -656,7 +653,6 @@ function init() {
   document.querySelectorAll("#segLevel button").forEach(b => b.classList.toggle("active", b.dataset.level === state.level));
   document.querySelectorAll("#segMode button").forEach(b => b.classList.toggle("active", b.dataset.mode === state.mode));
   
-  // При старте всегда полный банк (или восстанавливаем по прогрессу, если он был)
   const isProgressEmpty = Object.keys(state.progress[state.mode]).length === 0;
   if (isProgressEmpty) buildTrayFromScratch();
   else rebuildTrayFromProgress();
