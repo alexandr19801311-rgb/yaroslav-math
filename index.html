@@ -283,7 +283,6 @@
   .stat-diff.down { color: #fff; background: #f44336; }
   .stat-diff.same { color: #fff; background: #9e9e9e; }
 
-  /* Блок ачивок */
   .achievements-wrap {
     display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px;
   }
@@ -395,7 +394,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v33</div>
+<div class="version-badge">build v34</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -414,15 +413,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v33';
+  const BUILD_VERSION = 'v34';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v33';
-  const STATS_KEY = 'yaroslav_stats_v33';
-  const THEME_KEY = 'yaroslav_theme_v33';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v33';
+  const STORAGE_KEY = 'yaroslav_house_progress_v34';
+  const STATS_KEY = 'yaroslav_stats_v34';
+  const THEME_KEY = 'yaroslav_theme_v34';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v34';
 
   const data = {};
   ALL_NUMBERS.forEach(n => {
@@ -445,12 +444,11 @@
     sessionStartTime: Date.now(),
     hintsUsed: 0,
     errorsMade: 0,
-    // Режим на время
     isTimeMode: false,
     timeLeft: 60,
     timerInterval: null,
-    // Ачивки
-    achievements: {}
+    achievements: {},
+    isGameOver: false // Блокировка кликов после конца игры
   };
 
   const $ = id => document.getElementById(id);
@@ -458,19 +456,7 @@
 
   console.log(`Запуск игры, сборка: ${BUILD_VERSION}`);
 
-  // ===== ОЗВУЧКА =====
-  const synth = window.speechSynthesis;
-  function speak(text) {
-    if (!synth) return;
-    // Отменяем предыдущую речь, чтобы не наслаивалась
-    synth.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'ru-RU';
-    utter.rate = 1.1; // Чуть быстрее для ребенка
-    utter.pitch = 1.2; // Немного выше (детский голос)
-    synth.speak(utter);
-  }
-
+  // ===== ЗВУКИ (Web Audio API) =====
   function tone(freq, dur = 0.12, type = 'sine') {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -482,8 +468,13 @@
       o.start(); o.stop(audioCtx.currentTime + dur);
     } catch(e) {}
   }
-  const sndPlace = () => { tone(1200, 0.05, 'triangle'); setTimeout(() => tone(1500, 0.05, 'sine'), 40); };
-  const sndBad = () => tone(220, 0.18, 'square');
+  // Приятный мягкий звук вставки (два колокольчика)
+  const sndPlace = () => { 
+    tone(1046, 0.08, 'sine'); 
+    setTimeout(() => tone(1318, 0.1, 'sine'), 50); 
+  };
+  // Мягкий звук ошибки (низкий, но не резкий)
+  const sndBad = () => { tone(300, 0.15, 'triangle'); };
   const sndHouseDone = () => { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.12),i*100)); };
   const sndWin = () => { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,0.15),i*120)); };
   const sndHint = () => tone(800, 0.1, 'sine');
@@ -538,7 +529,6 @@
     } catch(e) { return false; }
   }
 
-  // Ачивки
   function loadAchievements() {
     try {
       const raw = localStorage.getItem(ACHIEVEMENTS_KEY);
@@ -552,7 +542,6 @@
     if (!state.achievements[key]) {
       state.achievements[key] = true;
       saveAchievements();
-      console.log(`Ачивка получена: ${key}`);
     }
   }
 
@@ -589,19 +578,16 @@
     fill.classList.add('pulse');
   }
 
-  // ===== РЕЖИМ НА ВРЕМЯ =====
   function toggleTimeMode() {
     if (state.isTimeMode) {
-      // Выключаем
       state.isTimeMode = false;
       state.timeLeft = 60;
       clearInterval(state.timerInterval);
       $('timeBtn').classList.remove('time-mode');
       $('timeBtn').textContent = '⏱️ На время';
       $('timerDisplay').classList.remove('active');
-      resetGame(); // Сбрасываем игру при выходе
+      resetGame();
     } else {
-      // Включаем
       state.isTimeMode = true;
       state.timeLeft = 60;
       $('timeBtn').classList.add('time-mode');
@@ -609,7 +595,7 @@
       $('timerDisplay').classList.add('active');
       $('timerDisplay').textContent = `⏱️ 01:00`;
       
-      resetGame(); // Начинаем заново
+      resetGame();
       
       state.timerInterval = setInterval(() => {
         state.timeLeft--;
@@ -626,11 +612,11 @@
   }
 
   function timeIsUp() {
-    speak("Время вышло!");
+    state.isGameOver = true; // Блокируем клики
     $('overlayTitle').textContent = '⌛ Время вышло!';
-    $('overlayBig').innerHTML = `Собрано домиков: ${state.done.length}`;
-    $('achievementsWrap').innerHTML = ''; // Скрываем ачивки
-    $('statsContainer').innerHTML = `<div class="stat-row"><span class="stat-label">Собрано за минуту:</span><span class="stat-value">${state.done.length} / ${getActiveNumbers().length}</span></div>`;
+    $('overlayBig').innerHTML = `Собрано домиков: ${state.done.length} / ${getActiveNumbers().length}`;
+    $('achievementsWrap').innerHTML = ''; 
+    $('statsContainer').innerHTML = `<div class="stat-row"><span class="stat-label">Результат:</span><span class="stat-value">${state.done.length} из ${getActiveNumbers().length}</span></div>`;
     $('overlay').classList.add('show');
     sndBad();
   }
@@ -646,6 +632,7 @@
 
     const newHouse = house.cloneNode(false); 
     newHouse.addEventListener('click', (e) => {
+      if (state.isGameOver) return; // Блокировка
       if (e.target.classList.contains('house-title')) {
         highlightCardsForNumber(n);
       } else {
@@ -741,6 +728,7 @@
   }
 
   function highlightCardsForNumber(n) {
+    if (state.isGameOver) return;
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     sndHint();
     state.hintsUsed++; 
@@ -758,6 +746,7 @@
   }
 
   function onCardClick(n, idx, a, b) {
+    if (state.isGameOver) return;
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     if (state.filled[`${n}-${idx}`]) return;
     if (state.picked && state.picked.num === n && state.picked.idx === idx) {
@@ -770,6 +759,7 @@
   }
 
   function onHouseClick(n, houseEl) {
+    if (state.isGameOver) return;
     if (!state.picked) return; 
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return; 
 
@@ -777,7 +767,6 @@
 
     if (num !== n || a + b !== n) {
       sndBad(); 
-      speak("Попробуй ещё раз"); // Озвучка ошибки
       state.errorsMade++;
       commit();
       houseEl.classList.add('flash-bad');
@@ -792,7 +781,6 @@
 
     if (targetIdx === -1) {
       sndBad(); 
-      speak("Такая карточка уже есть"); // Озвучка ошибки
       state.errorsMade++;
       commit();
       houseEl.classList.add('flash-bad');
@@ -803,7 +791,6 @@
     state.filled[`${n}-${targetIdx}`] = { a, b };
     state.score++;
     sndPlace();
-    speak("Верно!"); // Озвучка успеха
     state.picked = null;
 
     $('score').textContent = state.score;
@@ -848,6 +835,7 @@
   }
 
   function toggleSample() {
+    if (state.isGameOver) return;
     state.sampleOn = !state.sampleOn;
     tone(state.sampleOn ? 660 : 440, 0.1);
     if (state.sampleOn) {
@@ -860,15 +848,12 @@
   }
 
   function winGame() {
-    // 1. Озвучка победы
-    speak("Поздравляю, все домики собраны!");
-
-    // 2. Отключаем таймер, если он был
+    state.isGameOver = true;
+    
     if (state.isTimeMode) {
       clearInterval(state.timerInterval);
     }
 
-    // 3. Считаем время и статистику
     const timeSpentMs = Date.now() - state.sessionStartTime;
     const timeSpentSec = Math.floor(timeSpentMs / 1000);
     const timeFormatted = `${Math.floor(timeSpentSec / 60)}:${String(timeSpentSec % 60).padStart(2, '0')}`;
@@ -903,7 +888,7 @@
 
     let hintDiffHtml = '';
     if (prevRecord) {
-      const diff = state.hintsUsed - prevRecord.hintsUsed; // Исправил баг с prevRecord.hints
+      const diff = state.hintsUsed - prevRecord.hintsUsed;
       if (diff < 0) hintDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)}</span>`;
       else if (diff > 0) hintDiffHtml = `<span class="stat-diff down">↑ ${diff}</span>`;
       else hintDiffHtml = `<span class="stat-diff same">=</span>`;
@@ -915,7 +900,6 @@
 
     $('statsContainer').innerHTML = statsHtml;
 
-    // 4. Проверка ачивок
     let achievementsHtml = '';
     const achList = [
       { id: 'perfect', title: 'Без ошибок', emoji: '🎯', cond: state.errorsMade === 0 },
@@ -929,7 +913,6 @@
         unlockAchievement(ach.id);
         achievementsHtml += `<div class="achievement unlocked">${ach.emoji} ${ach.title}</div>`;
       } else {
-        // Показываем серую ачивку, если она уже получена ранее
         if (state.achievements[ach.id]) {
           achievementsHtml += `<div class="achievement unlocked" style="opacity: 0.5;">${ach.emoji} ${ach.title}</div>`;
         } else {
@@ -940,14 +923,12 @@
 
     $('achievementsWrap').innerHTML = achievementsHtml;
 
-    // 5. Сохраняем рекорд
     const isBetter = !prevRecord || (timeSpentSec < prevRecord.time && state.errorsMade <= prevRecord.errors);
     if (isBetter && !state.isTimeMode) {
        statsHistory[currentLevelKey] = { time: timeSpentSec, errors: state.errorsMade, hintsUsed: state.hintsUsed };
        localStorage.setItem(STATS_KEY, JSON.stringify(statsHistory));
     }
 
-    // 6. Показываем оверлей
     $('overlayTitle').textContent = '🎉 Победа!';
     $('overlayBig').innerHTML = `⭐ <span id="finalScore">${state.score}</span>`;
     $('overlay').classList.add('show');
@@ -973,6 +954,7 @@
   }
 
   function resetGame() {
+    state.isGameOver = false; // Разблокируем
     state.score = 0;
     state.done = [];
     state.filled = {};
@@ -983,7 +965,6 @@
     state.hintsUsed = 0;
     state.errorsMade = 0;
     
-    // Если таймер был запущен, сбрасываем его
     if (state.isTimeMode) {
       state.timeLeft = 60;
       $('timerDisplay').textContent = `⏱️ 01:00`;
@@ -1054,7 +1035,6 @@
     renderAll();
   });
 
-  // Инициализация PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed: ', err));
