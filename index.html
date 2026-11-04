@@ -29,8 +29,15 @@
     --btn-ghost-bg: #fff;
     --overlay-bg: rgba(255,255,255,0.96);
     
+    /* Цвета домиков */
     --c-2: #e53935; --c-3: #fb8c00; --c-4: #fdd835; --c-5: #7cb342;
     --c-6: #00897b; --c-7: #1e88e5; --c-8: #5e35b1; --c-9: #d81b60; --c-10: #6d4c41;
+
+    /* Неактивные домики */
+    --inactive-house-bg: #e0e0e0;
+    --inactive-house-border: #bdbdbd;
+    --inactive-text: #757575;
+    --inactive-slot-bg: #eeeeee;
   }
 
   [data-theme="dark"] {
@@ -41,7 +48,7 @@
     --house-done-bg: #1b2e1b;
     --house-done-border: #4caf50;
     --slot-bg: #232b3d;
-    --slot-border: #35405a;
+    --slot-border: #4a5a78;
     --slot-filled-bg: #1e3a5f;
     --slot-filled-border: #64b5f6;
     --tray-bg: #2a2518;
@@ -59,6 +66,12 @@
     
     --c-2: #ef5350; --c-3: #ffa726; --c-4: #ffee58; --c-5: #9ccc65;
     --c-6: #26a69a; --c-7: #42a5f5; --c-8: #ab47bc; --c-9: #ec407a; --c-10: #8d6e63;
+
+    /* Неактивные домики в темной теме */
+    --inactive-house-bg: #2a2a35;
+    --inactive-house-border: #444455;
+    --inactive-text: #888899;
+    --inactive-slot-bg: #333340;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -104,12 +117,17 @@
   
   /* НЕАКТИВНЫЙ ДОМИК */
   .house.inactive {
-    opacity: 0.4;
-    filter: grayscale(1);
+    background: var(--inactive-house-bg);
+    border-color: var(--inactive-house-border);
     pointer-events: none;
-    box-shadow: inset 0 0 0 100px rgba(0,0,0,0.05);
+    opacity: 0.85;
   }
-  .house.inactive .house-title { filter: brightness(0.7); }
+  .house.inactive .house-title { filter: grayscale(1) opacity(0.5); }
+  .house.inactive .slot-row { border-color: var(--inactive-house-border); background: var(--inactive-slot-bg); color: var(--inactive-text); }
+  .house.inactive .slot-row .num-blue, 
+  .house.inactive .slot-row .op-red, 
+  .house.inactive .slot-row .eq, 
+  .house.inactive .slot-row .result { color: var(--inactive-text); }
   
   @keyframes flashBad { 0%, 100% { background: var(--house-bg); } 50% { background: #ffcdd2; border-color: #d32f2f; } }
 
@@ -313,16 +331,16 @@
     all: [2,3,4,5,6,7,8,9,10]
   };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v25';
-  const THEME_KEY = 'yaroslav_theme_v25';
+  const STORAGE_KEY = 'yaroslav_house_progress_v26';
+  const THEME_KEY = 'yaroslav_theme_v26';
 
-  // Генерация комбинаций с n+0 в конце
+  // Генерация комбинаций: 0+n, a+(n-a), n+0
   const data = {};
   ALL_NUMBERS.forEach(n => {
     const list = [];
-    list.push([0, n]); // 0+n в начале
+    list.push([0, n]);
     for (let a = 1; a < n; a++) list.push([a, n - a]);
-    list.push([n, 0]); // n+0 в самом конце
+    list.push([n, 0]);
     data[n] = list;
   });
 
@@ -479,14 +497,13 @@
     else container.appendChild(newHouse);
   }
 
-  // Отрисовка ВСЕХ домиков (теперь все 9 на месте, но неактивные серые)
+  // Отрисовка ВСЕХ домиков (все 9 на месте, неактивные серые)
   function renderHouses() {
     const container = $('houses');
     container.innerHTML = '';
     ALL_NUMBERS.forEach(n => renderSingleHouse(n, container));
   }
 
-  // Функция для обновления банка карточек
   function renderTray() {
     const body = $('trayBody');
     body.innerHTML = '';
@@ -668,7 +685,6 @@
     renderAll();
   }
 
-  // Слушатели
   $('sampleBtn').addEventListener('click', toggleSample);
   $('resetBtn').addEventListener('click', () => {
     if (confirm('Начать заново? Все успехи сбросятся.')) resetGame();
@@ -689,13 +705,12 @@
     
     state.picked = null;
     state.sampleOn = false;
-    state.trayOrder = []; // Сброс для перемешивания
+    state.trayOrder = []; 
     
     saveProgress();
     renderAll();
   });
 
-  // Инициализация
   loadTheme();
   const loaded = loadProgress();
   renderAll();
