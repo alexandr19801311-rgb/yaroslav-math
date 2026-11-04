@@ -226,7 +226,7 @@
   .controls {
     display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
     justify-content: center; align-items: center; flex-shrink: 0;
-    position: relative; /* Для позиционирования версии */
+    position: relative;
   }
   .seg { display: inline-flex; background: var(--house-bg); border-radius: 6px; padding: 3px; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
   .seg button {
@@ -245,24 +245,17 @@
   .btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
   .icon-btn { background: var(--btn-ghost-bg); border: 2px solid var(--btn-bg); color: var(--btn-text); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
 
-  /* Плашка с версией */
+  /* Плашка с версией — фиксирована на экране */
   .version-badge {
-    position: absolute;
-    right: 10px;
-    bottom: -12px;
+    position: fixed;
+    bottom: 8px;
+    right: 12px;
     font-size: 10px;
     color: var(--text);
-    opacity: 0.5;
+    opacity: 0.4;
     font-weight: normal;
-  }
-  @media (max-width: 768px) {
-    .version-badge {
-      position: static;
-      width: 100%;
-      text-align: right;
-      margin-top: 4px;
-      bottom: auto;
-    }
+    z-index: 200;
+    pointer-events: none; /* Чтобы не мешала кликам */
   }
 
   /* ===== Оверлей ===== */
@@ -337,7 +330,7 @@
     .slot-row { font-size: 14px; min-height: 26px; }
     .tray-wrap { flex: 0 0 35vh; }
     .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
-    .controls { gap: 4px; }
+    .controls { gap: 4px; padding-bottom: 16px; /* Отступ снизу для версии */ }
     .seg button { padding: 4px 8px; font-size: 11px; }
     .btn { padding: 6px 10px; font-size: 12px; }
     .progress-container { max-width: none; margin: 0 4px; }
@@ -346,6 +339,12 @@
     
     .stats-container { padding: 12px 16px; min-width: 240px; }
     .stat-row { font-size: 14px; }
+    
+    .version-badge {
+      bottom: 6px;
+      right: 8px;
+      font-size: 9px;
+    }
   }
 </style>
 </head>
@@ -392,11 +391,11 @@
 
     <button class="btn" id="sampleBtn">👁️ Образец</button>
     <button class="btn ghost" id="resetBtn">🔄 Заново</button>
-    
-    <!-- Плашка с версией сборки -->
-    <div class="version-badge">build v32</div>
   </div>
 </div>
+
+<!-- Плашка версии вынесена из .app и зафиксирована -->
+<div class="version-badge">build v32</div>
 
 <div class="overlay" id="overlay">
   <h2>🎉 Победа!</h2>
@@ -413,7 +412,6 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  // КОНСТАНТА ВЕРСИИ ДЛЯ JS (чтобы можно было выводить в консоль при отладке)
   const BUILD_VERSION = 'v32';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
