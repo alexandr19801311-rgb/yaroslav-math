@@ -255,7 +255,6 @@
     font-weight: normal; z-index: 200; pointer-events: none;
   }
 
-  /* ===== Оверлей ===== */
   .overlay {
     position: fixed; inset: 0; background: var(--overlay-bg); display: flex; flex-direction: column;
     align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none;
@@ -394,7 +393,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v34</div>
+<div class="version-badge">build v35</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -413,15 +412,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v34';
+  const BUILD_VERSION = 'v35';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v34';
-  const STATS_KEY = 'yaroslav_stats_v34';
-  const THEME_KEY = 'yaroslav_theme_v34';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v34';
+  const STORAGE_KEY = 'yaroslav_house_progress_v35';
+  const STATS_KEY = 'yaroslav_stats_v35';
+  const THEME_KEY = 'yaroslav_theme_v35';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v35';
 
   const data = {};
   ALL_NUMBERS.forEach(n => {
@@ -448,7 +447,7 @@
     timeLeft: 60,
     timerInterval: null,
     achievements: {},
-    isGameOver: false // Блокировка кликов после конца игры
+    isGameOver: false
   };
 
   const $ = id => document.getElementById(id);
@@ -456,7 +455,6 @@
 
   console.log(`Запуск игры, сборка: ${BUILD_VERSION}`);
 
-  // ===== ЗВУКИ (Web Audio API) =====
   function tone(freq, dur = 0.12, type = 'sine') {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -468,12 +466,10 @@
       o.start(); o.stop(audioCtx.currentTime + dur);
     } catch(e) {}
   }
-  // Приятный мягкий звук вставки (два колокольчика)
   const sndPlace = () => { 
     tone(1046, 0.08, 'sine'); 
     setTimeout(() => tone(1318, 0.1, 'sine'), 50); 
   };
-  // Мягкий звук ошибки (низкий, но не резкий)
   const sndBad = () => { tone(300, 0.15, 'triangle'); };
   const sndHouseDone = () => { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.12),i*100)); };
   const sndWin = () => { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,0.15),i*120)); };
@@ -597,6 +593,9 @@
       
       resetGame();
       
+      // Очищаем старый интервал перед созданием нового
+      if (state.timerInterval) clearInterval(state.timerInterval);
+      
       state.timerInterval = setInterval(() => {
         state.timeLeft--;
         const m = Math.floor(state.timeLeft / 60);
@@ -612,7 +611,10 @@
   }
 
   function timeIsUp() {
-    state.isGameOver = true; // Блокируем клики
+    if (state.isGameOver) return; // Защита от повторного срабатывания
+    state.isGameOver = true;
+    clearInterval(state.timerInterval); // Останавливаем таймер
+
     $('overlayTitle').textContent = '⌛ Время вышло!';
     $('overlayBig').innerHTML = `Собрано домиков: ${state.done.length} / ${getActiveNumbers().length}`;
     $('achievementsWrap').innerHTML = ''; 
@@ -632,7 +634,7 @@
 
     const newHouse = house.cloneNode(false); 
     newHouse.addEventListener('click', (e) => {
-      if (state.isGameOver) return; // Блокировка
+      if (state.isGameOver) return;
       if (e.target.classList.contains('house-title')) {
         highlightCardsForNumber(n);
       } else {
@@ -848,6 +850,7 @@
   }
 
   function winGame() {
+    if (state.isGameOver) return;
     state.isGameOver = true;
     
     if (state.isTimeMode) {
@@ -954,7 +957,7 @@
   }
 
   function resetGame() {
-    state.isGameOver = false; // Разблокируем
+    state.isGameOver = false;
     state.score = 0;
     state.done = [];
     state.filled = {};
