@@ -121,13 +121,13 @@
   /* ===== АНИМАЦИЯ ШЛЕПКА ===== */
   @keyframes slot-pop {
     0% { transform: scale(1); }
-    40% { transform: scale(1.15); background: #c8e6c9; border-color: #388e3c; color: #2e7d32; } /* Зеленеет и растет */
-    100% { transform: scale(1); background: #e3f2fd; border-color: #1976d2; color: #1976d2; } /* Возвращается */
+    40% { transform: scale(1.15); background: #c8e6c9; border-color: #388e3c; color: #2e7d32; }
+    100% { transform: scale(1); background: #e3f2fd; border-color: #1976d2; color: #1976d2; }
   }
 
   .slot-row.pop-anim {
     animation: slot-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    z-index: 2; /* Чтобы выделяться над соседями */
+    z-index: 2;
   }
 
   .slot-row.ghost { border-color: #b39ddb; background: #f3e5f5; color: #9575cd; font-style: italic; }
@@ -138,7 +138,6 @@
   .slot-row.ghost .num-blue { color: #9575cd; }
   .slot-row.ghost .op-red, .slot-row.ghost .eq, .slot-row.ghost .result { color: #9575cd; }
   
-  /* Скрываем номер варианта везде */
   .slot-row .variant-num { display: none; }
 
   /* ===== ЛОТОК ===== */
@@ -204,6 +203,7 @@
     background: #bbdefb;
     border-color: #0d47a1;
     box-shadow: 0 2px 6px rgba(13,71,161,0.3);
+    transform: scale(1.05);
   }
   .card .op { color: #d32f2f; }
   .tray-empty { grid-column: 1 / -1; text-align: center; color: #999; font-size: 13px; padding: 10px; }
@@ -358,7 +358,7 @@
     data[n] = list;
   });
 
-  const STORAGE_KEY = 'yaroslav_house_progress_v15';
+  const STORAGE_KEY = 'yaroslav_house_progress_v16';
 
   const state = {
     score: 0,
@@ -384,7 +384,6 @@
       o.start(); o.stop(audioCtx.currentTime + dur);
     } catch(e) {}
   }
-  // Звук "шлепка" - высокий, резкий, но короткий
   const sndPlace = () => { 
     tone(1200, 0.05, 'triangle'); 
     setTimeout(() => tone(1500, 0.05, 'sine'), 40);
@@ -433,52 +432,97 @@
   }
   function commit() { saveProgress(); showSavedBadge(); }
 
-  function renderHouses() {
-    const container = $('houses');
-    container.innerHTML = '';
+  // Отрисовка ОДНОГО домика
+  function renderSingleHouse(n, container) {
     const doneSet = new Set(state.done);
+    const house = document.createElement('div');
+    house.className = 'house';
+    house.dataset.num = n;
+    if (doneSet.has(n)) house.classList.add('done');
     
-    NUMBERS.forEach(n => {
-      const house = document.createElement('div');
-      house.className = 'house';
-      house.dataset.num = n;
-      if (doneSet.has(n)) house.classList.add('done');
-      house.addEventListener('click', () => onHouseClick(n, house));
+    // Пересоздаем обработчик, чтобы не было дубликатов
+    const newHouse = house.cloneNode(false); 
+    newHouse.addEventListener('click', () => onHouseClick(n, newHouse));
 
-      const title = document.createElement('div');
-      title.className = 'house-title';
-      title.innerHTML = window.innerWidth < 1100 ? n : `ЧИСЛО ${n}`;
-      house.appendChild(title);
+    const title = document.createElement('div');
+    title.className = 'house-title';
+    title.innerHTML = window.innerWidth < 1100 ? n : `ЧИСЛО ${n}`;
+    newHouse.appendChild(title);
 
-      const slotsContainer = document.createElement('div');
-      slotsContainer.className = 'slots-container';
+    const slotsContainer = document.createElement('div');
+    slotsContainer.className = 'slots-container';
 
-      data[n].forEach(([a, b], idx) => {
-        const key = `${n}-${idx}`;
-        const slot = document.createElement('div');
-        slot.className = 'slot-row';
+    data[n].forEach(([a, b], idx) => {
+      const key = `${n}-${idx}`;
+      const slot = document.createElement('div');
+      slot.className = 'slot-row';
 
-        const filled = state.filled[key];
-        let content = '';
-        if (filled) {
-          slot.classList.add('filled');
-          content = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
-        } else if (state.sampleOn) {
-          slot.classList.add('ghost');
-          content = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
-        } else {
-          content = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
-        }
+      const filled = state.filled[key];
+      let content = '';
+      if (filled) {
+        slot.classList.add('filled');
+        content = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+      } else if (state.sampleOn) {
+        slot.classList.add('ghost');
+        content = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+      } else {
+        content = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
+      }
 
-        slot.innerHTML = content;
-        slotsContainer.appendChild(slot);
-      });
-      
-      house.appendChild(slotsContainer);
-      container.appendChild(house);
+      slot.innerHTML = content;
+      slotsContainer.appendChild(slot);
     });
+    
+    newHouse.appendChild(slotsContainer);
+    
+    // Заменяем старый домик на новый
+    const oldHouse = container.querySelector(`.house[data-num="${n}"]`);
+    if (oldHouse) container.replaceChild(newHouse, oldHouse);
+    else container.appendChild(newHouse);
   }
 
+  // Отрисовка всех домиков
+  function renderHouses() {
+    const container = $('houses');
+    // Если домиков нет (первый запуск), создаем их все
+    if (container.children.length === 0) {
+      container.innerHTML = '';
+      NUMBERS.forEach(n => renderSingleHouse(n, container));
+    } else {
+      // Если домики уже есть, просто обновляем их состояние (без пересоздания, чтобы не сбить скролл)
+      NUMBERS.forEach(n => {
+        const house = container.querySelector(`.house[data-num="${n}"]`);
+        if (house) {
+          // Обновляем класс done
+          if (state.done.includes(n)) house.classList.add('done');
+          else house.classList.remove('done');
+
+          // Обновляем ячейки
+          const slots = house.querySelectorAll('.slot-row');
+          data[n].forEach(([a, b], idx) => {
+            const slot = slots[idx];
+            if (!slot) return;
+            const filled = state.filled[`${n}-${idx}`];
+            
+            slot.className = 'slot-row'; // сброс классов
+            let content = '';
+            if (filled) {
+              slot.classList.add('filled');
+              content = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+            } else if (state.sampleOn) {
+              slot.classList.add('ghost');
+              content = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+            } else {
+              content = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
+            }
+            slot.innerHTML = content;
+          });
+        }
+      });
+    }
+  }
+
+  // Функция для обновления банка карточек
   function renderTray() {
     const body = $('trayBody');
     body.innerHTML = '';
@@ -525,6 +569,7 @@
     $('trayCount').textContent = `${TOTAL_CARDS - totalUsed} / ${TOTAL_CARDS}`;
   }
 
+  // При клике на карточку перерисовываем ТОЛЬКО банк (домики не трогаем)
   function onCardClick(n, idx, a, b) {
     if (state.done.includes(n)) return;
     if (state.filled[`${n}-${idx}`]) return;
@@ -533,7 +578,19 @@
     } else {
       state.picked = { num: n, idx, a, b };
     }
-    renderAll();
+    
+    // Важно: не вызываем renderAll(), а только renderTray()
+    renderTray(); 
+    
+    // Обновляем класс "picked" на карточках вручную
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      if (state.picked && +card.dataset.num === state.picked.num && +card.dataset.idx === state.picked.idx) {
+        card.classList.add('picked');
+      } else {
+        card.classList.remove('picked');
+      }
+    });
   }
 
   function onHouseClick(n, houseEl) {
@@ -563,17 +620,21 @@
 
     state.filled[`${n}-${targetIdx}`] = { a, b };
     state.score++;
-    sndPlace(); // Звук шлепка
+    sndPlace();
     state.picked = null;
 
-    // Перерисовываем, чтобы карточка встала на место
-    renderAll();
+    // Обновляем верхнюю панель
+    $('score').textContent = state.score;
+    $('doneCount').textContent = state.done.length;
 
-    // Находим нужную ячейку и запускаем анимацию
+    // Обновляем ТОЛЬКО этот домик и банк карточек
+    renderSingleHouse(n, $('houses'));
+    renderTray();
+
+    // Анимация шлепка
     const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
     if (targetSlot) {
       targetSlot.classList.add('pop-anim');
-      // Убираем класс после завершения анимации, чтобы можно было кликнуть еще раз
       setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
     }
 
@@ -581,15 +642,24 @@
     if (done && !state.done.includes(n)) {
       state.done.push(n);
       sndHouseDone();
+      
+      // Обновляем заголовок "Собрано"
+      $('doneCount').textContent = state.done.length;
+      
       setTimeout(() => {
         if (state.done.length === NUMBERS.length) winGame();
-        else { commit(); renderAll(); }
-      }, 600); // Чуть дольше ждем, чтобы анимация успела проиграться
+        else { 
+          commit(); 
+          // Обновляем только что завершенный домик (чтобы появилась галочка)
+          renderSingleHouse(n, $('houses'));
+        }
+      }, 600);
     } else {
       commit();
     }
   }
 
+  // Полная перерисовка (при старте или сбросе)
   function renderAll() {
     $('score').textContent = state.score;
     $('doneCount').textContent = state.done.length;
@@ -602,7 +672,10 @@
   function toggleSample() {
     state.sampleOn = !state.sampleOn;
     tone(state.sampleOn ? 660 : 440, 0.1);
-    renderAll();
+    // При показе образца перерисовываем домики
+    renderHouses(); 
+    $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть образец' : '👁️ Показать образец';
+    $('sampleBtn').classList.toggle('active', state.sampleOn);
   }
 
   function winGame() {
@@ -637,6 +710,9 @@
     state.sampleOn = false;
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     $('overlay').classList.remove('show');
+    
+    // Очищаем контейнер и создаем заново
+    $('houses').innerHTML = ''; 
     renderAll();
   }
 
