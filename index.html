@@ -323,7 +323,7 @@
     done: [],
     filled: {},
     picked: null,
-    trayOrder: {},
+    trayOrder: [], // Теперь это массив, а не объект!
     sampleOn: false
   };
 
@@ -386,7 +386,7 @@
       state.score = obj.score ?? 0;
       state.done = Array.isArray(obj.done) ? obj.done : [];
       state.filled = obj.filled || {};
-      state.trayOrder = obj.trayOrder || {};
+      state.trayOrder = Array.isArray(obj.trayOrder) ? obj.trayOrder : [];
       
       // Обновляем активные кнопки уровней
       document.querySelectorAll('#segLevel button').forEach(b => {
@@ -496,9 +496,15 @@
     const percent = Math.round((totalUsed / total) * 100);
     $('progressBar').style.width = percent + '%';
 
-    // Восстанавливаем порядок карточек, удаляя неактивные для текущего уровня
-    const currentTray = (state.trayOrder || []).filter(c => allCards.some(ac => ac.n === c.n && ac.idx === c.idx));
+    // ВАЖНО: проверяем, что trayOrder — массив и он не пуст
+    let currentTray = [];
+    if (Array.isArray(state.trayOrder)) {
+      currentTray = state.trayOrder.filter(c => allCards.some(ac => ac.n === c.n && ac.idx === c.idx));
+    }
+    
     const missing = allCards.filter(c => !currentTray.some(tc => tc.n === c.n && tc.idx === c.idx));
+    
+    // Перемешиваем только новые карточки, сохраняя старый порядок
     state.trayOrder = [...currentTray, ...shuffle(missing)];
 
     state.trayOrder.forEach(({ n, idx, a, b }) => {
@@ -646,7 +652,7 @@
     state.done = [];
     state.filled = {};
     state.picked = null;
-    state.trayOrder = {};
+    state.trayOrder = [];
     state.sampleOn = false;
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     $('overlay').classList.remove('show');
@@ -675,6 +681,7 @@
     
     state.picked = null;
     state.sampleOn = false;
+    state.trayOrder = []; // При смене уровня сбрасываем кэш карточек, чтобы заново перемешать
     
     saveProgress();
     renderAll();
