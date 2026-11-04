@@ -1,0 +1,16 @@
+{
+  "name": "Состав чисел",
+  "short_name": "Состав чисел",
+  "description": "Обучающая игра для Ярослава",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#1976d2",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3483/3483450.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
