@@ -96,11 +96,21 @@
   .house {
     border: 1.5px solid var(--house-border); border-radius: 6px;
     background: var(--house-bg); position: relative; cursor: pointer;
-    display: flex; flex-direction: column; transition: background .2s, border-color .2s;
+    display: flex; flex-direction: column; transition: all .2s;
   }
   .house.done { border-color: var(--house-done-border); background: var(--house-done-bg); cursor: default; }
   .house.done::after { content: '✅'; position: absolute; top: 2px; right: 2px; font-size: 12px; }
   .house.flash-bad { animation: flashBad 0.5s; }
+  
+  /* НЕАКТИВНЫЙ ДОМИК */
+  .house.inactive {
+    opacity: 0.4;
+    filter: grayscale(1);
+    pointer-events: none;
+    box-shadow: inset 0 0 0 100px rgba(0,0,0,0.05);
+  }
+  .house.inactive .house-title { filter: brightness(0.7); }
+  
   @keyframes flashBad { 0%, 100% { background: var(--house-bg); } 50% { background: #ffcdd2; border-color: #d32f2f; } }
 
   .house-title {
@@ -303,16 +313,16 @@
     all: [2,3,4,5,6,7,8,9,10]
   };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v24';
-  const THEME_KEY = 'yaroslav_theme_v24';
+  const STORAGE_KEY = 'yaroslav_house_progress_v25';
+  const THEME_KEY = 'yaroslav_theme_v25';
 
+  // Генерация комбинаций с n+0 в конце
   const data = {};
   ALL_NUMBERS.forEach(n => {
     const list = [];
-    // Добавляем комбинации с 0: 0+n, n+0, и все остальные
-    list.push([0, n]);
-    list.push([n, 0]);
+    list.push([0, n]); // 0+n в начале
     for (let a = 1; a < n; a++) list.push([a, n - a]);
+    list.push([n, 0]); // n+0 в самом конце
     data[n] = list;
   });
 
@@ -323,7 +333,7 @@
     done: [],
     filled: {},
     picked: null,
-    trayOrder: [], // Теперь это массив, а не объект!
+    trayOrder: [],
     sampleOn: false
   };
 
@@ -388,7 +398,6 @@
       state.filled = obj.filled || {};
       state.trayOrder = Array.isArray(obj.trayOrder) ? obj.trayOrder : [];
       
-      // Обновляем активные кнопки уровней
       document.querySelectorAll('#segLevel button').forEach(b => {
         b.classList.toggle('active', b.dataset.level === state.level);
       });
@@ -421,8 +430,10 @@
     const house = document.createElement('div');
     house.className = 'house';
     house.dataset.num = n;
-    if (doneSet.has(n)) house.classList.add('done');
     
+    if (doneSet.has(n)) house.classList.add('done');
+    if (!getActiveNumbers().includes(n)) house.classList.add('inactive');
+
     const newHouse = house.cloneNode(false); 
     newHouse.addEventListener('click', (e) => {
       if (e.target.classList.contains('house-title')) {
@@ -450,7 +461,7 @@
       if (filled) {
         slot.classList.add('filled');
         content = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
-      } else if (state.sampleOn) {
+      } else if (state.sampleOn && getActiveNumbers().includes(n)) {
         slot.classList.add('ghost');
         content = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
       } else {
@@ -468,11 +479,11 @@
     else container.appendChild(newHouse);
   }
 
-  // Отрисовка всех домиков
+  // Отрисовка ВСЕХ домиков (теперь все 9 на месте, но неактивные серые)
   function renderHouses() {
     const container = $('houses');
     container.innerHTML = '';
-    getActiveNumbers().forEach(n => renderSingleHouse(n, container));
+    ALL_NUMBERS.forEach(n => renderSingleHouse(n, container));
   }
 
   // Функция для обновления банка карточек
@@ -493,18 +504,15 @@
     });
 
     const total = getTotalCards();
-    const percent = Math.round((totalUsed / total) * 100);
+    const percent = total === 0 ? 0 : Math.round((totalUsed / total) * 100);
     $('progressBar').style.width = percent + '%';
 
-    // ВАЖНО: проверяем, что trayOrder — массив и он не пуст
     let currentTray = [];
     if (Array.isArray(state.trayOrder)) {
       currentTray = state.trayOrder.filter(c => allCards.some(ac => ac.n === c.n && ac.idx === c.idx));
     }
     
     const missing = allCards.filter(c => !currentTray.some(tc => tc.n === c.n && tc.idx === c.idx));
-    
-    // Перемешиваем только новые карточки, сохраняя старый порядок
     state.trayOrder = [...currentTray, ...shuffle(missing)];
 
     state.trayOrder.forEach(({ n, idx, a, b }) => {
@@ -527,7 +535,7 @@
   }
 
   function highlightCardsForNumber(n) {
-    if (state.done.includes(n)) return;
+    if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     sndHint();
     const allCards = document.querySelectorAll('.card');
     allCards.forEach(card => card.classList.remove('hint-highlight'));
@@ -541,7 +549,7 @@
   }
 
   function onCardClick(n, idx, a, b) {
-    if (state.done.includes(n)) return;
+    if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     if (state.filled[`${n}-${idx}`]) return;
     if (state.picked && state.picked.num === n && state.picked.idx === idx) {
       state.picked = null;
@@ -554,7 +562,7 @@
 
   function onHouseClick(n, houseEl) {
     if (!state.picked) return; 
-    if (state.done.includes(n)) return; 
+    if (state.done.includes(n) || !getActiveNumbers().includes(n)) return; 
 
     const { a, b, num } = state.picked;
 
@@ -581,7 +589,7 @@
     state.picked = null;
 
     $('score').textContent = state.score;
-    $('doneCount').textContent = state.done.length;
+    $('doneCount').textContent = getActiveNumbers().filter(num => state.done.includes(num)).length;
 
     renderSingleHouse(n, $('houses'));
     renderTray();
@@ -596,7 +604,7 @@
     if (done && !state.done.includes(n)) {
       state.done.push(n);
       sndHouseDone();
-      $('doneCount').textContent = state.done.length;
+      $('doneCount').textContent = getActiveNumbers().filter(num => state.done.includes(num)).length;
       
       setTimeout(() => {
         if (getActiveNumbers().every(num => state.done.includes(num))) winGame();
@@ -681,7 +689,7 @@
     
     state.picked = null;
     state.sampleOn = false;
-    state.trayOrder = []; // При смене уровня сбрасываем кэш карточек, чтобы заново перемешать
+    state.trayOrder = []; // Сброс для перемешивания
     
     saveProgress();
     renderAll();
