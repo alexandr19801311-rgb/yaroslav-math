@@ -10,8 +10,8 @@
   html, body {
     font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
     background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-    height: 100dvh; /* Высота экрана */
-    overflow: hidden; /* Запрет прокрутки всей страницы */
+    height: 100dvh;
+    overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
   }
@@ -36,22 +36,14 @@
   .topbar .score { color: #fb8c00; }
   .topbar .progress-text { color: #666; font-size: 13px; }
 
-  /* ===== ДОМИКИ (Столбики) ===== */
+  /* ===== ДОМИКИ (По умолчанию: Планшет/ПК) ===== */
   .houses {
     display: grid;
-    grid-template-columns: repeat(9, 1fr); /* 9 равных колонок на планшете */
+    grid-template-columns: repeat(9, 1fr);
     gap: 3px;
     flex-shrink: 0;
     margin-bottom: 6px;
-    height: 55vh; /* Увеличили высоту домиков до 55% экрана */
-  }
-
-  /* На компьютере (широкий экран) возвращаем сетку 3х3 */
-  @media (min-width: 1100px) {
-    .houses {
-      grid-template-columns: repeat(3, 1fr);
-      height: auto;
-    }
+    height: 50vh; /* Уменьшили для планшета, чтобы влез банк */
   }
 
   .house {
@@ -85,9 +77,6 @@
     overflow: hidden;
     pointer-events: none;
   }
-  @media (min-width: 1100px) {
-    .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
-  }
 
   /* Цвета заголовков */
   .house[data-num="2"]  .house-title { background: #e53935; }
@@ -100,7 +89,6 @@
   .house[data-num="9"]  .house-title { background: #d81b60; }
   .house[data-num="10"] .house-title { background: #6d4c41; }
 
-  /* Контейнер для ячеек внутри домика */
   .slots-container {
     display: flex;
     flex-direction: column;
@@ -108,28 +96,20 @@
     padding: 0 2px 2px 2px;
     flex: 1;
   }
-  @media (min-width: 1100px) {
-    .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
-  }
 
-  /* Сама ячейка (пример) */
   .slot-row {
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: bold; /* Крупнее шрифт для планшета */
+    font-size: 13px; font-weight: bold;
     background: #f5f5f5;
     border-radius: 3px;
     border: 1px dashed #bbb;
     color: #bbb;
     pointer-events: none;
-    min-height: 22px; /* Выше ячейки */
+    min-height: 22px;
     padding: 1px;
     line-height: 1;
   }
-  @media (min-width: 1100px) {
-    .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; }
-  }
 
-  /* Состояния ячеек */
   .slot-row.filled {
     border-style: solid;
     border-color: #1976d2;
@@ -144,35 +124,18 @@
   .slot-row.ghost .num-blue { color: #9575cd; }
   .slot-row.ghost .op-red, .slot-row.ghost .eq, .slot-row.ghost .result { color: #9575cd; }
   
-  /* Скрываем номер варианта на планшете, чтобы сэкономить место */
   .slot-row .variant-num { display: none; }
-  
-  /* На компьютере номера вариантов возвращаем и делаем их аккуратными */
-  @media (min-width: 1100px) {
-    .slot-row {
-      justify-content: flex-start; /* Выравниваем по левому краю */
-      padding-left: 6px; /* Отступ слева */
-    }
-    .slot-row .variant-num { 
-      display: inline-block; 
-      margin-right: 6px; 
-      color: #d32f2f; 
-      font-size: 12px; 
-      width: 16px; /* Фиксированная ширина, чтобы числа не прыгали */
-      text-align: right;
-    }
-  }
 
-  /* ===== ЛОТОК (Огромный банк снизу) ===== */
+  /* ===== ЛОТОК ===== */
   .tray-wrap {
-    flex: 1; /* Занимает ВСЁ оставшееся место снизу */
+    flex: 1;
     display: flex;
     flex-direction: column;
     background: #fff9c4;
     border: 2px dashed #f57f17;
     border-radius: 8px;
     padding: 4px 6px;
-    min-height: 0; /* Позволяет сжиматься */
+    min-height: 0;
   }
   .tray-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -203,17 +166,16 @@
   .tray-body {
     flex: 1;
     display: grid;
-    /* Увеличили минимальную ширину карточек, чтобы они выглядели крупнее */
-    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); 
+    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
     gap: 6px;
     align-content: flex-start;
-    overflow-y: auto; /* Скролл внутри банка, если карточек много */
+    overflow-y: auto;
     padding: 2px;
   }
 
   .card {
     font-family: inherit;
-    font-size: 14px; font-weight: bold; /* Крупнее шрифт в карточках */
+    font-size: 14px; font-weight: bold;
     padding: 4px 0;
     border: 1.5px solid #1976d2;
     background: #fff;
@@ -279,6 +241,77 @@
     pointer-events: none;
   }
   .saved-badge.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* =================================================================
+     АДАПТИВ ПОД УСТРОЙСТВА
+     ================================================================= */
+
+  /* 🖥️ КОМПЬЮТЕР (Широкий экран) */
+  @media (min-width: 1100px) {
+    .houses {
+      grid-template-columns: repeat(3, 1fr);
+      height: auto;
+    }
+    .house { padding: 4px; }
+    .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
+    .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
+    .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px;}
+    
+    /* На ПК возвращаем номера и выравниваем по левому краю */
+    .slot-row { justify-content: flex-start; }
+    .slot-row .variant-num { 
+      display: inline-block; 
+      margin-right: 6px; 
+      color: #d32f2f; 
+      font-size: 12px; 
+      width: 16px; 
+      text-align: right;
+    }
+    
+    /* ВАЖНО: Центрируем пустые ячейки и образцы на ПК */
+    .slot-row:not(.filled):not(.ghost) {
+      justify-content: center;
+      padding-left: 0;
+    }
+    .slot-row.ghost {
+      justify-content: center;
+      padding-left: 0;
+    }
+  }
+
+  /* 📱 ТЕЛЕФОН (Узкий экран) */
+  @media (max-width: 768px) {
+    /* Делаем горизонтальную карусель для домиков */
+    .houses {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory; /* Эффект прилипания */
+      gap: 8px;
+      height: 35vh;
+      margin-bottom: 8px;
+      padding-bottom: 4px; /* Место для скроллбара */
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Стилизация скроллбара для телефона (чтобы был незаметным) */
+    .houses::-webkit-scrollbar { height: 6px; }
+    .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
+    .houses::-webkit-scrollbar-thumb { background: #1976d2; border-radius: 3px; }
+
+    .house {
+      min-width: 110px; /* Фиксированная ширина домика */
+      scroll-snap-align: start; /* Прилипание к левому краю */
+      border-width: 2px;
+    }
+    
+    .house-title { font-size: 14px; padding: 4px 0; }
+    .slot-row { font-size: 14px; min-height: 26px; }
+    
+    /* В карточках уменьшаем минимальную ширину для мобилок */
+    .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
+  }
+
 </style>
 </head>
 <body>
@@ -330,7 +363,7 @@
     data[n] = list;
   });
 
-  const STORAGE_KEY = 'yaroslav_house_progress_v12';
+  const STORAGE_KEY = 'yaroslav_house_progress_v13';
 
   const state = {
     score: 0,
@@ -415,7 +448,7 @@
 
       const title = document.createElement('div');
       title.className = 'house-title';
-      // На планшете только цифра, на ПК полный текст
+      // На планшете/телефоне только цифра, на ПК полный текст
       title.innerHTML = window.innerWidth < 1100 ? n : `ЧИСЛО ${n}`;
       house.appendChild(title);
 
