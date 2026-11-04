@@ -36,14 +36,14 @@
   .topbar .score { color: #fb8c00; }
   .topbar .progress-text { color: #666; font-size: 13px; }
 
-  /* ===== ДОМИКИ (По умолчанию: Планшет/ПК) ===== */
+  /* ===== ДОМИКИ (По умолчанию: Планшет) ===== */
   .houses {
     display: grid;
     grid-template-columns: repeat(9, 1fr);
     gap: 3px;
     flex-shrink: 0;
     margin-bottom: 6px;
-    height: 50vh; /* Уменьшили для планшета, чтобы влез банк */
+    height: 50vh; /* Планшет */
   }
 
   .house {
@@ -124,6 +124,7 @@
   .slot-row.ghost .num-blue { color: #9575cd; }
   .slot-row.ghost .op-red, .slot-row.ghost .eq, .slot-row.ghost .result { color: #9575cd; }
   
+  /* Скрываем номер варианта везде */
   .slot-row .variant-num { display: none; }
 
   /* ===== ЛОТОК ===== */
@@ -256,27 +257,6 @@
     .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
     .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
     .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px;}
-    
-    /* На ПК возвращаем номера и выравниваем по левому краю */
-    .slot-row { justify-content: flex-start; }
-    .slot-row .variant-num { 
-      display: inline-block; 
-      margin-right: 6px; 
-      color: #d32f2f; 
-      font-size: 12px; 
-      width: 16px; 
-      text-align: right;
-    }
-    
-    /* ВАЖНО: Центрируем пустые ячейки и образцы на ПК */
-    .slot-row:not(.filled):not(.ghost) {
-      justify-content: center;
-      padding-left: 0;
-    }
-    .slot-row.ghost {
-      justify-content: center;
-      padding-left: 0;
-    }
   }
 
   /* 📱 ТЕЛЕФОН (Узкий экран) */
@@ -288,27 +268,30 @@
       overflow-y: hidden;
       scroll-snap-type: x mandatory; /* Эффект прилипания */
       gap: 8px;
-      height: 35vh;
+      height: 45vh; /* Увеличили высоту домиков на телефоне (почти половина экрана) */
       margin-bottom: 8px;
-      padding-bottom: 4px; /* Место для скроллбара */
+      padding-bottom: 4px; 
       -webkit-overflow-scrolling: touch;
     }
     
-    /* Стилизация скроллбара для телефона (чтобы был незаметным) */
     .houses::-webkit-scrollbar { height: 6px; }
     .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
     .houses::-webkit-scrollbar-thumb { background: #1976d2; border-radius: 3px; }
 
     .house {
-      min-width: 110px; /* Фиксированная ширина домика */
-      scroll-snap-align: start; /* Прилипание к левому краю */
+      min-width: 110px; 
+      scroll-snap-align: start; 
       border-width: 2px;
     }
     
     .house-title { font-size: 14px; padding: 4px 0; }
     .slot-row { font-size: 14px; min-height: 26px; }
     
-    /* В карточках уменьшаем минимальную ширину для мобилок */
+    /* Лоток на телефоне занимает меньше места (остальное) */
+    .tray-wrap {
+      flex: 0 0 35vh; /* Фиксируем высоту банка до 35% экрана */
+    }
+
     .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
   }
 
@@ -363,7 +346,7 @@
     data[n] = list;
   });
 
-  const STORAGE_KEY = 'yaroslav_house_progress_v13';
+  const STORAGE_KEY = 'yaroslav_house_progress_v14';
 
   const state = {
     score: 0,
@@ -472,7 +455,8 @@
           content = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
         }
 
-        slot.innerHTML = `<span class="variant-num">${idx + 1}.</span>${content}`;
+        // Номера вариантов мы убрали полностью
+        slot.innerHTML = content;
         slotsContainer.appendChild(slot);
       });
       
