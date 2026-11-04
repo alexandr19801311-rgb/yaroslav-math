@@ -36,14 +36,14 @@
   .topbar .score { color: #fb8c00; }
   .topbar .progress-text { color: #666; font-size: 13px; }
 
-  /* ===== ДОМИКИ (По умолчанию: Планшет) ===== */
+  /* ===== ДОМИКИ ===== */
   .houses {
     display: grid;
     grid-template-columns: repeat(9, 1fr);
     gap: 3px;
     flex-shrink: 0;
     margin-bottom: 6px;
-    height: 50vh; /* Планшет */
+    height: 50vh; 
   }
 
   .house {
@@ -108,6 +108,7 @@
     min-height: 22px;
     padding: 1px;
     line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
   }
 
   .slot-row.filled {
@@ -116,6 +117,19 @@
     background: #e3f2fd;
     color: #1976d2;
   }
+
+  /* ===== АНИМАЦИЯ ШЛЕПКА ===== */
+  @keyframes slot-pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.15); background: #c8e6c9; border-color: #388e3c; color: #2e7d32; } /* Зеленеет и растет */
+    100% { transform: scale(1); background: #e3f2fd; border-color: #1976d2; color: #1976d2; } /* Возвращается */
+  }
+
+  .slot-row.pop-anim {
+    animation: slot-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    z-index: 2; /* Чтобы выделяться над соседями */
+  }
+
   .slot-row.ghost { border-color: #b39ddb; background: #f3e5f5; color: #9575cd; font-style: italic; }
   .slot-row .num-blue { color: #1976d2; }
   .slot-row .op-red { color: #d32f2f; }
@@ -247,7 +261,7 @@
      АДАПТИВ ПОД УСТРОЙСТВА
      ================================================================= */
 
-  /* 🖥️ КОМПЬЮТЕР (Широкий экран) */
+  /* 🖥️ КОМПЬЮТЕР */
   @media (min-width: 1100px) {
     .houses {
       grid-template-columns: repeat(3, 1fr);
@@ -259,16 +273,15 @@
     .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px;}
   }
 
-  /* 📱 ТЕЛЕФОН (Узкий экран) */
+  /* 📱 ТЕЛЕФОН */
   @media (max-width: 768px) {
-    /* Делаем горизонтальную карусель для домиков */
     .houses {
       display: flex;
       overflow-x: auto;
       overflow-y: hidden;
-      scroll-snap-type: x mandatory; /* Эффект прилипания */
+      scroll-snap-type: x mandatory;
       gap: 8px;
-      height: 45vh; /* Увеличили высоту домиков на телефоне (почти половина экрана) */
+      height: 45vh;
       margin-bottom: 8px;
       padding-bottom: 4px; 
       -webkit-overflow-scrolling: touch;
@@ -287,9 +300,8 @@
     .house-title { font-size: 14px; padding: 4px 0; }
     .slot-row { font-size: 14px; min-height: 26px; }
     
-    /* Лоток на телефоне занимает меньше места (остальное) */
     .tray-wrap {
-      flex: 0 0 35vh; /* Фиксируем высоту банка до 35% экрана */
+      flex: 0 0 35vh;
     }
 
     .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
@@ -346,7 +358,7 @@
     data[n] = list;
   });
 
-  const STORAGE_KEY = 'yaroslav_house_progress_v14';
+  const STORAGE_KEY = 'yaroslav_house_progress_v15';
 
   const state = {
     score: 0,
@@ -372,7 +384,11 @@
       o.start(); o.stop(audioCtx.currentTime + dur);
     } catch(e) {}
   }
-  const sndPlace = () => tone(880, 0.08);
+  // Звук "шлепка" - высокий, резкий, но короткий
+  const sndPlace = () => { 
+    tone(1200, 0.05, 'triangle'); 
+    setTimeout(() => tone(1500, 0.05, 'sine'), 40);
+  };
   const sndBad = () => tone(220, 0.18, 'square');
   const sndHouseDone = () => { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.12),i*100)); };
   const sndWin = () => { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,0.15),i*120)); };
@@ -431,7 +447,6 @@
 
       const title = document.createElement('div');
       title.className = 'house-title';
-      // На планшете/телефоне только цифра, на ПК полный текст
       title.innerHTML = window.innerWidth < 1100 ? n : `ЧИСЛО ${n}`;
       house.appendChild(title);
 
@@ -455,7 +470,6 @@
           content = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
         }
 
-        // Номера вариантов мы убрали полностью
         slot.innerHTML = content;
         slotsContainer.appendChild(slot);
       });
@@ -549,8 +563,19 @@
 
     state.filled[`${n}-${targetIdx}`] = { a, b };
     state.score++;
-    sndPlace();
+    sndPlace(); // Звук шлепка
     state.picked = null;
+
+    // Перерисовываем, чтобы карточка встала на место
+    renderAll();
+
+    // Находим нужную ячейку и запускаем анимацию
+    const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
+    if (targetSlot) {
+      targetSlot.classList.add('pop-anim');
+      // Убираем класс после завершения анимации, чтобы можно было кликнуть еще раз
+      setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
+    }
 
     const done = data[n].every((_, i) => state.filled[`${n}-${i}`]);
     if (done && !state.done.includes(n)) {
@@ -559,11 +584,10 @@
       setTimeout(() => {
         if (state.done.length === NUMBERS.length) winGame();
         else { commit(); renderAll(); }
-      }, 500);
+      }, 600); // Чуть дольше ждем, чтобы анимация успела проиграться
     } else {
       commit();
     }
-    renderAll();
   }
 
   function renderAll() {
