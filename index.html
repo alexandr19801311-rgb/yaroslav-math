@@ -75,7 +75,12 @@
     margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
-    pointer-events: none;
+    pointer-events: auto; /* Разрешаем клики по заголовку */
+    cursor: pointer;
+    transition: filter 0.2s;
+  }
+  .house-title:hover {
+    filter: brightness(0.9);
   }
 
   /* Цвета заголовков */
@@ -198,6 +203,7 @@
     cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 1px;
     min-height: 32px;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s, opacity 0.2s;
   }
   .card.picked {
     background: #bbdefb;
@@ -205,6 +211,16 @@
     box-shadow: 0 2px 6px rgba(13,71,161,0.3);
     transform: scale(1.05);
   }
+  
+  /* НОВОЕ: Стиль для подсвеченных карточек при клике на домик */
+  .card.hint-highlight {
+    background: #fff59d;
+    border-color: #fbc02d;
+    box-shadow: 0 0 8px rgba(251, 192, 45, 0.8);
+    transform: scale(1.05);
+    z-index: 10;
+  }
+  
   .card .op { color: #d32f2f; }
   .tray-empty { grid-column: 1 / -1; text-align: center; color: #999; font-size: 13px; padding: 10px; }
 
@@ -358,7 +374,7 @@
     data[n] = list;
   });
 
-  const STORAGE_KEY = 'yaroslav_house_progress_v16';
+  const STORAGE_KEY = 'yaroslav_house_progress_v17';
 
   const state = {
     score: 0,
@@ -391,6 +407,7 @@
   const sndBad = () => tone(220, 0.18, 'square');
   const sndHouseDone = () => { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.12),i*100)); };
   const sndWin = () => { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,0.15),i*120)); };
+  const sndHint = () => tone(800, 0.1, 'sine'); // Звук подсказки
 
   function shuffle(arr) {
     const a = [...arr];
@@ -440,9 +457,16 @@
     house.dataset.num = n;
     if (doneSet.has(n)) house.classList.add('done');
     
-    // Пересоздаем обработчик, чтобы не было дубликатов
     const newHouse = house.cloneNode(false); 
-    newHouse.addEventListener('click', () => onHouseClick(n, newHouse));
+    newHouse.addEventListener('click', (e) => {
+      // Если кликнули на заголовок — подсвечиваем карточки
+      if (e.target.classList.contains('house-title')) {
+        highlightCardsForNumber(n);
+      } else {
+        // Иначе это обычный клик по домику (вставка карточки)
+        onHouseClick(n, newHouse);
+      }
+    });
 
     const title = document.createElement('div');
     title.className = 'house-title';
@@ -475,7 +499,6 @@
     
     newHouse.appendChild(slotsContainer);
     
-    // Заменяем старый домик на новый
     const oldHouse = container.querySelector(`.house[data-num="${n}"]`);
     if (oldHouse) container.replaceChild(newHouse, oldHouse);
     else container.appendChild(newHouse);
@@ -484,27 +507,23 @@
   // Отрисовка всех домиков
   function renderHouses() {
     const container = $('houses');
-    // Если домиков нет (первый запуск), создаем их все
     if (container.children.length === 0) {
       container.innerHTML = '';
       NUMBERS.forEach(n => renderSingleHouse(n, container));
     } else {
-      // Если домики уже есть, просто обновляем их состояние (без пересоздания, чтобы не сбить скролл)
       NUMBERS.forEach(n => {
         const house = container.querySelector(`.house[data-num="${n}"]`);
         if (house) {
-          // Обновляем класс done
           if (state.done.includes(n)) house.classList.add('done');
           else house.classList.remove('done');
 
-          // Обновляем ячейки
           const slots = house.querySelectorAll('.slot-row');
           data[n].forEach(([a, b], idx) => {
             const slot = slots[idx];
             if (!slot) return;
             const filled = state.filled[`${n}-${idx}`];
             
-            slot.className = 'slot-row'; // сброс классов
+            slot.className = 'slot-row'; 
             let content = '';
             if (filled) {
               slot.classList.add('filled');
@@ -569,7 +588,32 @@
     $('trayCount').textContent = `${TOTAL_CARDS - totalUsed} / ${TOTAL_CARDS}`;
   }
 
-  // При клике на карточку перерисовываем ТОЛЬКО банк (домики не трогаем)
+  // НОВАЯ ФУНКЦИЯ: Подсветка карточек для конкретного числа
+  function highlightCardsForNumber(n) {
+    // Если домик уже собран, не подсвечиваем
+    if (state.done.includes(n)) return;
+
+    sndHint(); // Звук подсказки
+
+    // Сначала снимаем предыдущую подсветку со всех карточек
+    const allCards = document.querySelectorAll('.card');
+    allCards.forEach(card => card.classList.remove('hint-highlight'));
+
+    // Добавляем подсветку только тем, которые подходят к числу n
+    allCards.forEach(card => {
+      if (+card.dataset.num === n) {
+        card.classList.add('hint-highlight');
+      }
+    });
+
+    // Через 2 секунды снимаем подсветку, чтобы не мешала
+    clearTimeout(highlightCardsForNumber.timer);
+    highlightCardsForNumber.timer = setTimeout(() => {
+      document.querySelectorAll('.hint-highlight').forEach(c => c.classList.remove('hint-highlight'));
+    }, 2000);
+  }
+
+  // При клике на карточку перерисовываем ТОЛЬКО банк
   function onCardClick(n, idx, a, b) {
     if (state.done.includes(n)) return;
     if (state.filled[`${n}-${idx}`]) return;
@@ -579,10 +623,11 @@
       state.picked = { num: n, idx, a, b };
     }
     
-    // Важно: не вызываем renderAll(), а только renderTray()
+    // Сбрасываем подсветку подсказки при выборе карточки
+    document.querySelectorAll('.hint-highlight').forEach(c => c.classList.remove('hint-highlight'));
+
     renderTray(); 
     
-    // Обновляем класс "picked" на карточках вручную
     const cards = document.querySelectorAll('.card');
     cards.forEach(card => {
       if (state.picked && +card.dataset.num === state.picked.num && +card.dataset.idx === state.picked.idx) {
@@ -623,15 +668,12 @@
     sndPlace();
     state.picked = null;
 
-    // Обновляем верхнюю панель
     $('score').textContent = state.score;
     $('doneCount').textContent = state.done.length;
 
-    // Обновляем ТОЛЬКО этот домик и банк карточек
     renderSingleHouse(n, $('houses'));
     renderTray();
 
-    // Анимация шлепка
     const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
     if (targetSlot) {
       targetSlot.classList.add('pop-anim');
@@ -643,14 +685,12 @@
       state.done.push(n);
       sndHouseDone();
       
-      // Обновляем заголовок "Собрано"
       $('doneCount').textContent = state.done.length;
       
       setTimeout(() => {
         if (state.done.length === NUMBERS.length) winGame();
         else { 
           commit(); 
-          // Обновляем только что завершенный домик (чтобы появилась галочка)
           renderSingleHouse(n, $('houses'));
         }
       }, 600);
@@ -659,7 +699,6 @@
     }
   }
 
-  // Полная перерисовка (при старте или сбросе)
   function renderAll() {
     $('score').textContent = state.score;
     $('doneCount').textContent = state.done.length;
@@ -672,7 +711,6 @@
   function toggleSample() {
     state.sampleOn = !state.sampleOn;
     tone(state.sampleOn ? 660 : 440, 0.1);
-    // При показе образца перерисовываем домики
     renderHouses(); 
     $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть образец' : '👁️ Показать образец';
     $('sampleBtn').classList.toggle('active', state.sampleOn);
@@ -710,8 +748,6 @@
     state.sampleOn = false;
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     $('overlay').classList.remove('show');
-    
-    // Очищаем контейнер и создаем заново
     $('houses').innerHTML = ''; 
     renderAll();
   }
