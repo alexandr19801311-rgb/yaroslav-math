@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yaroslav-math-v33';
+const CACHE_NAME = 'math-houses-v37';
 const ASSETS = [
   './',
   './index.html',
