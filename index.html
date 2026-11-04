@@ -43,7 +43,7 @@
     gap: 3px;
     flex-shrink: 0;
     margin-bottom: 6px;
-    height: 45vh; /* Домики занимают 45% высоты экрана */
+    height: 55vh; /* Увеличили высоту домиков до 55% экрана */
   }
 
   /* На компьютере (широкий экран) возвращаем сетку 3х3 */
@@ -77,16 +77,16 @@
 
   .house-title {
     text-align: center;
-    font-size: 11px; font-weight: bold;
+    font-size: 12px; font-weight: bold;
     color: #fff;
-    padding: 2px 0;
+    padding: 3px 0;
     margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
     pointer-events: none;
   }
   @media (min-width: 1100px) {
-    .house-title { font-size: 14px; padding: 3px 0; margin-bottom: 4px; }
+    .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
   }
 
   /* Цвета заголовков */
@@ -104,29 +104,29 @@
   .slots-container {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     padding: 0 2px 2px 2px;
     flex: 1;
   }
   @media (min-width: 1100px) {
-    .slots-container { gap: 3px; padding: 0 4px 4px 4px; }
+    .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
   }
 
   /* Сама ячейка (пример) */
   .slot-row {
     display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: bold;
+    font-size: 13px; font-weight: bold; /* Крупнее шрифт для планшета */
     background: #f5f5f5;
     border-radius: 3px;
     border: 1px dashed #bbb;
     color: #bbb;
     pointer-events: none;
-    min-height: 18px;
+    min-height: 22px; /* Выше ячейки */
     padding: 1px;
     line-height: 1;
   }
   @media (min-width: 1100px) {
-    .slot-row { font-size: 13px; min-height: 24px; border-radius: 4px; }
+    .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; }
   }
 
   /* Состояния ячеек */
@@ -146,8 +146,21 @@
   
   /* Скрываем номер варианта на планшете, чтобы сэкономить место */
   .slot-row .variant-num { display: none; }
+  
+  /* На компьютере номера вариантов возвращаем и делаем их аккуратными */
   @media (min-width: 1100px) {
-    .slot-row .variant-num { display: inline-block; margin-right: 2px; color: #d32f2f; font-size: 11px; }
+    .slot-row {
+      justify-content: flex-start; /* Выравниваем по левому краю */
+      padding-left: 6px; /* Отступ слева */
+    }
+    .slot-row .variant-num { 
+      display: inline-block; 
+      margin-right: 6px; 
+      color: #d32f2f; 
+      font-size: 12px; 
+      width: 16px; /* Фиксированная ширина, чтобы числа не прыгали */
+      text-align: right;
+    }
   }
 
   /* ===== ЛОТОК (Огромный банк снизу) ===== */
@@ -190,8 +203,9 @@
   .tray-body {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); /* Карточки будут заполнять всё пространство */
-    gap: 5px;
+    /* Увеличили минимальную ширину карточек, чтобы они выглядели крупнее */
+    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); 
+    gap: 6px;
     align-content: flex-start;
     overflow-y: auto; /* Скролл внутри банка, если карточек много */
     padding: 2px;
@@ -199,15 +213,15 @@
 
   .card {
     font-family: inherit;
-    font-size: 13px; font-weight: bold;
+    font-size: 14px; font-weight: bold; /* Крупнее шрифт в карточках */
     padding: 4px 0;
-    border: 1px solid #1976d2;
+    border: 1.5px solid #1976d2;
     background: #fff;
     color: #1976d2;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 1px;
-    min-height: 28px;
+    min-height: 32px;
   }
   .card.picked {
     background: #bbdefb;
@@ -316,7 +330,7 @@
     data[n] = list;
   });
 
-  const STORAGE_KEY = 'yaroslav_house_progress_v11';
+  const STORAGE_KEY = 'yaroslav_house_progress_v12';
 
   const state = {
     score: 0,
@@ -401,8 +415,8 @@
 
       const title = document.createElement('div');
       title.className = 'house-title';
-      // Сокращаем текст для узких колонок на планшете, на ПК можно полный
-      title.innerHTML = window.innerWidth < 1100 ? `Ч${n}` : `ЧИСЛО ${n}`;
+      // На планшете только цифра, на ПК полный текст
+      title.innerHTML = window.innerWidth < 1100 ? n : `ЧИСЛО ${n}`;
       house.appendChild(title);
 
       const slotsContainer = document.createElement('div');
