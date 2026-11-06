@@ -327,6 +327,18 @@
   .activation-actions { display: flex; flex-direction: column; gap: 10px; }
   .activation-actions .btn { width: 100%; padding: 12px; font-size: 16px; }
 
+  /* Улучшенный стиль для второй кнопки, чтобы она не сливалась */
+  #skipBtn {
+    background: transparent;
+    color: var(--house-border);
+    border: 2px solid var(--house-border);
+    opacity: 0.8;
+  }
+  #skipBtn:hover {
+    opacity: 1;
+    background: var(--accent-bg);
+  }
+
   /* ОВЕРЛЕЙ ПОБЕДЫ */
   .overlay {
     position: fixed; inset: 0; background: var(--overlay-bg); display: flex; flex-direction: column;
@@ -467,7 +479,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v47</div>
+<div class="version-badge">build v48</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -486,16 +498,16 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v47';
+  const BUILD_VERSION = 'v48';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v47';
-  const STATS_KEY = 'yaroslav_stats_v47';
-  const THEME_KEY = 'yaroslav_theme_v47';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v47';
-  const ACTIVATION_KEY = 'yaroslav_activation_v47'; // Ключ для проверки активации
+  const STORAGE_KEY = 'yaroslav_house_progress_v48';
+  const STATS_KEY = 'yaroslav_stats_v48';
+  const THEME_KEY = 'yaroslav_theme_v48';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v48';
+  const ACTIVATION_KEY = 'yaroslav_activation_v48';
   
   const MAX_HINTS = 10;
 
@@ -522,7 +534,7 @@
     errorsMade: 0,
     achievements: {},
     hintsLeft: MAX_HINTS,
-    isActivated: false // Флаг активации
+    isActivated: false
   };
 
   const $ = id => document.getElementById(id);
@@ -550,13 +562,12 @@
     const codeInput = $('activationCode');
     const code = codeInput.value.trim().toUpperCase();
     
-    // Честный формат: принимаем любой код длиннее 3 символов или кнопку "Пропустить"
-    if (code.length >= 3 || code === '') {
+    // Честный формат: принимаем любой код длиннее 3 символов
+    if (code.length >= 3) {
       try {
         localStorage.setItem(ACTIVATION_KEY, 'true');
         state.isActivated = true;
         $('activationScreen').classList.add('hidden');
-        // Небольшая анимация успеха
         tone(1046, 0.1); setTimeout(() => tone(1318, 0.1), 100);
       } catch(e) {}
     } else {
@@ -1125,7 +1136,7 @@
   // Инициализация при загрузке
   loadTheme();
   loadAchievements();
-  checkActivation(); // Проверяем, активирован ли продукт
+  checkActivation();
   const loaded = loadProgress();
   if (!loaded) state.sessionStartTime = Date.now();
   renderAll();
