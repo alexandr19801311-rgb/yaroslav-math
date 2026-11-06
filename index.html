@@ -35,6 +35,10 @@
     --progress-fill: linear-gradient(90deg, #4caf50, #8bc34a);
     --progress-glow: rgba(76, 175, 80, 0.6);
     
+    --hint-bg: #ffe0b2;
+    --hint-fill: linear-gradient(90deg, #ffa726, #ffcc80);
+    --hint-glow: rgba(255, 152, 0, 0.6);
+    
     --c-2: #e53935; --c-3: #fb8c00; --c-4: #fdd835; --c-5: #7cb342;
     --c-6: #00897b; --c-7: #1e88e5; --c-8: #5e35b1; --c-9: #d81b60; --c-10: #6d4c41;
 
@@ -75,6 +79,10 @@
     --progress-fill: linear-gradient(90deg, #66bb6a, #aed581);
     --progress-glow: rgba(102, 187, 106, 0.6);
     
+    --hint-bg: #3e2723;
+    --hint-fill: linear-gradient(90deg, #ff9800, #ffb74d);
+    --hint-glow: rgba(255, 152, 0, 0.6);
+    
     --c-2: #ef5350; --c-3: #ffa726; --c-4: #ffee58; --c-5: #9ccc65;
     --c-6: #26a69a; --c-7: #42a5f5; --c-8: #ab47bc; --c-9: #ec407a; --c-10: #8d6e63;
 
@@ -112,32 +120,42 @@
   }
   .topbar .title { color: var(--house-border); font-size: 16px; white-space: nowrap; }
   .topbar .score { color: var(--c-3); white-space: nowrap; }
-  .topbar .hints { color: #f57f17; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
-
-  .progress-container {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    gap: 10px; max-width: 400px; margin: 0 10px;
+  
+  /* Контейнер для двух полос (прогресс и подсказки) */
+  .bars-container {
+    flex: 1; display: flex; gap: 15px; margin: 0 10px; justify-content: center;
   }
-  .progress-wrapper {
-    flex: 1; height: 16px; background: var(--progress-bg);
-    border-radius: 8px; overflow: hidden; position: relative;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  .bar-wrap {
+    flex: 1; display: flex; align-items: center; gap: 6px; max-width: 250px;
+  }
+  .bar-label { font-size: 12px; white-space: nowrap; color: var(--text); opacity: 0.8; }
+  .bar-track {
+    flex: 1; height: 12px; background: var(--progress-bg);
+    border-radius: 6px; overflow: hidden; position: relative;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     border: 1px solid var(--house-border);
   }
-  .progress-fill {
-    height: 100%; width: 0%; background: var(--progress-fill);
-    border-radius: 8px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+  .bar-fill {
+    height: 100%; width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 6px;
   }
-  .progress-fill.pulse { animation: progress-pulse 0.6s ease-out; }
+  .bar-fill.progress-fill { background: var(--progress-fill); }
+  .bar-fill.hint-fill { background: var(--hint-fill); }
+  
+  .bar-fill.pulse { animation: progress-pulse 0.6s ease-out; }
   @keyframes progress-pulse {
     0% { box-shadow: 0 0 0 0 var(--progress-glow); }
-    50% { box-shadow: 0 0 12px 4px var(--progress-glow); }
+    50% { box-shadow: 0 0 8px 2px var(--progress-glow); }
     100% { box-shadow: 0 0 0 0 var(--progress-glow); }
   }
-  .progress-text { font-size: 13px; color: var(--text); opacity: 0.8; white-space: nowrap; }
+  .bar-fill.hint-fill.pulse { animation: hint-pulse 0.6s ease-out; }
+  @keyframes hint-pulse {
+    0% { box-shadow: 0 0 0 0 var(--hint-glow); }
+    50% { box-shadow: 0 0 8px 2px var(--hint-glow); }
+    100% { box-shadow: 0 0 0 0 var(--hint-glow); }
+  }
 
-  /* ДОМИКИ (ЕДИНЫЙ СТИЛЬ ДЛЯ ВСЕХ - ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ) */
+  /* ДОМИКИ */
   .houses {
     display: flex; 
     overflow-x: auto; 
@@ -147,14 +165,14 @@
     margin-bottom: 8px; 
     padding-bottom: 4px; 
     -webkit-overflow-scrolling: touch;
-    flex: 0 0 42vh; /* Домики занимают 42% высоты экрана */
+    flex: 0 0 42vh;
   }
   .houses::-webkit-scrollbar { height: 6px; }
   .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
   .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
 
   .house {
-    flex: 0 0 130px; /* Фиксированная ширина домика */
+    flex: 0 0 130px; 
     min-width: 130px; 
     scroll-snap-align: start; 
     border: 1.5px solid var(--house-border); 
@@ -273,7 +291,7 @@
   .version-badge {
     position: fixed; bottom: 8px; right: 12px;
     font-size: 10px; color: var(--text); opacity: 0.4;
-    font-weight: normal; z-index: 200; pointer-events: none; /* Убрал кликабельность */
+    font-weight: normal; z-index: 200; pointer-events: none;
   }
 
   .overlay {
@@ -331,10 +349,11 @@
   .confetti { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 99; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
-  /* Небольшая адаптация для мобильных */
+  /* АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ */
   @media (max-width: 768px) {
     .topbar { flex-wrap: wrap; }
-    .progress-container { order: 3; width: 100%; max-width: none; margin-top: 4px; }
+    .bars-container { order: 3; width: 100%; max-width: none; margin-top: 6px; flex-direction: column; gap: 4px; }
+    .bar-wrap { max-width: none; }
     .houses { flex: 0 0 40vh; }
     .house { flex: 0 0 110px; min-width: 110px; }
     .controls { gap: 4px; }
@@ -350,16 +369,19 @@
   <div class="topbar">
     <div class="title">🏠 Состав чисел</div>
     
-    <div class="progress-container">
-      <div class="progress-wrapper">
-        <div class="progress-fill" id="progressFill"></div>
+    <div class="bars-container">
+      <div class="bar-wrap">
+        <span class="bar-label">Собрано:</span>
+        <div class="bar-track"><div class="bar-fill progress-fill" id="progressFill"></div></div>
+        <span id="doneCount" style="font-size:12px; width: 30px; text-align:right;">0/9</span>
       </div>
-      <div class="progress-text">
-        Собрано: <span id="doneCount">0</span> / <span id="totalCount">9</span>
+      <div class="bar-wrap">
+        <span class="bar-label">💡</span>
+        <div class="bar-track"><div class="bar-fill hint-fill" id="hintFill"></div></div>
+        <span id="hintsCount" style="font-size:12px; width: 30px; text-align:right;">10</span>
       </div>
     </div>
 
-    <div class="hints">💡 <span id="hintsCount">3</span>/3</div>
     <div class="score">⭐ <span id="score">0</span></div>
   </div>
 
@@ -391,8 +413,7 @@
   </div>
 </div>
 
-<!-- Версия сборки (некликабельная) -->
-<div class="version-badge">build v43</div>
+<div class="version-badge">build v44</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -411,17 +432,17 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v43';
+  const BUILD_VERSION = 'v44';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v43';
-  const STATS_KEY = 'yaroslav_stats_v43';
-  const THEME_KEY = 'yaroslav_theme_v43';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v43';
+  const STORAGE_KEY = 'yaroslav_house_progress_v44';
+  const STATS_KEY = 'yaroslav_stats_v44';
+  const THEME_KEY = 'yaroslav_theme_v44';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v44';
   
-  const MAX_HINTS = 3;
+  const MAX_HINTS = 10;
 
   const data = {};
   ALL_NUMBERS.forEach(n => {
@@ -560,7 +581,8 @@
   }
   function commit() { saveProgress(); showSavedBadge(); }
 
-  function updateProgressBar() {
+  function updateBars() {
+    // Прогресс домов
     const activeNums = getActiveNumbers();
     const doneCount = activeNums.filter(n => state.done.includes(n)).length;
     const total = activeNums.length;
@@ -568,18 +590,33 @@
     
     const fill = $('progressFill');
     fill.style.width = percent + '%';
-    
     fill.classList.remove('pulse');
     void fill.offsetWidth;
     fill.classList.add('pulse');
-  }
 
-  function updateHintsUI() {
+    // Подсказки
+    const hintPercent = (state.hintsLeft / MAX_HINTS) * 100;
+    const hintFill = $('hintFill');
+    hintFill.style.width = hintPercent + '%';
+    hintFill.classList.remove('pulse');
+    void hintFill.offsetWidth;
+    hintFill.classList.add('pulse');
+
+    $('doneCount').textContent = `${doneCount}/${total}`;
     $('hintsCount').textContent = state.hintsLeft;
+
+    // Блокировка кнопки образца
     const sampleBtn = $('sampleBtn');
     if (state.hintsLeft <= 0) {
       sampleBtn.disabled = true;
       sampleBtn.style.opacity = '0.5';
+      // Если образец был включен, выключаем его принудительно
+      if (state.sampleOn) {
+        state.sampleOn = false;
+        $('sampleBtn').textContent = '👁️ Образец';
+        $('sampleBtn').classList.remove('active');
+        renderHouses(); 
+      }
     } else {
       sampleBtn.disabled = false;
       sampleBtn.style.opacity = '1';
@@ -703,7 +740,7 @@
     sndHint();
     state.hintsUsed++; 
     state.hintsLeft--;
-    updateHintsUI();
+    updateBars(); // Обновляем обе шкалы
     commit(); 
 
     const allCards = document.querySelectorAll('.card');
@@ -779,8 +816,7 @@
       state.done.push(n);
       sndHouseDone();
       
-      $('doneCount').textContent = getActiveNumbers().filter(num => state.done.includes(num)).length;
-      updateProgressBar();
+      updateBars(); // Обновляем полосы
       
       setTimeout(() => {
         if (getActiveNumbers().every(num => state.done.includes(num))) winGame();
@@ -793,13 +829,10 @@
 
   function renderAll() {
     $('score').textContent = state.score;
-    $('doneCount').textContent = getActiveNumbers().filter(n => state.done.includes(n)).length;
-    $('totalCount').textContent = getActiveNumbers().length;
     
     renderHouses();
     renderTray();
-    updateProgressBar();
-    updateHintsUI();
+    updateBars();
 
     $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
     $('sampleBtn').classList.toggle('active', state.sampleOn);
@@ -814,7 +847,7 @@
     if (state.sampleOn) {
       state.hintsUsed++; 
       state.hintsLeft--;
-      updateHintsUI();
+      updateBars(); // Обновляем шкалу подсказок
       commit();
     }
     
