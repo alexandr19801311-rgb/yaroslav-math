@@ -154,7 +154,7 @@
     100% { box-shadow: 0 0 0 0 var(--hint-glow); }
   }
 
-  /* ДОМИКИ - ИСПРАВЛЕННЫЙ СКРОЛЛ */
+  /* ДОМИКИ */
   .houses {
     display: flex; 
     overflow-x: auto; 
@@ -162,15 +162,13 @@
     scroll-snap-type: x mandatory;
     gap: 8px; 
     margin-bottom: 8px; 
-    padding-bottom: 0; /* Убираем нижний отступ для скролла */
+    padding-bottom: 0; 
     -webkit-overflow-scrolling: touch;
     flex: 0 0 42vh;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
-  .houses::-webkit-scrollbar { 
-    display: none; /* Chrome, Safari, Opera - скрываем скроллбар */
-  }
+  .houses::-webkit-scrollbar { display: none; }
 
   .house {
     flex: 0 0 130px; 
@@ -355,8 +353,12 @@
     .topbar { flex-wrap: wrap; }
     .bars-container { order: 3; width: 100%; max-width: none; margin-top: 6px; flex-direction: column; gap: 4px; }
     .bar-wrap { max-width: none; }
-    .houses { flex: 0 0 40vh; }
+    
+    /* Уменьшаем высоту банка и увеличиваем домики */
+    .houses { flex: 0 0 46vh; } 
     .house { flex: 0 0 110px; min-width: 110px; }
+    .tray-wrap { flex: 0 0 32vh; } /* Банк занимает 32% высоты вместо 40% */
+    
     .controls { gap: 4px; }
     .seg button { padding: 4px 8px; font-size: 11px; }
     .btn { padding: 6px 10px; font-size: 12px; }
@@ -414,7 +416,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v45</div>
+<div class="version-badge">build v46</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -433,15 +435,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v45';
+  const BUILD_VERSION = 'v46';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v45';
-  const STATS_KEY = 'yaroslav_stats_v45';
-  const THEME_KEY = 'yaroslav_theme_v45';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v45';
+  const STORAGE_KEY = 'yaroslav_house_progress_v46';
+  const STATS_KEY = 'yaroslav_stats_v46';
+  const THEME_KEY = 'yaroslav_theme_v46';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v46';
   
   const MAX_HINTS = 10;
 
