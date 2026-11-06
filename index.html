@@ -94,7 +94,7 @@
     background: var(--bg-grad);
     color: var(--text);
     height: 100dvh;
-    overflow: hidden;
+    overflow: hidden; /* Запрещаем общую прокрутку страницы */
     user-select: none;
     -webkit-user-select: none;
     transition: background .3s, color .3s;
@@ -137,18 +137,19 @@
   }
   .progress-text { font-size: 13px; color: var(--text); opacity: 0.8; white-space: nowrap; }
 
-  /* ИСПРАВЛЕНИЕ: Домики теперь на Flexbox и адаптируются под высоту */
+  /* ДОМИКИ */
   .houses {
-    display: flex;
-    flex-wrap: wrap; /* На ПК встают в ряд */
-    gap: 3px;
+    display: flex; flex-wrap: wrap; gap: 4px;
     margin-bottom: 6px;
-    flex: 1 1 auto; /* Занимают все доступное место, но не более */
+    /* Убираем жесткую высоту, домики сами подстроятся под экран */
+    flex: 1 1 auto; 
     min-height: 0;
+    overflow: hidden; 
+    align-content: flex-start;
   }
   
   .house {
-    flex: 1 1 calc(33.333% - 3px); /* По 3 штуки в ряд на ПК */
+    flex: 1 1 calc(33.333% - 4px);
     min-width: 100px;
     border: 1.5px solid var(--house-border); border-radius: 6px;
     background: var(--house-bg); position: relative; cursor: pointer;
@@ -214,14 +215,15 @@
   .eq { color: var(--op-color); }
   .result { color: var(--num-color); }
 
+  /* ЛОТОК */
   .tray-wrap {
-    flex: 0 0 auto; /* Банк больше не растягивается, а занимает нужную высоту */
+    /* Жестко фиксируем высоту лотка, чтобы он всегда был виден */
+    height: 25vh; 
+    min-height: 150px; 
+    flex: 0 0 auto; /* Запрещаем растягиваться/сжиматься */
     display: flex; flex-direction: column;
     background: var(--tray-bg); border: 2px dashed var(--tray-border);
     border-radius: 8px; padding: 4px 6px; 
-    height: 35vh; /* Фиксируем высоту банка, чтобы домики не выдавливали его */
-    min-height: 160px;
-    max-height: 400px;
     transition: background .3s, border-color .3s;
   }
   .tray-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: var(--tray-border); margin-bottom: 4px; flex-shrink: 0; }
@@ -330,6 +332,7 @@
     .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
     .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
     .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px;}
+    .tray-wrap { height: 30vh; }
   }
 
   /* АДАПТИВ ДЛЯ ТЕЛЕФОНОВ */
@@ -338,6 +341,7 @@
       display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
       gap: 8px; margin-bottom: 8px; padding-bottom: 4px; -webkit-overflow-scrolling: touch;
       flex-wrap: nowrap;
+      flex: 0 0 40vh; /* Фиксируем высоту домиков на телефоне */
     }
     .houses::-webkit-scrollbar { height: 6px; }
     .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
@@ -345,7 +349,9 @@
     .house { min-width: 110px; max-width: 110px; scroll-snap-align: start; border-width: 2px; flex: 0 0 auto; }
     .house-title { font-size: 14px; padding: 4px 0; }
     .slot-row { font-size: 14px; min-height: 26px; }
-    .tray-wrap { height: 40vh; flex: 0 0 40vh; }
+    
+    .tray-wrap { height: 35vh; flex: 0 0 35vh; } /* Фиксируем лоток на телефоне */
+    
     .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
     .controls { gap: 4px; }
     .seg button { padding: 4px 8px; font-size: 11px; }
@@ -408,7 +414,10 @@
   </div>
 </div>
 
-<div class="version-badge">build v40</div>
+<!-- Кнопка принудительного сброса кэша (для отладки) -->
+<div class="version-badge" style="pointer-events: auto; cursor: pointer;" onclick="localStorage.clear(); location.reload(true);">
+  build v41 (Сброс кэша)
+</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -427,15 +436,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v40';
+  const BUILD_VERSION = 'v41';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v40';
-  const STATS_KEY = 'yaroslav_stats_v40';
-  const THEME_KEY = 'yaroslav_theme_v40';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v40';
+  const STORAGE_KEY = 'yaroslav_house_progress_v41';
+  const STATS_KEY = 'yaroslav_stats_v41';
+  const THEME_KEY = 'yaroslav_theme_v41';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v41';
   
   const MAX_HINTS = 3;
 
