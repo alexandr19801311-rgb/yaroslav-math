@@ -1,4 +1,4 @@
-const CACHE_NAME = 'math-houses-v43'; // Меняй эту версию при каждом обновлении!
+const CACHE_NAME = 'math-houses-v44'; // Меняй эту версию при каждом обновлении!
 const ASSETS = [
   './',
   './index.html',
