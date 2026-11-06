@@ -121,7 +121,6 @@
   .topbar .title { color: var(--house-border); font-size: 16px; white-space: nowrap; }
   .topbar .score { color: var(--c-3); white-space: nowrap; }
   
-  /* Контейнер для двух полос (прогресс и подсказки) */
   .bars-container {
     flex: 1; display: flex; gap: 15px; margin: 0 10px; justify-content: center;
   }
@@ -155,7 +154,7 @@
     100% { box-shadow: 0 0 0 0 var(--hint-glow); }
   }
 
-  /* ДОМИКИ */
+  /* ДОМИКИ - ИСПРАВЛЕННЫЙ СКРОЛЛ */
   .houses {
     display: flex; 
     overflow-x: auto; 
@@ -163,13 +162,15 @@
     scroll-snap-type: x mandatory;
     gap: 8px; 
     margin-bottom: 8px; 
-    padding-bottom: 4px; 
+    padding-bottom: 0; /* Убираем нижний отступ для скролла */
     -webkit-overflow-scrolling: touch;
     flex: 0 0 42vh;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
   }
-  .houses::-webkit-scrollbar { height: 6px; }
-  .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
-  .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
+  .houses::-webkit-scrollbar { 
+    display: none; /* Chrome, Safari, Opera - скрываем скроллбар */
+  }
 
   .house {
     flex: 0 0 130px; 
@@ -413,7 +414,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v44</div>
+<div class="version-badge">build v45</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -432,15 +433,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v44';
+  const BUILD_VERSION = 'v45';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v44';
-  const STATS_KEY = 'yaroslav_stats_v44';
-  const THEME_KEY = 'yaroslav_theme_v44';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v44';
+  const STORAGE_KEY = 'yaroslav_house_progress_v45';
+  const STATS_KEY = 'yaroslav_stats_v45';
+  const THEME_KEY = 'yaroslav_theme_v45';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v45';
   
   const MAX_HINTS = 10;
 
@@ -582,7 +583,6 @@
   function commit() { saveProgress(); showSavedBadge(); }
 
   function updateBars() {
-    // Прогресс домов
     const activeNums = getActiveNumbers();
     const doneCount = activeNums.filter(n => state.done.includes(n)).length;
     const total = activeNums.length;
@@ -594,7 +594,6 @@
     void fill.offsetWidth;
     fill.classList.add('pulse');
 
-    // Подсказки
     const hintPercent = (state.hintsLeft / MAX_HINTS) * 100;
     const hintFill = $('hintFill');
     hintFill.style.width = hintPercent + '%';
@@ -605,12 +604,10 @@
     $('doneCount').textContent = `${doneCount}/${total}`;
     $('hintsCount').textContent = state.hintsLeft;
 
-    // Блокировка кнопки образца
     const sampleBtn = $('sampleBtn');
     if (state.hintsLeft <= 0) {
       sampleBtn.disabled = true;
       sampleBtn.style.opacity = '0.5';
-      // Если образец был включен, выключаем его принудительно
       if (state.sampleOn) {
         state.sampleOn = false;
         $('sampleBtn').textContent = '👁️ Образец';
@@ -740,7 +737,7 @@
     sndHint();
     state.hintsUsed++; 
     state.hintsLeft--;
-    updateBars(); // Обновляем обе шкалы
+    updateBars();
     commit(); 
 
     const allCards = document.querySelectorAll('.card');
@@ -816,7 +813,7 @@
       state.done.push(n);
       sndHouseDone();
       
-      updateBars(); // Обновляем полосы
+      updateBars();
       
       setTimeout(() => {
         if (getActiveNumbers().every(num => state.done.includes(num))) winGame();
@@ -847,7 +844,7 @@
     if (state.sampleOn) {
       state.hintsUsed++; 
       state.hintsLeft--;
-      updateBars(); // Обновляем шкалу подсказок
+      updateBars();
       commit();
     }
     
