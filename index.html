@@ -94,7 +94,7 @@
     background: var(--bg-grad);
     color: var(--text);
     height: 100dvh;
-    overflow: hidden; /* Запрещаем общую прокрутку страницы */
+    overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
     transition: background .3s, color .3s;
@@ -137,21 +137,28 @@
   }
   .progress-text { font-size: 13px; color: var(--text); opacity: 0.8; white-space: nowrap; }
 
-  /* ДОМИКИ */
+  /* ДОМИКИ (ЕДИНЫЙ СТИЛЬ ДЛЯ ВСЕХ - ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ) */
   .houses {
-    display: flex; flex-wrap: wrap; gap: 4px;
-    margin-bottom: 6px;
-    /* Убираем жесткую высоту, домики сами подстроятся под экран */
-    flex: 1 1 auto; 
-    min-height: 0;
-    overflow: hidden; 
-    align-content: flex-start;
+    display: flex; 
+    overflow-x: auto; 
+    overflow-y: hidden; 
+    scroll-snap-type: x mandatory;
+    gap: 8px; 
+    margin-bottom: 8px; 
+    padding-bottom: 4px; 
+    -webkit-overflow-scrolling: touch;
+    flex: 0 0 42vh; /* Домики занимают 42% высоты экрана */
   }
-  
+  .houses::-webkit-scrollbar { height: 6px; }
+  .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
+  .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
+
   .house {
-    flex: 1 1 calc(33.333% - 4px);
-    min-width: 100px;
-    border: 1.5px solid var(--house-border); border-radius: 6px;
+    flex: 0 0 130px; /* Фиксированная ширина домика */
+    min-width: 130px; 
+    scroll-snap-align: start; 
+    border: 1.5px solid var(--house-border); 
+    border-radius: 6px;
     background: var(--house-bg); position: relative; cursor: pointer;
     display: flex; flex-direction: column; transition: all .2s;
     overflow: hidden;
@@ -172,8 +179,8 @@
   @keyframes flashBad { 0%, 100% { background: var(--house-bg); } 50% { background: #ffcdd2; border-color: #d32f2f; } }
 
   .house-title {
-    text-align: center; font-size: 12px; font-weight: bold; color: #fff;
-    padding: 3px 0; margin-bottom: 2px; white-space: nowrap;
+    text-align: center; font-size: 14px; font-weight: bold; color: #fff;
+    padding: 4px 0; margin-bottom: 2px; white-space: nowrap;
     overflow: hidden; pointer-events: auto; cursor: pointer; transition: filter 0.2s;
     flex-shrink: 0;
   }
@@ -189,13 +196,13 @@
   .house[data-num="9"]  .house-title { background: var(--c-9); }
   .house[data-num="10"] .house-title { background: var(--c-10); }
 
-  .slots-container { display: flex; flex-direction: column; gap: 3px; padding: 0 2px 2px 2px; flex: 1; overflow-y: auto; }
+  .slots-container { display: flex; flex-direction: column; gap: 3px; padding: 0 4px 4px 4px; flex: 1; overflow-y: auto; }
 
   .slot-row {
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: bold;
+    font-size: 14px; font-weight: bold;
     background: var(--slot-bg); border-radius: 3px; border: 1px dashed var(--slot-border);
-    color: var(--slot-border); pointer-events: none; min-height: 22px; padding: 1px; line-height: 1;
+    color: var(--slot-border); pointer-events: none; min-height: 26px; padding: 1px; line-height: 1;
     transition: background 0.2s, border-color 0.2s;
   }
   .slot-row.filled { border-style: solid; border-color: var(--slot-filled-border); background: var(--slot-filled-bg); }
@@ -217,13 +224,11 @@
 
   /* ЛОТОК */
   .tray-wrap {
-    /* Жестко фиксируем высоту лотка, чтобы он всегда был виден */
-    height: 25vh; 
-    min-height: 150px; 
-    flex: 0 0 auto; /* Запрещаем растягиваться/сжиматься */
+    flex: 1; /* Занимает всё оставшееся место */
     display: flex; flex-direction: column;
     background: var(--tray-bg); border: 2px dashed var(--tray-border);
     border-radius: 8px; padding: 4px 6px; 
+    min-height: 0; /* Важно, чтобы flex-элемент мог сжиматься */
     transition: background .3s, border-color .3s;
   }
   .tray-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: var(--tray-border); margin-bottom: 4px; flex-shrink: 0; }
@@ -268,7 +273,7 @@
   .version-badge {
     position: fixed; bottom: 8px; right: 12px;
     font-size: 10px; color: var(--text); opacity: 0.4;
-    font-weight: normal; z-index: 200; pointer-events: none;
+    font-weight: normal; z-index: 200; pointer-events: auto; cursor: pointer;
   }
 
   .overlay {
@@ -326,43 +331,15 @@
   .confetti { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 99; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
-  /* АДАПТИВ ДЛЯ БОЛЬШИХ ЭКРАНОВ (ПК) */
-  @media (min-width: 1100px) {
-    .house { flex: 1 1 calc(33.333% - 6px); margin-bottom: 4px; }
-    .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
-    .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
-    .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px;}
-    .tray-wrap { height: 30vh; }
-  }
-
-  /* АДАПТИВ ДЛЯ ТЕЛЕФОНОВ */
+  /* Небольшая адаптация для мобильных (чтобы шрифты были компактнее) */
   @media (max-width: 768px) {
-    .houses {
-      display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
-      gap: 8px; margin-bottom: 8px; padding-bottom: 4px; -webkit-overflow-scrolling: touch;
-      flex-wrap: nowrap;
-      flex: 0 0 40vh; /* Фиксируем высоту домиков на телефоне */
-    }
-    .houses::-webkit-scrollbar { height: 6px; }
-    .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
-    .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
-    .house { min-width: 110px; max-width: 110px; scroll-snap-align: start; border-width: 2px; flex: 0 0 auto; }
-    .house-title { font-size: 14px; padding: 4px 0; }
-    .slot-row { font-size: 14px; min-height: 26px; }
-    
-    .tray-wrap { height: 35vh; flex: 0 0 35vh; } /* Фиксируем лоток на телефоне */
-    
-    .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
+    .topbar { flex-wrap: wrap; }
+    .progress-container { order: 3; width: 100%; max-width: none; margin-top: 4px; }
+    .houses { flex: 0 0 40vh; }
+    .house { flex: 0 0 110px; min-width: 110px; }
     .controls { gap: 4px; }
     .seg button { padding: 4px 8px; font-size: 11px; }
     .btn { padding: 6px 10px; font-size: 12px; }
-    .progress-container { max-width: none; margin: 0 4px; }
-    .progress-wrapper { height: 12px; }
-    .progress-text { font-size: 11px; }
-    
-    .stats-container { padding: 12px 16px; min-width: 240px; }
-    .stat-row { font-size: 14px; }
-    
     .version-badge { bottom: 6px; right: 8px; font-size: 9pt; }
   }
 </style>
@@ -414,9 +391,9 @@
   </div>
 </div>
 
-<!-- Кнопка принудительного сброса кэша (для отладки) -->
-<div class="version-badge" style="pointer-events: auto; cursor: pointer;" onclick="localStorage.clear(); location.reload(true);">
-  build v41 (Сброс кэша)
+<!-- Кликабельная версия для сброса кэша -->
+<div class="version-badge" onclick="localStorage.clear(); location.reload(true);" title="Нажмите, чтобы сбросить кэш">
+  build v42 (Сброс кэша)
 </div>
 
 <div class="overlay" id="overlay">
@@ -436,15 +413,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v41';
+  const BUILD_VERSION = 'v42';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v41';
-  const STATS_KEY = 'yaroslav_stats_v41';
-  const THEME_KEY = 'yaroslav_theme_v41';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v41';
+  const STORAGE_KEY = 'yaroslav_house_progress_v42';
+  const STATS_KEY = 'yaroslav_stats_v42';
+  const THEME_KEY = 'yaroslav_theme_v42';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v42';
   
   const MAX_HINTS = 3;
 
