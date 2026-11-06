@@ -224,11 +224,11 @@
 
   /* ЛОТОК */
   .tray-wrap {
-    flex: 1; /* Занимает всё оставшееся место */
+    flex: 1; 
     display: flex; flex-direction: column;
     background: var(--tray-bg); border: 2px dashed var(--tray-border);
     border-radius: 8px; padding: 4px 6px; 
-    min-height: 0; /* Важно, чтобы flex-элемент мог сжиматься */
+    min-height: 0; 
     transition: background .3s, border-color .3s;
   }
   .tray-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: var(--tray-border); margin-bottom: 4px; flex-shrink: 0; }
@@ -273,7 +273,7 @@
   .version-badge {
     position: fixed; bottom: 8px; right: 12px;
     font-size: 10px; color: var(--text); opacity: 0.4;
-    font-weight: normal; z-index: 200; pointer-events: auto; cursor: pointer;
+    font-weight: normal; z-index: 200; pointer-events: none; /* Убрал кликабельность */
   }
 
   .overlay {
@@ -331,7 +331,7 @@
   .confetti { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 99; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
-  /* Небольшая адаптация для мобильных (чтобы шрифты были компактнее) */
+  /* Небольшая адаптация для мобильных */
   @media (max-width: 768px) {
     .topbar { flex-wrap: wrap; }
     .progress-container { order: 3; width: 100%; max-width: none; margin-top: 4px; }
@@ -391,10 +391,8 @@
   </div>
 </div>
 
-<!-- Кликабельная версия для сброса кэша -->
-<div class="version-badge" onclick="localStorage.clear(); location.reload(true);" title="Нажмите, чтобы сбросить кэш">
-  build v42 (Сброс кэша)
-</div>
+<!-- Версия сборки (некликабельная) -->
+<div class="version-badge">build v43</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -413,15 +411,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v42';
+  const BUILD_VERSION = 'v43';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v42';
-  const STATS_KEY = 'yaroslav_stats_v42';
-  const THEME_KEY = 'yaroslav_theme_v42';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v42';
+  const STORAGE_KEY = 'yaroslav_house_progress_v43';
+  const STATS_KEY = 'yaroslav_stats_v43';
+  const THEME_KEY = 'yaroslav_theme_v43';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v43';
   
   const MAX_HINTS = 3;
 
