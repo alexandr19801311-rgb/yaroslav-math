@@ -112,10 +112,11 @@
   }
   .topbar .title { color: var(--house-border); font-size: 16px; white-space: nowrap; }
   .topbar .score { color: var(--c-3); white-space: nowrap; }
+  .topbar .hints { color: #f57f17; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
 
   .progress-container {
     flex: 1; display: flex; align-items: center; justify-content: center;
-    gap: 10px; max-width: 500px; margin: 0 10px;
+    gap: 10px; max-width: 400px; margin: 0 10px;
   }
   .progress-wrapper {
     flex: 1; height: 16px; background: var(--progress-bg);
@@ -239,11 +240,12 @@
   .btn {
     font-family: inherit; font-size: 13px; font-weight: bold;
     padding: 6px 16px; border: none; border-radius: 6px;
-    background: var(--btn-bg); color: var(--btn-text); cursor: pointer; transition: transform 0.1s;
+    background: var(--btn-bg); color: var(--btn-text); cursor: pointer; transition: transform 0.1s, opacity 0.2s;
   }
   .btn:active { transform: scale(0.97); }
   .btn.ghost { background: var(--btn-ghost-bg); color: var(--btn-text); border: 2px solid var(--btn-bg); }
   .btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .icon-btn { background: var(--btn-ghost-bg); border: 2px solid var(--btn-bg); color: var(--btn-text); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
 
   .version-badge {
@@ -357,6 +359,7 @@
       </div>
     </div>
 
+    <div class="hints">💡 <span id="hintsCount">3</span>/3</div>
     <div class="score">⭐ <span id="score">0</span></div>
   </div>
 
@@ -388,7 +391,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v37</div>
+<div class="version-badge">build v38</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -407,15 +410,17 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v37';
+  const BUILD_VERSION = 'v38';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v37';
-  const STATS_KEY = 'yaroslav_stats_v37';
-  const THEME_KEY = 'yaroslav_theme_v37';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v37';
+  const STORAGE_KEY = 'yaroslav_house_progress_v38';
+  const STATS_KEY = 'yaroslav_stats_v38';
+  const THEME_KEY = 'yaroslav_theme_v38';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v38';
+  
+  const MAX_HINTS = 3;
 
   const data = {};
   ALL_NUMBERS.forEach(n => {
@@ -438,7 +443,8 @@
     sessionStartTime: Date.now(),
     hintsUsed: 0,
     errorsMade: 0,
-    achievements: {}
+    achievements: {},
+    hintsLeft: MAX_HINTS // Текущий лимит подсказок
   };
 
   const $ = id => document.getElementById(id);
@@ -488,7 +494,8 @@
         trayOrder: state.trayOrder,
         sessionStartTime: state.sessionStartTime,
         hintsUsed: state.hintsUsed,
-        errorsMade: state.errorsMade
+        errorsMade: state.errorsMade,
+        hintsLeft: state.hintsLeft
       }));
     } catch(e) {}
   }
@@ -508,6 +515,7 @@
       state.sessionStartTime = obj.sessionStartTime || Date.now();
       state.hintsUsed = obj.hintsUsed || 0;
       state.errorsMade = obj.errorsMade || 0;
+      state.hintsLeft = obj.hintsLeft ?? MAX_HINTS;
       
       document.querySelectorAll('#segLevel button').forEach(b => {
         b.classList.toggle('active', b.dataset.level === state.level);
@@ -563,6 +571,18 @@
     fill.classList.remove('pulse');
     void fill.offsetWidth;
     fill.classList.add('pulse');
+  }
+
+  function updateHintsUI() {
+    $('hintsCount').textContent = state.hintsLeft;
+    const sampleBtn = $('sampleBtn');
+    if (state.hintsLeft <= 0) {
+      sampleBtn.disabled = true;
+      sampleBtn.style.opacity = '0.5';
+    } else {
+      sampleBtn.disabled = false;
+      sampleBtn.style.opacity = '1';
+    }
   }
 
   function renderSingleHouse(n, container) {
@@ -672,8 +692,19 @@
 
   function highlightCardsForNumber(n) {
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
+    
+    // Проверка лимита подсказок
+    if (state.hintsLeft <= 0) {
+      // Просто визуальная тряска, если подсказок нет
+      const house = document.querySelector(`.house[data-num="${n}"]`);
+      if (house) house.animate([{transform:"translateX(0)"},{transform:"translateX(-4px)"},{transform:"translateX(4px)"},{transform:"translateX(0)"}], {duration:200});
+      return;
+    }
+
     sndHint();
     state.hintsUsed++; 
+    state.hintsLeft--;
+    updateHintsUI();
     commit(); 
 
     const allCards = document.querySelectorAll('.card');
@@ -769,18 +800,25 @@
     renderHouses();
     renderTray();
     updateProgressBar();
+    updateHintsUI();
 
     $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
     $('sampleBtn').classList.toggle('active', state.sampleOn);
   }
 
   function toggleSample() {
+    if (state.hintsLeft <= 0) return; // Блокировка, если нет подсказок
+    
     state.sampleOn = !state.sampleOn;
     tone(state.sampleOn ? 660 : 440, 0.1);
+    
     if (state.sampleOn) {
       state.hintsUsed++; 
+      state.hintsLeft--;
+      updateHintsUI();
       commit();
     }
+    
     renderHouses(); 
     $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
     $('sampleBtn').classList.toggle('active', state.sampleOn);
@@ -836,7 +874,7 @@
     let achievementsHtml = '';
     const achList = [
       { id: 'perfect', title: 'Без ошибок', emoji: '🎯', cond: state.errorsMade === 0 },
-      { id: 'no_hints', title: 'Без подсказок', emoji: '🧠', cond: state.hintsUsed === 0 },
+      { id: 'genius', title: 'Гений', emoji: '🧠', cond: state.hintsUsed === 0 }, // Новая ачивка
       { id: 'fast', title: 'Скоростной', emoji: '⚡', cond: timeSpentSec < 60 }
     ];
 
@@ -895,6 +933,7 @@
     state.sessionStartTime = Date.now();
     state.hintsUsed = 0;
     state.errorsMade = 0;
+    state.hintsLeft = MAX_HINTS; // Сброс подсказок
     
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     $('overlay').classList.remove('show');
@@ -903,7 +942,7 @@
   }
 
   $('resetStatsBtn').addEventListener('click', () => {
-    if (confirm('Удалить все рекорды и достижения? (Время, ошибки, подсказки и ачивки будут обнулены)')) {
+    if (confirm('Удалить все рекорды и достижения?')) {
       try {
         localStorage.removeItem(STATS_KEY);
         localStorage.removeItem(ACHIEVEMENTS_KEY);
@@ -943,6 +982,7 @@
     state.sessionStartTime = Date.now();
     state.hintsUsed = 0;
     state.errorsMade = 0;
+    state.hintsLeft = MAX_HINTS; // Сброс при смене уровня
     
     saveProgress();
     renderAll();
