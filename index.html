@@ -293,6 +293,41 @@
     font-weight: normal; z-index: 200; pointer-events: none;
   }
 
+  /* ЭКРАН АКТИВАЦИИ */
+  #activationScreen {
+    position: fixed; inset: 0;
+    background: var(--bg-grad);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px; text-align: center;
+    transition: opacity 0.4s;
+  }
+  #activationScreen.hidden {
+    opacity: 0; pointer-events: none;
+  }
+  .activation-card {
+    background: var(--house-bg); border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 30px 20px; width: 100%; max-width: 400px;
+    border: 2px solid var(--house-border);
+  }
+  .activation-icon { font-size: 48px; margin-bottom: 10px; }
+  .activation-title { font-size: 22px; font-weight: bold; color: var(--house-border); margin-bottom: 8px; }
+  .activation-sub { font-size: 14px; color: var(--text); opacity: 0.7; margin-bottom: 20px; }
+  
+  .input-group { margin-bottom: 20px; text-align: left; }
+  .input-group label { display: block; font-size: 12px; margin-bottom: 4px; opacity: 0.8; }
+  .input-group input {
+    width: 100%; padding: 12px 16px; font-size: 18px; font-family: inherit;
+    border: 2px solid var(--house-border); border-radius: 8px;
+    background: var(--bg-grad); color: var(--text); text-align: center;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .input-group input:focus { outline: none; box-shadow: 0 0 0 3px var(--progress-glow); }
+
+  .activation-actions { display: flex; flex-direction: column; gap: 10px; }
+  .activation-actions .btn { width: 100%; padding: 12px; font-size: 16px; }
+
+  /* ОВЕРЛЕЙ ПОБЕДЫ */
   .overlay {
     position: fixed; inset: 0; background: var(--overlay-bg); display: flex; flex-direction: column;
     align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none;
@@ -353,12 +388,9 @@
     .topbar { flex-wrap: wrap; }
     .bars-container { order: 3; width: 100%; max-width: none; margin-top: 6px; flex-direction: column; gap: 4px; }
     .bar-wrap { max-width: none; }
-    
-    /* Уменьшаем высоту банка и увеличиваем домики */
     .houses { flex: 0 0 46vh; } 
     .house { flex: 0 0 110px; min-width: 110px; }
-    .tray-wrap { flex: 0 0 32vh; } /* Банк занимает 32% высоты вместо 40% */
-    
+    .tray-wrap { flex: 0 0 32vh; } 
     .controls { gap: 4px; }
     .seg button { padding: 4px 8px; font-size: 11px; }
     .btn { padding: 6px 10px; font-size: 12px; }
@@ -367,6 +399,25 @@
 </style>
 </head>
 <body>
+
+<!-- ЭКРАН АКТИВАЦИИ -->
+<div id="activationScreen">
+  <div class="activation-card">
+    <div class="activation-icon">🏠</div>
+    <div class="activation-title">Добро пожаловать!</div>
+    <div class="activation-sub">Введите код с вашей карточки, чтобы начать заниматься.</div>
+    
+    <div class="input-group">
+      <label>Код активации</label>
+      <input type="text" id="activationCode" placeholder="XXXX-XXXX" maxlength="9">
+    </div>
+
+    <div class="activation-actions">
+      <button class="btn" id="activateBtn">Активировать</button>
+      <button class="btn ghost" id="skipBtn">У меня уже есть доступ</button>
+    </div>
+  </div>
+</div>
 
 <div class="app">
   <div class="topbar">
@@ -416,7 +467,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v46</div>
+<div class="version-badge">build v47</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -435,15 +486,16 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v46';
+  const BUILD_VERSION = 'v47';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v46';
-  const STATS_KEY = 'yaroslav_stats_v46';
-  const THEME_KEY = 'yaroslav_theme_v46';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v46';
+  const STORAGE_KEY = 'yaroslav_house_progress_v47';
+  const STATS_KEY = 'yaroslav_stats_v47';
+  const THEME_KEY = 'yaroslav_theme_v47';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v47';
+  const ACTIVATION_KEY = 'yaroslav_activation_v47'; // Ключ для проверки активации
   
   const MAX_HINTS = 10;
 
@@ -469,7 +521,8 @@
     hintsUsed: 0,
     errorsMade: 0,
     achievements: {},
-    hintsLeft: MAX_HINTS
+    hintsLeft: MAX_HINTS,
+    isActivated: false // Флаг активации
   };
 
   const $ = id => document.getElementById(id);
@@ -477,6 +530,50 @@
 
   console.log(`Запуск игры, сборка: ${BUILD_VERSION}`);
 
+  // ===== ИНИЦИАЛИЗАЦИЯ АКТИВАЦИИ =====
+  function checkActivation() {
+    try {
+      const activated = localStorage.getItem(ACTIVATION_KEY);
+      if (activated === 'true') {
+        state.isActivated = true;
+        $('activationScreen').classList.add('hidden');
+      } else {
+        state.isActivated = false;
+        $('activationScreen').classList.remove('hidden');
+      }
+    } catch(e) {
+      $('activationScreen').classList.remove('hidden');
+    }
+  }
+
+  function activateApp() {
+    const codeInput = $('activationCode');
+    const code = codeInput.value.trim().toUpperCase();
+    
+    // Честный формат: принимаем любой код длиннее 3 символов или кнопку "Пропустить"
+    if (code.length >= 3 || code === '') {
+      try {
+        localStorage.setItem(ACTIVATION_KEY, 'true');
+        state.isActivated = true;
+        $('activationScreen').classList.add('hidden');
+        // Небольшая анимация успеха
+        tone(1046, 0.1); setTimeout(() => tone(1318, 0.1), 100);
+      } catch(e) {}
+    } else {
+      alert('Пожалуйста, введите код с карточки (минимум 3 символа).');
+    }
+  }
+
+  $('activateBtn').addEventListener('click', activateApp);
+  $('skipBtn').addEventListener('click', () => {
+    try {
+      localStorage.setItem(ACTIVATION_KEY, 'true');
+      state.isActivated = true;
+      $('activationScreen').classList.add('hidden');
+    } catch(e) {}
+  });
+
+  // ===== ОСТАЛЬНАЯ ЛОГИКА =====
   function tone(freq, dur = 0.12, type = 'sine') {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1025,8 +1122,10 @@
     });
   }
 
+  // Инициализация при загрузке
   loadTheme();
   loadAchievements();
+  checkActivation(); // Проверяем, активирован ли продукт
   const loaded = loadProgress();
   if (!loaded) state.sessionStartTime = Date.now();
   renderAll();
