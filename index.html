@@ -137,10 +137,14 @@
   }
   .progress-text { font-size: 13px; color: var(--text); opacity: 0.8; white-space: nowrap; }
 
+  /* ИСПРАВЛЕНИЕ: Высота домиков теперь адаптивная */
   .houses {
     display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px;
-    flex-shrink: 0; margin-bottom: 6px; height: 50vh; 
+    flex-shrink: 0; margin-bottom: 6px; 
+    height: 48vh; /* Чуть уменьшили базовую высоту */
+    max-height: 500px;
   }
+  
   .house {
     border: 1.5px solid var(--house-border); border-radius: 6px;
     background: var(--house-bg); position: relative; cursor: pointer;
@@ -205,9 +209,10 @@
   .result { color: var(--num-color); }
 
   .tray-wrap {
-    flex: 1; display: flex; flex-direction: column;
+    flex: 1 1 auto; display: flex; flex-direction: column;
     background: var(--tray-bg); border: 2px dashed var(--tray-border);
-    border-radius: 8px; padding: 4px 6px; min-height: 0; transition: background .3s, border-color .3s;
+    border-radius: 8px; padding: 4px 6px; min-height: 150px; /* Гарантируем, что банк не схлопнется */
+    transition: background .3s, border-color .3s;
   }
   .tray-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: var(--tray-border); margin-bottom: 4px; flex-shrink: 0; }
   .tray-header .left { display: flex; align-items: center; gap: 6px; }
@@ -309,18 +314,21 @@
   .confetti { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 99; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
+  /* АДАПТИВ ДЛЯ БОЛЬШИХ ЭКРАНОВ (ПК) */
   @media (min-width: 1100px) {
-    .houses { grid-template-columns: repeat(3, 1fr); height: auto; }
-    .house { padding: 4px; }
+    .houses { grid-template-columns: repeat(3, 1fr); height: auto; max-height: none; }
+    .house { padding: 4px; min-height: 200px; } /* Домики растягиваются по содержимому */
     .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
     .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
     .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px;}
   }
 
+  /* АДАПТИВ ДЛЯ ТЕЛЕФОНОВ */
   @media (max-width: 768px) {
     .houses {
       display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
-      gap: 8px; height: 45vh; margin-bottom: 8px; padding-bottom: 4px; -webkit-overflow-scrolling: touch;
+      gap: 8px; height: 40vh; margin-bottom: 8px; padding-bottom: 4px; -webkit-overflow-scrolling: touch;
+      max-height: 40vh;
     }
     .houses::-webkit-scrollbar { height: 6px; }
     .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
@@ -328,7 +336,7 @@
     .house { min-width: 110px; scroll-snap-align: start; border-width: 2px; }
     .house-title { font-size: 14px; padding: 4px 0; }
     .slot-row { font-size: 14px; min-height: 26px; }
-    .tray-wrap { flex: 0 0 35vh; }
+    .tray-wrap { flex: 0 0 40vh; }
     .tray-body { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px;}
     .controls { gap: 4px; }
     .seg button { padding: 4px 8px; font-size: 11px; }
@@ -340,7 +348,7 @@
     .stats-container { padding: 12px 16px; min-width: 240px; }
     .stat-row { font-size: 14px; }
     
-    .version-badge { bottom: 6px; right: 8px; font-size: 9px; }
+    .version-badge { bottom: 6px; right: 8px; font-size: 9pt; }
   }
 </style>
 </head>
@@ -391,7 +399,7 @@
   </div>
 </div>
 
-<div class="version-badge">build v38</div>
+<div class="version-badge">build v39</div>
 
 <div class="overlay" id="overlay">
   <h2 id="overlayTitle">🎉 Победа!</h2>
@@ -410,15 +418,15 @@
 <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
 <script>
-  const BUILD_VERSION = 'v38';
+  const BUILD_VERSION = 'v39';
 
   const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
   const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
   
-  const STORAGE_KEY = 'yaroslav_house_progress_v38';
-  const STATS_KEY = 'yaroslav_stats_v38';
-  const THEME_KEY = 'yaroslav_theme_v38';
-  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v38';
+  const STORAGE_KEY = 'yaroslav_house_progress_v39';
+  const STATS_KEY = 'yaroslav_stats_v39';
+  const THEME_KEY = 'yaroslav_theme_v39';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v39';
   
   const MAX_HINTS = 3;
 
@@ -444,7 +452,7 @@
     hintsUsed: 0,
     errorsMade: 0,
     achievements: {},
-    hintsLeft: MAX_HINTS // Текущий лимит подсказок
+    hintsLeft: MAX_HINTS
   };
 
   const $ = id => document.getElementById(id);
@@ -693,9 +701,7 @@
   function highlightCardsForNumber(n) {
     if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
     
-    // Проверка лимита подсказок
     if (state.hintsLeft <= 0) {
-      // Просто визуальная тряска, если подсказок нет
       const house = document.querySelector(`.house[data-num="${n}"]`);
       if (house) house.animate([{transform:"translateX(0)"},{transform:"translateX(-4px)"},{transform:"translateX(4px)"},{transform:"translateX(0)"}], {duration:200});
       return;
@@ -807,7 +813,7 @@
   }
 
   function toggleSample() {
-    if (state.hintsLeft <= 0) return; // Блокировка, если нет подсказок
+    if (state.hintsLeft <= 0) return;
     
     state.sampleOn = !state.sampleOn;
     tone(state.sampleOn ? 660 : 440, 0.1);
@@ -874,7 +880,7 @@
     let achievementsHtml = '';
     const achList = [
       { id: 'perfect', title: 'Без ошибок', emoji: '🎯', cond: state.errorsMade === 0 },
-      { id: 'genius', title: 'Гений', emoji: '🧠', cond: state.hintsUsed === 0 }, // Новая ачивка
+      { id: 'genius', title: 'Гений', emoji: '🧠', cond: state.hintsUsed === 0 },
       { id: 'fast', title: 'Скоростной', emoji: '⚡', cond: timeSpentSec < 60 }
     ];
 
@@ -933,7 +939,7 @@
     state.sessionStartTime = Date.now();
     state.hintsUsed = 0;
     state.errorsMade = 0;
-    state.hintsLeft = MAX_HINTS; // Сброс подсказок
+    state.hintsLeft = MAX_HINTS;
     
     try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     $('overlay').classList.remove('show');
@@ -982,7 +988,7 @@
     state.sessionStartTime = Date.now();
     state.hintsUsed = 0;
     state.errorsMade = 0;
-    state.hintsLeft = MAX_HINTS; // Сброс при смене уровня
+    state.hintsLeft = MAX_HINTS;
     
     saveProgress();
     renderAll();
