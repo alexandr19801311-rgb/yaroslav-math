@@ -1,5 +1,5 @@
 /* ============================================================
-   GAME.CSS — Стили игры «Состав чисел» (v6.1 — широкие домики на мобилке)
+   GAME.CSS — Стили игры «Состав чисел» (v6.2 — фикс ПК + мобилки)
    ============================================================ */
 
 /* ===== ЦВЕТОВЫЕ ПЕРЕМЕННЫЕ (светлая тема) ===== */
@@ -181,7 +181,7 @@
 /* ===== ДОМИКИ ===== */
 .houses {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  grid-template-columns: repeat(9, 1fr); /* По умолчанию 9 колонок (для планшета) */
   gap: 3px;
   flex-shrink: 0;
   margin-bottom: 6px;
@@ -549,7 +549,7 @@
    АДАПТИВ
    ============================================================ */
 
-/* 🖥️ КОМПЬЮТЕР */
+/* 🖥️ КОМПЬЮТЕР (возвращаем сетку 3х3) */
 @media (min-width: 1100px) {
   .houses {
     grid-template-columns: repeat(3, 1fr);
@@ -566,7 +566,6 @@
 
 /* 📱 ПЛАНШЕТ / ТЕЛЕФОН */
 @media (max-width: 768px) {
-  /* Карусель домиков */
   .houses {
     display: flex;
     overflow-x: auto;
@@ -576,7 +575,7 @@
     height: 44vh;
     margin-bottom: 4px;
     padding-bottom: 2px;
-    padding-right: 10px; /* Отступ, чтобы последний домик не прилипал к краю */
+    padding-right: 10px;
     -webkit-overflow-scrolling: touch;
     flex-shrink: 0;
   }
@@ -586,14 +585,13 @@
   .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
 
   .house { 
-    min-width: 130px; /* УВЕЛИЧИЛИ ШИРИНУ (было 110px) */
+    min-width: 130px;
     scroll-snap-align: start; 
     border-width: 2px; 
   }
   .house-title { font-size: 14px; padding: 4px 0; }
   .slot-row { font-size: 14px; min-height: 24px; }
 
-  /* Банк карточек — занимает всё оставшееся место */
   .tray-wrap { 
     flex: 1;
     min-height: 100px;
@@ -605,7 +603,6 @@
     gap: 4px;
   }
   
-  /* Нижняя панель — фиксированная высота */
   .controls {
     flex-shrink: 0;
     gap: 4px;
@@ -618,7 +615,6 @@
   .btn { padding: 4px 8px; font-size: 12px; }
   .icon-btn { padding: 3px 5px; font-size: 13px; }
   
-  /* Шапка */
   .topbar { gap: 4px; padding-bottom: 2px; flex-shrink: 0; }
   .topbar .title { font-size: 14px; }
   .progress-container { max-width: none; margin: 0 2px; }
