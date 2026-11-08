@@ -20,6 +20,14 @@
   <script type="module">
     import { initRouter } from './assets/js/router.js';
     initRouter();
+    import { hideFactModal } from './assets/js/core.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('factClose')?.addEventListener('click', hideFactModal);
+  document.getElementById('factModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'factModal') hideFactModal();
+  });
+});
   </script>
 </body>
 </html>
