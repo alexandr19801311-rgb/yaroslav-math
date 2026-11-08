@@ -1,5 +1,5 @@
 /* ============================================================
-   GAME.CSS — Стили игры «Состав чисел» (v2 с фиксами)
+   GAME.CSS — Стили игры «Состав чисел» (v3 — фикс мобильной панели)
    ============================================================ */
 
 /* ===== ЦВЕТОВЫЕ ПЕРЕМЕННЫЕ (светлая тема) ===== */
@@ -185,7 +185,7 @@
   gap: 3px;
   flex-shrink: 0;
   margin-bottom: 6px;
-  height: 50vh;
+  height: 45vh; /* было 50, чуть уменьшили для мобилки */
 }
 .house {
   border: 1.5px solid var(--house-border);
@@ -217,7 +217,6 @@
   50% { background: #ffcdd2; border-color: #d32f2f; }
 }
 
-/* Неактивный домик (для будущих уровней) */
 .house.inactive {
   background: var(--inactive-house-bg);
   border-color: var(--inactive-house-border);
@@ -253,7 +252,6 @@
 }
 .house-title:hover { filter: brightness(0.9); }
 
-/* Цвета домиков */
 .house[data-num="2"]  .house-title { background: var(--c-2); }
 .house[data-num="3"]  .house-title { background: var(--c-3); }
 .house[data-num="4"]  .house-title { background: var(--c-4); color: #333; }
@@ -264,7 +262,7 @@
 .house[data-num="9"]  .house-title { background: var(--c-9); }
 .house[data-num="10"] .house-title { background: var(--c-10); }
 
-/* ===== СЛОТЫ (ЯЧЕЙКИ) ВНУТРИ ДОМИКА ===== */
+/* ===== СЛОТЫ ===== */
 .slots-container {
   display: flex;
   flex-direction: column;
@@ -295,7 +293,6 @@
   background: var(--slot-filled-bg);
 }
 
-/* Анимация «шлепка» */
 @keyframes slot-pop {
   0% { transform: scale(1); }
   40% { transform: scale(1.15); background: #c8e6c9; border-color: #388e3c; color: #2e7d32; }
@@ -306,7 +303,6 @@
   z-index: 2;
 }
 
-/* «Призрак» — образец */
 .slot-row.ghost {
   border-color: #b39ddb;
   background: rgba(179,157,219,0.1);
@@ -319,13 +315,12 @@
   color: #9575cd;
 }
 
-/* Цвета цифр и знаков */
 .num-blue { color: var(--num-color); }
 .op-red { color: var(--op-color); }
 .eq { color: var(--op-color); }
 .result { color: var(--num-color); }
 
-/* ===== ЛОТОК С КАРТОЧКАМИ ===== */
+/* ===== ЛОТОК ===== */
 .tray-wrap {
   flex: 1;
   display: flex;
@@ -371,7 +366,6 @@
   padding: 2px;
 }
 
-/* ===== КАРТОЧКА ===== */
 .card {
   font-family: inherit;
   font-size: 14px;
@@ -412,15 +406,19 @@
   padding: 10px;
 }
 
-/* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
+/* ============================================================
+   НИЖНЯЯ ПАНЕЛЬ (ФИКС ОТ ВЫЛЕТА)
+   ============================================================ */
 .controls {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 6px;
+  flex-wrap: wrap;      /* разрешаем перенос на мобильных */
+  gap: 6px;
+  margin-top: 4px;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
+  width: 100%;
+  padding-bottom: 2px;  /* небольшой отступ снизу, чтобы не прилипало к краю */
 }
 
 /* Переключатель уровней */
@@ -428,47 +426,47 @@
   display: inline-flex;
   background: var(--house-bg);
   border-radius: 6px;
-  padding: 3px;
+  padding: 2px;
   gap: 2px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  flex-shrink: 0;
 }
 .seg button {
   font-family: inherit;
   border: none;
   background: transparent;
   color: var(--text);
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
   font-weight: bold;
-  transition: background .15s, color .15s;
+  white-space: nowrap;
 }
 .seg button.active {
   background: var(--btn-bg);
   color: var(--btn-text);
 }
 
-/* Кнопки «Образец» и «Заново» — в отдельной группе */
+/* Кнопки «Образец» и «Заново» */
 .actions {
   display: flex;
-  gap: 6px;
-  margin-left: auto;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
-/* Кнопки */
 .btn {
   font-family: inherit;
   font-size: 13px;
   font-weight: bold;
-  padding: 6px 16px;
+  padding: 6px 12px;
   border: none;
   border-radius: 6px;
   background: var(--btn-bg);
   color: var(--btn-text);
   cursor: pointer;
-  transition: transform 0.1s;
   white-space: nowrap;
+  transition: transform 0.1s;
 }
 .btn:active { transform: scale(0.97); }
 .btn.ghost {
@@ -482,7 +480,6 @@
   color: #fff;
 }
 
-/* Кнопка темы */
 .icon-btn {
   background: var(--btn-ghost-bg);
   border: 2px solid var(--btn-bg);
@@ -492,6 +489,7 @@
   cursor: pointer;
   font-size: 14px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ===== ОВЕРЛЕЙ ===== */
@@ -510,27 +508,12 @@
   z-index: 100;
   text-align: center;
 }
-.overlay.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-.overlay h2 {
-  font-size: 32px;
-  color: var(--house-border);
-  margin-bottom: 10px;
-}
-.overlay p {
-  font-size: 18px;
-  color: var(--text);
-  margin-bottom: 6px;
-}
-.overlay .big {
-  font-size: 48px;
-  margin: 14px 0;
-  color: var(--c-3);
-}
+.overlay.show { opacity: 1; pointer-events: auto; }
+.overlay h2 { font-size: 32px; color: var(--house-border); margin-bottom: 10px; }
+.overlay p { font-size: 18px; color: var(--text); margin-bottom: 6px; }
+.overlay .big { font-size: 48px; margin: 14px 0; color: var(--c-3); }
 
-/* ===== БЕЙДЖ «СОХРАНЕНО» ===== */
+/* ===== БЕЙДЖ ===== */
 .saved-badge {
   position: fixed;
   bottom: 16px;
@@ -562,39 +545,29 @@
   z-index: 99;
   animation: fall linear forwards;
 }
-@keyframes fall {
-  to { transform: translateY(100vh) rotate(720deg); }
-}
+@keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
 /* ============================================================
    АДАПТИВ
    ============================================================ */
 
-/* 🖥️ КОМПЬЮТЕР (широкий экран) */
+/* 🖥️ КОМПЬЮТЕР */
 @media (min-width: 1100px) {
   .houses {
     grid-template-columns: repeat(3, 1fr);
     height: auto;
   }
   .house { padding: 4px; }
-  .house-title {
-    font-size: 14px;
-    padding: 4px 0;
-    margin-bottom: 4px;
-  }
-  .slots-container {
-    gap: 4px;
-    padding: 0 4px 4px 4px;
-  }
-  .slot-row {
-    font-size: 14px;
-    min-height: 28px;
-    border-radius: 4px;
-    padding-left: 6px;
-  }
+  .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
+  .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
+  .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px; }
+  
+  /* На ПК кнопки справа */
+  .controls { justify-content: space-between; }
+  .actions { margin-left: auto; }
 }
 
-/* 📱 ПЛАНШЕТ / ТЕЛЕФОН (узкий экран) */
+/* 📱 ПЛАНШЕТ / ТЕЛЕФОН */
 @media (max-width: 768px) {
   .houses {
     display: flex;
@@ -602,69 +575,40 @@
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     gap: 8px;
-    height: 45vh;
-    margin-bottom: 8px;
+    height: 40vh; /* Чуть меньше, чтобы нижняя панель точно влезла */
+    margin-bottom: 6px;
     padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
   }
   .houses::-webkit-scrollbar { height: 6px; }
-  .houses::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.05);
-    border-radius: 3px;
-  }
-  .houses::-webkit-scrollbar-thumb {
-    background: var(--house-border);
-    border-radius: 3px;
-  }
+  .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
+  .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
 
-  .house {
-    min-width: 110px;
-    scroll-snap-align: start;
-    border-width: 2px;
+  .house { min-width: 110px; scroll-snap-align: start; border-width: 2px; }
+  .house-title { font-size: 14px; padding: 4px 0; }
+  .slot-row { font-size: 14px; min-height: 26px; }
+  
+  /* Лоток фиксированной высоты, чтобы не выдавливал панель */
+  .tray-wrap { 
+    flex: 0 0 30vh; 
   }
-  .house-title {
-    font-size: 14px;
-    padding: 4px 0;
-  }
-  .slot-row {
-    font-size: 14px;
-    min-height: 26px;
-  }
-  .tray-wrap {
-    flex: 0 0 35vh;
-  }
-  .tray-body {
-    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+  .tray-body { 
+    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); 
     gap: 4px;
   }
   
-  /* Нижняя панель на мобильных */
+  /* Нижняя панель на мобилке: компактные кнопки */
   .controls {
-    gap: 6px;
-    padding: 4px 0;
+    gap: 4px;
+    margin-top: 4px;
+    padding-bottom: 4px;
   }
-  .seg button {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-  .btn {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-  .actions {
-    margin-left: 0;
-    flex: 1 1 100%; /* Переносим на новую строку */
-    justify-content: flex-end;
-  }
+  .seg { padding: 2px; }
+  .seg button { padding: 5px 8px; font-size: 11px; }
+  .btn { padding: 6px 10px; font-size: 12px; }
+  .icon-btn { padding: 4px 6px; font-size: 13px; }
   
-  .progress-container {
-    max-width: none;
-    margin: 0 4px;
-  }
-  .progress-wrapper {
-    height: 12px;
-  }
-  .progress-text {
-    font-size: 11px;
-  }
+  .progress-container { max-width: none; margin: 0 4px; }
+  .progress-wrapper { height: 12px; }
+  .progress-text { font-size: 11px; }
 }
