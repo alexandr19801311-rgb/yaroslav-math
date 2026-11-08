@@ -1,6 +1,44 @@
+{
+  "menu": {
+    "title": "Math",
+    "subtitle": "Choose a topic to practice",
+    "parents": "Parent Dashboard"
+  },
+  "games": {
+    "composition": {
+      "title": "Number Bonds",
+      "description": "Build a number from two addends",
+      "ageRange": "Ages 6-8"
+    },
+    "subtraction": {
+      "title": "Subtraction",
+      "description": "Find the difference",
+      "ageRange": "Ages 7-9"
+    }
+  },
+  "game": {
+    "collected": "Collected",
+    "cards": "Cards",
+    "showSample": "Show sample",
+    "hideSample": "Hide",
+    "restart": "Start over",
+    "resetConfirm": "Start over? All progress will be lost.",
+    "victory": "Victory!",
+    "victoryText": "You built all the houses!",
+    "playAgain": "Play again",
+    "saved": "Progress saved",
+    "restored": "Progress restored"
+  },
+  "levels": {
+    "easy": "2–5",
+    "medium": "6–8",
+    "hard": "9–10",
+    "all": "All"
+  },
   "history": {
     "title": "Did you know?",
     "era": "Era",
     "learnMore": "Learn more",
     "close": "Close"
   }
+}
