@@ -18,10 +18,24 @@ export async function navigate(hash) {
   const container = document.getElementById('app');
   container.innerHTML = '';
 
-  if (route === 'game' && path[1] === 'composition') {
-    const { mount } = await import('../../games/composition/game.js');
-    const result = await mount(container);
-    if (result && result.cleanup) currentCleanup = result.cleanup;
+  if (route === 'game') {
+    const gameId = path[1];
+    
+    if (gameId === 'composition') {
+      const { mount } = await import('../../games/composition/game.js');
+      const result = await mount(container);
+      if (result && result.cleanup) currentCleanup = result.cleanup;
+    } 
+    else if (gameId === 'subtraction') {
+      // Загружаем игру «Вычитание»
+      const { mount } = await import('../../games/subtraction/game.js');
+      const result = await mount(container);
+      if (result && result.cleanup) currentCleanup = result.cleanup;
+    } 
+    else {
+      // Неизвестная игра — редирект в меню
+      renderMenu(container);
+    }
   } else if (route === 'parents') {
     container.innerHTML = `
       <div class="menu-screen">
