@@ -7,6 +7,13 @@ export function getLang() {
 }
 
 export function t(key) {
-  // Пока просто возвращаем ключ, если понадобится
   return key;
+}
+
+export function loadLocale(lang) {
+  return Promise.resolve(true);
+}
+
+export function initLang() {
+  return Promise.resolve();
 }
