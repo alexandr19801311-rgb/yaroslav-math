@@ -8,46 +8,57 @@ import {
   saveProgress, loadProgress, clearProgress, showSavedBadge, showOverlay, hideOverlay, fireConfetti
 } from '../../assets/js/core.js';
 
-// После импортов, перед const THEME:
-const styleId = 'composition-game-style';
-if (!document.getElementById(styleId)) {
-  const link = document.createElement('link');
-  link.id = styleId;
-  link.rel = 'stylesheet';
-  link.href = 'games/composition/game.css';
-  document.head.appendChild(link);
-}
-
 const THEME = THEMES.composition;
 const STORAGE_KEY = 'composition_progress_v1';
+const THEME_KEY = 'composition_theme_v1';
 
-// ===== Состояние игры =====
 let state = null;
 let currentLevel = null;
 let NUMBERS = [];
 let data = {};
+let currentTheme = 'light';
 
-export async function mount(container) {
-  // Подгружаем CSS для игры, если его еще нет на странице
+// ===== Загрузка CSS =====
+function ensureStyles() {
   if (!document.getElementById('composition-game-style')) {
     const link = document.createElement('link');
     link.id = 'composition-game-style';
     link.rel = 'stylesheet';
-    link.href = 'games/composition/game.css'; // Путь от корня сайта
+    link.href = 'games/composition/game.css';
     document.head.appendChild(link);
   }
+}
+
+// ===== Тема =====
+function loadTheme() {
+  const t = localStorage.getItem(THEME_KEY);
+  if (t === 'dark' || t === 'light') currentTheme = t;
+  applyTheme();
+}
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  const btn = $('themeBtn');
+  if (btn) btn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+}
+function saveTheme() {
+  try { localStorage.setItem(THEME_KEY, currentTheme); } catch(e) {}
+}
+
+// ===== Mount =====
+export async function mount(container) {
+  ensureStyles();
+  loadTheme();
+
   const path = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   const levelId = path[2] || 'all';
   currentLevel = THEME.levels.find(l => l.id === levelId) || THEME.levels[THEME.levels.length - 1];
   NUMBERS = currentLevel.numbers;
 
-  // Генерируем данные для чисел
   data = {};
   NUMBERS.forEach(n => {
     data[n] = THEME.generateVariants(n);
   });
 
-  // Загружаем прогресс
   const saved = loadProgress(STORAGE_KEY, null);
   state = saved || {
     score: 0,
@@ -60,13 +71,20 @@ export async function mount(container) {
   state.picked = null;
   state.sampleOn = false;
 
-  // Рендерим экран
+  // Рендер
   container.innerHTML = `
     <div class="game-screen">
       <div class="topbar">
-        <a href="#/" class="back-btn">←</a>
+        <a href="#/" class="back-btn" style="font-size:24px;text-decoration:none;color:var(--house-border);">←</a>
         <div class="title">🏠 ${THEME.title}</div>
-        <div class="progress-text">Собрано: <span id="doneCount">0</span> / ${NUMBERS.length}</div>
+        <div class="progress-container">
+          <div class="progress-wrapper">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text">
+            Собрано: <span id="doneCount">0</span> / <span id="totalCount">${NUMBERS.length}</span>
+          </div>
+        </div>
         <div class="score">⭐ <span id="score">0</span></div>
       </div>
 
@@ -77,17 +95,25 @@ export async function mount(container) {
           <div class="left">
             <span>🗂️ Карточки:</span>
             <span class="count" id="trayCount">0 / 0</span>
-            <div class="progress-wrap">
-              <div class="progress-bar" id="progressBar"></div>
-            </div>
           </div>
         </div>
         <div class="tray-body" id="trayBody"></div>
       </div>
 
       <div class="controls">
-        <button class="btn" id="sampleBtn">👁️ Показать образец</button>
-        <button class="btn ghost" id="resetBtn">🔄 Начать заново</button>
+        <div class="seg" id="segLevel">
+          <button data-level="easy" ${levelId === 'easy' ? 'class="active"' : ''}>2–5</button>
+          <button data-level="medium" ${levelId === 'medium' ? 'class="active"' : ''}>6–8</button>
+          <button data-level="hard" ${levelId === 'hard' ? 'class="active"' : ''}>9–10</button>
+          <button data-level="all" ${levelId === 'all' ? 'class="active"' : ''}>Все</button>
+        </div>
+        
+        <button class="icon-btn" id="themeBtn" title="Сменить тему">🌙</button>
+        
+        <div style="flex-grow: 1;"></div>
+
+        <button class="btn" id="sampleBtn">👁️ Образец</button>
+        <button class="btn ghost" id="resetBtn">🔄 Заново</button>
       </div>
     </div>
 
@@ -101,11 +127,9 @@ export async function mount(container) {
     <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
   `;
 
-  // Инициализация
   renderAll();
   attachHandlers();
 
-  // Cleanup функция
   return {
     cleanup: () => {
       state.picked = null;
@@ -113,13 +137,14 @@ export async function mount(container) {
   };
 }
 
-// ===== Отрисовка одного домика =====
+// ===== Отрисовка =====
 function renderSingleHouse(n, container) {
   const doneSet = new Set(state.done);
   const house = document.createElement('div');
   house.className = 'house';
   house.dataset.num = n;
   if (doneSet.has(n)) house.classList.add('done');
+  if (!NUMBERS.includes(n)) house.classList.add('inactive');
 
   const newHouse = house.cloneNode(false);
   newHouse.addEventListener('click', (e) => {
@@ -148,7 +173,7 @@ function renderSingleHouse(n, container) {
     if (filled) {
       slot.classList.add('filled');
       content = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
-    } else if (state.sampleOn) {
+    } else if (state.sampleOn && NUMBERS.includes(n)) {
       slot.classList.add('ghost');
       content = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
     } else {
@@ -166,34 +191,24 @@ function renderSingleHouse(n, container) {
   else container.appendChild(newHouse);
 }
 
-// ===== Отрисовка всех домиков =====
 function renderHouses() {
   const container = $('houses');
   if (!container) return;
-  if (container.children.length === 0) {
-    container.innerHTML = '';
-    NUMBERS.forEach(n => renderSingleHouse(n, container));
-  } else {
-    NUMBERS.forEach(n => {
-      const house = container.querySelector(`.house[data-num="${n}"]`);
-      if (house) {
-        if (state.done.includes(n)) house.classList.add('done');
-        else house.classList.remove('done');
-      }
-    });
-  }
+  container.innerHTML = '';
+  ALL_NUMBERS().forEach(n => renderSingleHouse(n, container));
 }
 
-// ===== Отрисовка банка карточек =====
+function ALL_NUMBERS() {
+  return [2,3,4,5,6,7,8,9,10];
+}
+
 function renderTray() {
   const body = $('trayBody');
   if (!body) return;
   body.innerHTML = '';
 
-  const TOTAL_CARDS = NUMBERS.reduce((s, n) => s + data[n].length, 0);
   let totalUsed = 0;
   const allCards = [];
-
   NUMBERS.forEach(n => {
     data[n].forEach(([a, b], idx) => {
       if (!state.filled[`${n}-${idx}`]) {
@@ -204,9 +219,8 @@ function renderTray() {
     });
   });
 
-  const percent = Math.round((totalUsed / TOTAL_CARDS) * 100);
-  const pb = $('progressBar');
-  if (pb) pb.style.width = percent + '%';
+  const total = NUMBERS.reduce((s, n) => s + data[n].length, 0);
+  $('trayCount').textContent = `${total - totalUsed} / ${total}`;
 
   if (!state.trayOrder || Object.keys(state.trayOrder).length === 0) {
     state.trayOrder = shuffle(allCards);
@@ -232,29 +246,38 @@ function renderTray() {
   if (body.children.length === 0) {
     body.innerHTML = '<div class="tray-empty">Все карточки расставлены ✅</div>';
   }
-  $('trayCount').textContent = `${TOTAL_CARDS - totalUsed} / ${TOTAL_CARDS}`;
 }
 
-// ===== Подсветка карточек =====
+function updateProgressBar() {
+  const activeNums = NUMBERS;
+  const doneCount = activeNums.filter(n => state.done.includes(n)).length;
+  const total = activeNums.length;
+  const percent = total === 0 ? 0 : (doneCount / total) * 100;
+  
+  const fill = $('progressFill');
+  if (fill) {
+    fill.style.width = percent + '%';
+    fill.classList.remove('pulse');
+    void fill.offsetWidth;
+    fill.classList.add('pulse');
+  }
+}
+
 function highlightCardsForNumber(n) {
-  if (state.done.includes(n)) return;
+  if (state.done.includes(n) || !NUMBERS.includes(n)) return;
   sndHint();
-
   document.querySelectorAll('.card').forEach(card => card.classList.remove('hint-highlight'));
-
   document.querySelectorAll('.card').forEach(card => {
     if (+card.dataset.num === n) card.classList.add('hint-highlight');
   });
-
   clearTimeout(highlightCardsForNumber.timer);
   highlightCardsForNumber.timer = setTimeout(() => {
     document.querySelectorAll('.hint-highlight').forEach(c => c.classList.remove('hint-highlight'));
   }, 2000);
 }
 
-// ===== Клик по карточке =====
 function onCardClick(n, idx, a, b) {
-  if (state.done.includes(n)) return;
+  if (state.done.includes(n) || !NUMBERS.includes(n)) return;
   if (state.filled[`${n}-${idx}`]) return;
   if (state.picked && state.picked.num === n && state.picked.idx === idx) {
     state.picked = null;
@@ -263,19 +286,11 @@ function onCardClick(n, idx, a, b) {
   }
   document.querySelectorAll('.hint-highlight').forEach(c => c.classList.remove('hint-highlight'));
   renderTray();
-  document.querySelectorAll('.card').forEach(card => {
-    if (state.picked && +card.dataset.num === state.picked.num && +card.dataset.idx === state.picked.idx) {
-      card.classList.add('picked');
-    } else {
-      card.classList.remove('picked');
-    }
-  });
 }
 
-// ===== Клик по домику =====
 function onHouseClick(n, houseEl) {
   if (!state.picked) return;
-  if (state.done.includes(n)) return;
+  if (state.done.includes(n) || !NUMBERS.includes(n)) return;
 
   const { a, b, num } = state.picked;
 
@@ -320,6 +335,7 @@ function onHouseClick(n, houseEl) {
     state.done.push(n);
     sndHouseDone();
     $('doneCount').textContent = state.done.length;
+    updateProgressBar();
 
     setTimeout(() => {
       if (state.done.length === NUMBERS.length) {
@@ -332,7 +348,6 @@ function onHouseClick(n, houseEl) {
   }
 }
 
-// ===== Сохранение =====
 function saveCurrentProgress() {
   saveProgress(STORAGE_KEY, {
     score: state.score,
@@ -343,7 +358,6 @@ function saveCurrentProgress() {
   showSavedBadge();
 }
 
-// ===== Победа =====
 function winGame() {
   sndWin();
   showOverlay('🎉 Победа!', `Ты собрал все ${NUMBERS.length} домиков!`, state.score);
@@ -351,7 +365,6 @@ function winGame() {
   clearProgress(STORAGE_KEY);
 }
 
-// ===== Общая отрисовка =====
 function renderAll() {
   const scoreEl = $('score');
   const doneEl = $('doneCount');
@@ -359,9 +372,10 @@ function renderAll() {
   if (doneEl) doneEl.textContent = state.done.length;
   renderHouses();
   renderTray();
+  updateProgressBar();
   const sb = $('sampleBtn');
   if (sb) {
-    sb.textContent = state.sampleOn ? '🙈 Скрыть образец' : '👁️ Показать образец';
+    sb.textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
     sb.classList.toggle('active', state.sampleOn);
   }
 }
@@ -371,7 +385,7 @@ function toggleSample() {
   renderHouses();
   const sb = $('sampleBtn');
   if (sb) {
-    sb.textContent = state.sampleOn ? '🙈 Скрыть образец' : '👁️ Показать образец';
+    sb.textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
     sb.classList.toggle('active', state.sampleOn);
   }
 }
@@ -392,7 +406,6 @@ function resetGame() {
   renderAll();
 }
 
-// ===== Обработчики =====
 function attachHandlers() {
   const sb = $('sampleBtn');
   if (sb) sb.addEventListener('click', toggleSample);
@@ -402,4 +415,20 @@ function attachHandlers() {
   });
   const pa = $('playAgain');
   if (pa) pa.addEventListener('click', resetGame);
+  const tb = $('themeBtn');
+  if (tb) tb.addEventListener('click', () => {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    saveTheme();
+    applyTheme();
+  });
+  
+  const seg = $('segLevel');
+  if (seg) {
+    seg.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-level]');
+      if (!btn) return;
+      const levelId = btn.dataset.level;
+      location.hash = `#/game/composition/${levelId}`;
+    });
+  }
 }
