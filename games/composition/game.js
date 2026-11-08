@@ -397,10 +397,15 @@ function winGame() {
   fireConfetti();
   clearProgress(STORAGE_KEY);
 
+  // Через 2.5 секунды скрываем оверлей и показываем факт
   setTimeout(() => {
     hideOverlay();
+    
+    // Берем случайный факт (или привязанный к последнему собранному числу)
     const fact = getRandomFact(THEME.id);
+    
     if (fact) {
+      // Показываем модалку
       showFactModal(fact, getLang());
     }
   }, 2500);
