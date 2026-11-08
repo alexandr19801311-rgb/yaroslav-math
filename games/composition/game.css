@@ -1,5 +1,5 @@
 /* ============================================================
-   GAME.CSS — Стили игры «Состав чисел» (v3 — фикс мобильной панели)
+   GAME.CSS — Стили игры «Состав чисел» (v4 — фикс мобильной вёрстки)
    ============================================================ */
 
 /* ===== ЦВЕТОВЫЕ ПЕРЕМЕННЫЕ (светлая тема) ===== */
@@ -185,7 +185,7 @@
   gap: 3px;
   flex-shrink: 0;
   margin-bottom: 6px;
-  height: 45vh; /* было 50, чуть уменьшили для мобилки */
+  height: 45vh;
 }
 .house {
   border: 1.5px solid var(--house-border);
@@ -407,21 +407,20 @@
 }
 
 /* ============================================================
-   НИЖНЯЯ ПАНЕЛЬ (ФИКС ОТ ВЫЛЕТА)
+   НИЖНЯЯ ПАНЕЛЬ
    ============================================================ */
 .controls {
   display: flex;
-  flex-wrap: wrap;      /* разрешаем перенос на мобильных */
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
   width: 100%;
-  padding-bottom: 2px;  /* небольшой отступ снизу, чтобы не прилипало к краю */
+  padding-bottom: 2px;
 }
 
-/* Переключатель уровней */
 .seg {
   display: inline-flex;
   background: var(--house-bg);
@@ -448,7 +447,6 @@
   color: var(--btn-text);
 }
 
-/* Кнопки «Образец» и «Заново» */
 .actions {
   display: flex;
   gap: 4px;
@@ -562,21 +560,21 @@
   .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
   .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px; }
   
-  /* На ПК кнопки справа */
   .controls { justify-content: space-between; }
   .actions { margin-left: auto; }
 }
 
 /* 📱 ПЛАНШЕТ / ТЕЛЕФОН */
 @media (max-width: 768px) {
+  /* Уменьшаем высоту домиков, чтобы освободить место под банк */
   .houses {
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     gap: 8px;
-    height: 40vh; /* Чуть меньше, чтобы нижняя панель точно влезла */
-    margin-bottom: 6px;
+    height: 35vh;
+    margin-bottom: 4px;
     padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
   }
@@ -584,31 +582,38 @@
   .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
   .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
 
-  .house { min-width: 110px; scroll-snap-align: start; border-width: 2px; }
+  .house { 
+    min-width: 110px; 
+    scroll-snap-align: start; 
+    border-width: 2px; 
+  }
   .house-title { font-size: 14px; padding: 4px 0; }
   .slot-row { font-size: 14px; min-height: 26px; }
   
-  /* Лоток фиксированной высоты, чтобы не выдавливал панель */
+  /* Банк карточек компактнее */
   .tray-wrap { 
-    flex: 0 0 30vh; 
+    flex: 0 0 28vh;
   }
   .tray-body { 
     grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); 
     gap: 4px;
   }
   
-  /* Нижняя панель на мобилке: компактные кнопки */
+  /* Нижняя панель */
   .controls {
     gap: 4px;
-    margin-top: 4px;
-    padding-bottom: 4px;
+    margin-top: 2px;
+    padding-bottom: 2px;
   }
   .seg { padding: 2px; }
-  .seg button { padding: 5px 8px; font-size: 11px; }
-  .btn { padding: 6px 10px; font-size: 12px; }
-  .icon-btn { padding: 4px 6px; font-size: 13px; }
+  .seg button { padding: 4px 6px; font-size: 11px; }
+  .btn { padding: 4px 8px; font-size: 12px; }
+  .icon-btn { padding: 3px 5px; font-size: 13px; }
   
-  .progress-container { max-width: none; margin: 0 4px; }
-  .progress-wrapper { height: 12px; }
-  .progress-text { font-size: 11px; }
+  /* Шапка и прогресс */
+  .topbar { gap: 4px; padding-bottom: 2px; }
+  .topbar .title { font-size: 14px; }
+  .progress-container { max-width: none; margin: 0 2px; }
+  .progress-wrapper { height: 10px; }
+  .progress-text { font-size: 10px; }
 }
