@@ -1,5 +1,5 @@
 // ============================================================
-// GAME.JS — Игра «Состав чисел» (модуль) — v6.0
+// GAME.JS — Игра «Состав чисел» (модуль) — v6.1
 // ============================================================
 
 import { THEMES } from '../../assets/js/tasks.js';
@@ -130,6 +130,7 @@ export async function mount(container) {
     <div style="position:fixed; bottom:2px; right:6px; font-size:10px; color:var(--text); opacity:0.5; z-index:100; pointer-events:none;">
       v6.1
     </div>
+  `;
 
   renderAll();
   attachHandlers();
@@ -162,7 +163,8 @@ function renderSingleHouse(n, container) {
 
   const title = document.createElement('div');
   title.className = 'house-title';
-  title.innerHTML = window.innerWidth < 1100 ? n : `ЧИСЛО ${n}`;
+  // ИСПРАВЛЕНА СТРОКА НИЖЕ (убраны кавычки, используется обычная конкатенация)
+  title.innerHTML = window.innerWidth < 1100 ? n : 'ЧИСЛО ' + n;
   newHouse.appendChild(title);
 
   const slotsContainer = document.createElement('div');
