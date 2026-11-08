@@ -8,6 +8,16 @@ import {
   saveProgress, loadProgress, clearProgress, showSavedBadge, showOverlay, hideOverlay, fireConfetti
 } from '../../assets/js/core.js';
 
+// После импортов, перед const THEME:
+const styleId = 'composition-game-style';
+if (!document.getElementById(styleId)) {
+  const link = document.createElement('link');
+  link.id = styleId;
+  link.rel = 'stylesheet';
+  link.href = 'games/composition/game.css';
+  document.head.appendChild(link);
+}
+
 const THEME = THEMES.composition;
 const STORAGE_KEY = 'composition_progress_v1';
 
