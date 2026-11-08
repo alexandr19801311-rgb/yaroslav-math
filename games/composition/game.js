@@ -1,7 +1,9 @@
 // ============================================================
 // GAME.JS — Игра «Состав чисел» (модуль) — v6.1
 // ============================================================
-
+import { HISTORY_FACTS, getRandomFact } from '../../assets/data/history.js';
+import { showFactModal, hideFactModal } from '../../assets/js/core.js';
+import { getLang } from '../../assets/js/i18n.js';
 import { THEMES } from '../../assets/js/tasks.js';
 import { 
   $, shuffle, sndPlace, sndBad, sndHouseDone, sndWin, sndHint,
