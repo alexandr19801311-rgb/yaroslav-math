@@ -621,3 +621,31 @@
   .progress-wrapper { height: 10px; }
   .progress-text { font-size: 10px; }
 }
+/* ===== Карточка-экспонат ===== */
+.artifact-card {
+  grid-column: span 2;
+  font-family: inherit;
+  padding: 4px;
+  border: 2px solid #ffb300;
+  background: #fff8e1;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 32px;
+  transition: transform 0.2s, background 0.2s;
+  font-weight: bold;
+  animation: artifact-pulse 2s infinite;
+}
+.artifact-card:hover {
+  transform: scale(1.05);
+  background: #ffecb3;
+}
+@keyframes artifact-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 179, 0, 0.5); }
+  50% { box-shadow: 0 0 12px 4px rgba(255, 179, 0, 0.3); }
+}
