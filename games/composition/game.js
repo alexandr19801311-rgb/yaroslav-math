@@ -1,5 +1,5 @@
 // ============================================================
-// GAME.JS — Игра «Состав чисел» (модуль) — v6.1
+// GAME.JS — Игра «Вычитание» (модуль) — v1.0
 // ============================================================
 
 import { THEMES } from '../../assets/js/tasks.js';
@@ -8,9 +8,9 @@ import {
   saveProgress, loadProgress, clearProgress, showSavedBadge, showOverlay, hideOverlay, fireConfetti
 } from '../../assets/js/core.js';
 
-const THEME = THEMES.composition;
-const STORAGE_KEY = 'composition_progress_v6';
-const THEME_KEY = 'composition_theme_v6';
+const THEME = THEMES.subtraction;
+const STORAGE_KEY = 'subtraction_progress_v1';
+const THEME_KEY = 'subtraction_theme_v1';
 
 let state = null;
 let currentLevel = null;
@@ -20,11 +20,11 @@ let currentTheme = 'light';
 
 // ===== Загрузка CSS =====
 function ensureStyles() {
-  if (!document.getElementById('composition-game-style')) {
+  if (!document.getElementById('subtraction-game-style')) {
     const link = document.createElement('link');
-    link.id = 'composition-game-style';
+    link.id = 'subtraction-game-style';
     link.rel = 'stylesheet';
-    link.href = 'games/composition/game.css';
+    link.href = 'games/composition/game.css'; // Используем те же стили, что и у сложения
     document.head.appendChild(link);
   }
 }
@@ -71,7 +71,6 @@ export async function mount(container) {
   state.picked = null;
   state.sampleOn = false;
 
-  // Рендер
   container.innerHTML = `
     <div class="game-screen">
       <div class="topbar">
@@ -103,8 +102,7 @@ export async function mount(container) {
       <div class="controls">
         <div class="seg" id="segLevel">
           <button data-level="easy" ${levelId === 'easy' ? 'class="active"' : ''}>2–5</button>
-          <button data-level="medium" ${levelId === 'medium' ? 'class="active"' : ''}>6–8</button>
-          <button data-level="hard" ${levelId === 'hard' ? 'class="active"' : ''}>9–10</button>
+          <button data-level="hard" ${levelId === 'hard' ? 'class="active"' : ''}>6–10</button>
           <button data-level="all" ${levelId === 'all' ? 'class="active"' : ''}>Все</button>
         </div>
         
@@ -126,9 +124,8 @@ export async function mount(container) {
 
     <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
-    <!-- ВЕРСИЯ СБОРКИ -->
     <div style="position:fixed; bottom:2px; right:6px; font-size:10px; color:var(--text); opacity:0.5; z-index:100; pointer-events:none;">
-      v6.1
+      v1.0
     </div>
   `;
 
@@ -182,12 +179,13 @@ function renderSingleHouse(n, container) {
     let content = '';
     if (filled) {
       slot.classList.add('filled');
-      content = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+      // В вычитании: a - b = n
+      content = `<span class="num-blue">${filled.a}</span><span class="op-red">−</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
     } else if (state.sampleOn) {
       slot.classList.add('ghost');
-      content = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+      content = `<span class="num-blue">${a}</span><span class="op-red">−</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
     } else {
-      content = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
+      content = `<span class="num-blue">_</span><span class="op-red">−</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
     }
 
     slot.innerHTML = content;
@@ -244,7 +242,7 @@ function renderTray() {
     card.className = 'card';
     card.dataset.num = n;
     card.dataset.idx = idx;
-    card.innerHTML = `<span>${a}</span><span class="op">+</span><span>${b}</span>`;
+    card.innerHTML = `<span>${a}</span><span class="op">−</span><span>${b}</span>`;
     if (state.picked && state.picked.num === n && state.picked.idx === idx) {
       card.classList.add('picked');
     }
@@ -307,7 +305,8 @@ function onHouseClick(n, houseEl) {
 
   const { a, b, num } = state.picked;
 
-  if (num !== n || a + b !== n) {
+  // Проверяем: a - b должно быть равно num (числу домика)
+  if (num !== n || a - b !== n) {
     sndBad();
     houseEl.classList.add('flash-bad');
     setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
@@ -449,7 +448,7 @@ function attachHandlers() {
       const btn = e.target.closest('button[data-level]');
       if (!btn) return;
       const levelId = btn.dataset.level;
-      location.hash = `#/game/composition/${levelId}`;
+      location.hash = `#/game/subtraction/${levelId}`;
     });
   }
 }
