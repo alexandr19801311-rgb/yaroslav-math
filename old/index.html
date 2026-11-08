@@ -1,1 +1,1155 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Состав чисел 2-10 — собери домики</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1976d2">
+<style>
+  :root {
+    --bg-grad: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    --text: #333;
+    --house-bg: #fff;
+    --house-border: #1976d2;
+    --house-done-bg: #f1f8e9;
+    --house-done-border: #388e3c;
+    --slot-bg: #f5f5f5;
+    --slot-border: #bbb;
+    --slot-filled-bg: #e3f2fd;
+    --slot-filled-border: #1976d2;
+    --tray-bg: #fff9c4;
+    --tray-border: #f57f17;
+    --card-bg: #fff;
+    --card-border: #1976d2;
+    --card-picked-bg: #bbdefb;
+    --card-picked-border: #0d47a1;
+    --card-hint-bg: #fff59d;
+    --card-hint-border: #fbc02d;
+    --btn-bg: #1976d2;
+    --btn-text: #fff;
+    --btn-ghost-bg: #fff;
+    --overlay-bg: rgba(255,255,255,0.96);
+    
+    --progress-bg: #e0e0e0;
+    --progress-fill: linear-gradient(90deg, #4caf50, #8bc34a);
+    --progress-glow: rgba(76, 175, 80, 0.6);
+    
+    --hint-bg: #ffe0b2;
+    --hint-fill: linear-gradient(90deg, #ffa726, #ffcc80);
+    --hint-glow: rgba(255, 152, 0, 0.6);
+    
+    --c-2: #e53935; --c-3: #fb8c00; --c-4: #fdd835; --c-5: #7cb342;
+    --c-6: #00897b; --c-7: #1e88e5; --c-8: #5e35b1; --c-9: #d81b60; --c-10: #6d4c41;
 
+    --inactive-house-bg: #e0e0e0;
+    --inactive-house-border: #bdbdbd;
+    --inactive-text: #757575;
+    --inactive-slot-bg: #eeeeee;
+
+    --num-color: #1976d2;
+    --op-color: #d32f2f;
+  }
+
+  [data-theme="dark"] {
+    --bg-grad: linear-gradient(135deg, #12161f 0%, #1a1a2e 100%);
+    --text: #e8edf5;
+    --house-bg: #1b2130;
+    --house-border: #35405a;
+    --house-done-bg: #1b2e1b;
+    --house-done-border: #4caf50;
+    --slot-bg: #232b3d;
+    --slot-border: #4a5a78;
+    --slot-filled-bg: #1e3a5f;
+    --slot-filled-border: #64b5f6;
+    --tray-bg: #2a2518;
+    --tray-border: #5c4a1a;
+    --card-bg: #232b3d;
+    --card-border: #64b5f6;
+    --card-picked-bg: #1e3a5f;
+    --card-picked-border: #90caf9;
+    --card-hint-bg: #5c4a1a;
+    --card-hint-border: #ffb300;
+    --btn-bg: #35405a;
+    --btn-text: #64b5f6;
+    --btn-ghost-bg: #1b2130;
+    --overlay-bg: rgba(18,22,31,0.96);
+    
+    --progress-bg: #2a3545;
+    --progress-fill: linear-gradient(90deg, #66bb6a, #aed581);
+    --progress-glow: rgba(102, 187, 106, 0.6);
+    
+    --hint-bg: #3e2723;
+    --hint-fill: linear-gradient(90deg, #ff9800, #ffb74d);
+    --hint-glow: rgba(255, 152, 0, 0.6);
+    
+    --c-2: #ef5350; --c-3: #ffa726; --c-4: #ffee58; --c-5: #9ccc65;
+    --c-6: #26a69a; --c-7: #42a5f5; --c-8: #ab47bc; --c-9: #ec407a; --c-10: #8d6e63;
+
+    --inactive-house-bg: #2a2a35;
+    --inactive-house-border: #444455;
+    --inactive-text: #a0a0b0;
+    --inactive-slot-bg: #333340;
+
+    --num-color: #ffffff;
+    --op-color: #ef5350;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  
+  html, body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: var(--bg-grad);
+    color: var(--text);
+    height: 100dvh;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background .3s, color .3s;
+  }
+  
+  .app {
+    display: flex; flex-direction: column; height: 100%;
+    max-width: 1400px; margin: 0 auto; padding: 4px 6px;
+  }
+
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 2px 0 6px; font-size: 14px; font-weight: bold; flex-shrink: 0;
+    gap: 10px;
+  }
+  .topbar .title { color: var(--house-border); font-size: 16px; white-space: nowrap; }
+  .topbar .score { color: var(--c-3); white-space: nowrap; }
+  
+  .bars-container {
+    flex: 1; display: flex; gap: 15px; margin: 0 10px; justify-content: center;
+  }
+  .bar-wrap {
+    flex: 1; display: flex; align-items: center; gap: 6px; max-width: 250px;
+  }
+  .bar-label { font-size: 12px; white-space: nowrap; color: var(--text); opacity: 0.8; }
+  .bar-track {
+    flex: 1; height: 12px; background: var(--progress-bg);
+    border-radius: 6px; overflow: hidden; position: relative;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--house-border);
+  }
+  .bar-fill {
+    height: 100%; width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 6px;
+  }
+  .bar-fill.progress-fill { background: var(--progress-fill); }
+  .bar-fill.hint-fill { background: var(--hint-fill); }
+  
+  .bar-fill.pulse { animation: progress-pulse 0.6s ease-out; }
+  @keyframes progress-pulse {
+    0% { box-shadow: 0 0 0 0 var(--progress-glow); }
+    50% { box-shadow: 0 0 8px 2px var(--progress-glow); }
+    100% { box-shadow: 0 0 0 0 var(--progress-glow); }
+  }
+  .bar-fill.hint-fill.pulse { animation: hint-pulse 0.6s ease-out; }
+  @keyframes hint-pulse {
+    0% { box-shadow: 0 0 0 0 var(--hint-glow); }
+    50% { box-shadow: 0 0 8px 2px var(--hint-glow); }
+    100% { box-shadow: 0 0 0 0 var(--hint-glow); }
+  }
+
+  /* ДОМИКИ */
+  .houses {
+    display: flex; 
+    overflow-x: auto; 
+    overflow-y: hidden; 
+    scroll-snap-type: x mandatory;
+    gap: 8px; 
+    margin-bottom: 8px; 
+    padding-bottom: 0; 
+    -webkit-overflow-scrolling: touch;
+    flex: 0 0 42vh;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .houses::-webkit-scrollbar { display: none; }
+
+  .house {
+    flex: 0 0 130px; 
+    min-width: 130px; 
+    scroll-snap-align: start; 
+    border: 1.5px solid var(--house-border); 
+    border-radius: 6px;
+    background: var(--house-bg); position: relative; cursor: pointer;
+    display: flex; flex-direction: column; transition: all .2s;
+    overflow: hidden;
+  }
+  .house.done { border-color: var(--house-done-border); background: var(--house-done-bg); cursor: default; }
+  .house.done::after { content: '✅'; position: absolute; top: 2px; right: 2px; font-size: 12px; }
+  .house.flash-bad { animation: flashBad 0.5s; }
+  
+  .house.inactive {
+    background: var(--inactive-house-bg); border-color: var(--inactive-house-border);
+    pointer-events: none; opacity: 0.85;
+  }
+  .house.inactive .house-title { filter: grayscale(1) opacity(0.5); }
+  .house.inactive .slot-row { border-color: var(--inactive-house-border); background: var(--inactive-slot-bg); color: var(--inactive-text); }
+  .house.inactive .slot-row .num-blue, .house.inactive .slot-row .op-red, 
+  .house.inactive .slot-row .eq, .house.inactive .slot-row .result { color: var(--inactive-text); }
+  
+  @keyframes flashBad { 0%, 100% { background: var(--house-bg); } 50% { background: #ffcdd2; border-color: #d32f2f; } }
+
+  .house-title {
+    text-align: center; font-size: 14px; font-weight: bold; color: #fff;
+    padding: 4px 0; margin-bottom: 2px; white-space: nowrap;
+    overflow: hidden; pointer-events: auto; cursor: pointer; transition: filter 0.2s;
+    flex-shrink: 0;
+  }
+  .house-title:hover { filter: brightness(0.9); }
+
+  .house[data-num="2"]  .house-title { background: var(--c-2); }
+  .house[data-num="3"]  .house-title { background: var(--c-3); }
+  .house[data-num="4"]  .house-title { background: var(--c-4); color: #333; }
+  .house[data-num="5"]  .house-title { background: var(--c-5); }
+  .house[data-num="6"]  .house-title { background: var(--c-6); }
+  .house[data-num="7"]  .house-title { background: var(--c-7); }
+  .house[data-num="8"]  .house-title { background: var(--c-8); }
+  .house[data-num="9"]  .house-title { background: var(--c-9); }
+  .house[data-num="10"] .house-title { background: var(--c-10); }
+
+  .slots-container { display: flex; flex-direction: column; gap: 3px; padding: 0 4px 4px 4px; flex: 1; overflow-y: auto; }
+
+  .slot-row {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold;
+    background: var(--slot-bg); border-radius: 3px; border: 1px dashed var(--slot-border);
+    color: var(--slot-border); pointer-events: none; min-height: 26px; padding: 1px; line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .slot-row.filled { border-style: solid; border-color: var(--slot-filled-border); background: var(--slot-filled-bg); }
+
+  @keyframes slot-pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.15); background: #c8e6c9; border-color: #388e3c; color: #2e7d32; }
+    100% { transform: scale(1); background: var(--slot-filled-bg); border-color: var(--slot-filled-border); }
+  }
+  .slot-row.pop-anim { animation: slot-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 2; }
+
+  .slot-row.ghost { border-color: #b39ddb; background: rgba(179,157,219,0.1); font-style: italic; }
+  .slot-row.ghost .num-blue, .slot-row.ghost .op-red, .slot-row.ghost .eq, .slot-row.ghost .result { color: #9575cd; }
+
+  .num-blue { color: var(--num-color); }
+  .op-red { color: var(--op-color); }
+  .eq { color: var(--op-color); }
+  .result { color: var(--num-color); }
+
+  /* ЛОТОК */
+  .tray-wrap {
+    flex: 1; 
+    display: flex; flex-direction: column;
+    background: var(--tray-bg); border: 2px dashed var(--tray-border);
+    border-radius: 8px; padding: 4px 6px; 
+    min-height: 0; 
+    transition: background .3s, border-color .3s;
+  }
+  .tray-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: var(--tray-border); margin-bottom: 4px; flex-shrink: 0; }
+  .tray-header .left { display: flex; align-items: center; gap: 6px; }
+  .tray-header .count { background: var(--house-bg); padding: 1px 6px; border-radius: 8px; font-size: 11px; color: var(--text); opacity: 0.7; }
+
+  .tray-body { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); gap: 6px; align-content: flex-start; overflow-y: auto; padding: 2px; }
+
+  .card {
+    font-family: inherit; font-size: 14px; font-weight: bold; padding: 4px 0;
+    border: 1.5px solid var(--card-border); background: var(--card-bg); color: var(--num-color);
+    border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 1px;
+    min-height: 32px; transition: transform 0.2s, background 0.2s, box-shadow 0.2s, opacity 0.2s;
+  }
+  .card.picked { background: var(--card-picked-bg); border-color: var(--card-picked-border); box-shadow: 0 2px 6px rgba(13,71,161,0.3); transform: scale(1.05); }
+  .card.hint-highlight { background: var(--card-hint-bg); border-color: var(--card-hint-border); box-shadow: 0 0 8px rgba(251, 192, 45, 0.8); transform: scale(1.05); z-index: 10; }
+  .card .op { color: var(--op-color); }
+  .tray-empty { grid-column: 1 / -1; text-align: center; color: var(--text); opacity: 0.5; font-size: 13px; padding: 10px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
+    justify-content: center; align-items: center; flex-shrink: 0;
+  }
+  .seg { display: inline-flex; background: var(--house-bg); border-radius: 6px; padding: 3px; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .seg button {
+    font-family: inherit; border: none; background: transparent; color: var(--text);
+    padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background .15s, color .15s;
+  }
+  .seg button.active { background: var(--btn-bg); color: var(--btn-text); }
+
+  .btn {
+    font-family: inherit; font-size: 13px; font-weight: bold;
+    padding: 6px 16px; border: none; border-radius: 6px;
+    background: var(--btn-bg); color: var(--btn-text); cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.ghost { background: var(--btn-ghost-bg); color: var(--btn-text); border: 2px solid var(--btn-bg); }
+  .btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .icon-btn { background: var(--btn-ghost-bg); border: 2px solid var(--btn-bg); color: var(--btn-text); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+
+  .version-badge {
+    position: fixed; bottom: 8px; right: 12px;
+    font-size: 10px; color: var(--text); opacity: 0.4;
+    font-weight: normal; z-index: 200; pointer-events: none;
+  }
+
+  /* ЭКРАН АКТИВАЦИИ */
+  #activationScreen {
+    position: fixed; inset: 0;
+    background: var(--bg-grad);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px; text-align: center;
+    transition: opacity 0.4s;
+  }
+  #activationScreen.hidden {
+    opacity: 0; pointer-events: none;
+  }
+  .activation-card {
+    background: var(--house-bg); border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 30px 20px; width: 100%; max-width: 400px;
+    border: 2px solid var(--house-border);
+  }
+  .activation-icon { font-size: 48px; margin-bottom: 10px; }
+  .activation-title { font-size: 22px; font-weight: bold; color: var(--house-border); margin-bottom: 8px; }
+  .activation-sub { font-size: 14px; color: var(--text); opacity: 0.7; margin-bottom: 20px; }
+  
+  .input-group { margin-bottom: 20px; text-align: left; }
+  .input-group label { display: block; font-size: 12px; margin-bottom: 4px; opacity: 0.8; }
+  .input-group input {
+    width: 100%; padding: 12px 16px; font-size: 18px; font-family: inherit;
+    border: 2px solid var(--house-border); border-radius: 8px;
+    background: var(--bg-grad); color: var(--text); text-align: center;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .input-group input:focus { outline: none; box-shadow: 0 0 0 3px var(--progress-glow); }
+
+  .activation-actions { display: flex; flex-direction: column; gap: 10px; }
+  .activation-actions .btn { width: 100%; padding: 12px; font-size: 16px; }
+
+  /* Улучшенный стиль для второй кнопки, чтобы она не сливалась */
+  #skipBtn {
+    background: transparent;
+    color: var(--house-border);
+    border: 2px solid var(--house-border);
+    opacity: 0.8;
+  }
+  #skipBtn:hover {
+    opacity: 1;
+    background: var(--accent-bg);
+  }
+
+  /* ОВЕРЛЕЙ ПОБЕДЫ */
+  .overlay {
+    position: fixed; inset: 0; background: var(--overlay-bg); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none;
+    transition: opacity 0.4s; z-index: 100; text-align: center; overflow-y: auto;
+  }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+  .overlay h2 { font-size: 32px; color: var(--house-border); margin-bottom: 10px; }
+  .overlay .big { font-size: 48px; margin: 10px 0; color: var(--c-3); }
+
+  .stats-container {
+    background: var(--house-bg); border: 2px solid var(--btn-bg);
+    border-radius: 12px; padding: 16px 24px; margin: 16px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 280px;
+  }
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--slot-border); font-size: 15px;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { color: var(--text); opacity: 0.8; }
+  .stat-value { font-weight: bold; color: var(--text); display: flex; align-items: center; gap: 8px;}
+  
+  .stat-diff { font-size: 13px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+  .stat-diff.up { color: #fff; background: #4caf50; }
+  .stat-diff.down { color: #fff; background: #f44336; }
+  .stat-diff.same { color: #fff; background: #9e9e9e; }
+
+  .achievements-wrap {
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px;
+  }
+  .achievement {
+    font-size: 12px; padding: 6px 12px; border-radius: 20px;
+    background: var(--house-bg); border: 2px solid var(--btn-bg);
+    color: var(--text); display: flex; align-items: center; gap: 6px;
+  }
+  .achievement.unlocked {
+    background: #fff9c4; border-color: #f57f17; color: #e65100; font-weight: bold;
+  }
+  [data-theme="dark"] .achievement.unlocked {
+    background: #5c4a1a; border-color: #ffb300; color: #ffca28;
+  }
+
+  .overlay-actions { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
+
+  .saved-badge {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #388e3c; color: #fff; padding: 8px 18px; border-radius: 18px;
+    font-size: 13px; font-weight: bold; box-shadow: 0 4px 12px rgba(56,142,60,0.4);
+    opacity: 0; transition: opacity 0.3s, transform 0.3s; z-index: 150; pointer-events: none;
+  }
+  .saved-badge.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .confetti { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 99; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+
+  /* АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ */
+  @media (max-width: 768px) {
+    .topbar { flex-wrap: wrap; }
+    .bars-container { order: 3; width: 100%; max-width: none; margin-top: 6px; flex-direction: column; gap: 4px; }
+    .bar-wrap { max-width: none; }
+    .houses { flex: 0 0 46vh; } 
+    .house { flex: 0 0 110px; min-width: 110px; }
+    .tray-wrap { flex: 0 0 32vh; } 
+    .controls { gap: 4px; }
+    .seg button { padding: 4px 8px; font-size: 11px; }
+    .btn { padding: 6px 10px; font-size: 12px; }
+    .version-badge { bottom: 6px; right: 8px; font-size: 9pt; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ЭКРАН АКТИВАЦИИ -->
+<div id="activationScreen">
+  <div class="activation-card">
+    <div class="activation-icon">🏠</div>
+    <div class="activation-title">Добро пожаловать!</div>
+    <div class="activation-sub">Введите код с вашей карточки, чтобы начать заниматься.</div>
+    
+    <div class="input-group">
+      <label>Код активации</label>
+      <input type="text" id="activationCode" placeholder="XXXX-XXXX" maxlength="9">
+    </div>
+
+    <div class="activation-actions">
+      <button class="btn" id="activateBtn">Активировать</button>
+      <button class="btn ghost" id="skipBtn">У меня уже есть доступ</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="title">🏠 Состав чисел</div>
+    
+    <div class="bars-container">
+      <div class="bar-wrap">
+        <span class="bar-label">Собрано:</span>
+        <div class="bar-track"><div class="bar-fill progress-fill" id="progressFill"></div></div>
+        <span id="doneCount" style="font-size:12px; width: 30px; text-align:right;">0/9</span>
+      </div>
+      <div class="bar-wrap">
+        <span class="bar-label">💡</span>
+        <div class="bar-track"><div class="bar-fill hint-fill" id="hintFill"></div></div>
+        <span id="hintsCount" style="font-size:12px; width: 30px; text-align:right;">10</span>
+      </div>
+    </div>
+
+    <div class="score">⭐ <span id="score">0</span></div>
+  </div>
+
+  <div class="houses" id="houses"></div>
+
+  <div class="tray-wrap">
+    <div class="tray-header">
+      <div class="left">
+        <span>🗂️ Карточки:</span>
+        <span class="count" id="trayCount">0 / 0</span>
+      </div>
+    </div>
+    <div class="tray-body" id="trayBody"></div>
+  </div>
+
+  <div class="controls">
+    <div class="seg" id="segLevel">
+      <button data-level="low">2–5</button>
+      <button data-level="high">6–10</button>
+      <button data-level="all" class="active">Все</button>
+    </div>
+    
+    <button class="icon-btn" id="themeBtn" title="Сменить тему">🌙</button>
+    
+    <div style="flex-grow: 1;"></div>
+
+    <button class="btn" id="sampleBtn">👁️ Образец</button>
+    <button class="btn ghost" id="resetBtn">🔄 Заново</button>
+  </div>
+</div>
+
+<div class="version-badge">build v48</div>
+
+<div class="overlay" id="overlay">
+  <h2 id="overlayTitle">🎉 Победа!</h2>
+  <div class="big" id="overlayBig">⭐ <span id="finalScore">0</span></div>
+  
+  <div class="achievements-wrap" id="achievementsWrap"></div>
+  
+  <div class="stats-container" id="statsContainer"></div>
+
+  <div class="overlay-actions">
+    <button class="btn" id="playAgain">Играть снова</button>
+    <button class="btn ghost" id="resetStatsBtn" style="color: #d32f2f; border-color: #d32f2f;">🗑️ Сбросить рекорды</button>
+  </div>
+</div>
+
+<div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
+
+<script>
+  const BUILD_VERSION = 'v48';
+
+  const ALL_NUMBERS = [2,3,4,5,6,7,8,9,10];
+  const LEVELS = { low: [2,3,4,5], high: [6,7,8,9,10], all: [2,3,4,5,6,7,8,9,10] };
+  
+  const STORAGE_KEY = 'yaroslav_house_progress_v48';
+  const STATS_KEY = 'yaroslav_stats_v48';
+  const THEME_KEY = 'yaroslav_theme_v48';
+  const ACHIEVEMENTS_KEY = 'yaroslav_achievements_v48';
+  const ACTIVATION_KEY = 'yaroslav_activation_v48';
+  
+  const MAX_HINTS = 10;
+
+  const data = {};
+  ALL_NUMBERS.forEach(n => {
+    const list = [];
+    list.push([0, n]);
+    for (let a = 1; a < n; a++) list.push([a, n - a]);
+    list.push([n, 0]);
+    data[n] = list;
+  });
+
+  const state = {
+    level: 'all',
+    theme: 'light',
+    score: 0,
+    done: [],
+    filled: {},
+    picked: null,
+    trayOrder: [],
+    sampleOn: false,
+    sessionStartTime: Date.now(),
+    hintsUsed: 0,
+    errorsMade: 0,
+    achievements: {},
+    hintsLeft: MAX_HINTS,
+    isActivated: false
+  };
+
+  const $ = id => document.getElementById(id);
+  let audioCtx = null;
+
+  console.log(`Запуск игры, сборка: ${BUILD_VERSION}`);
+
+  // ===== ИНИЦИАЛИЗАЦИЯ АКТИВАЦИИ =====
+  function checkActivation() {
+    try {
+      const activated = localStorage.getItem(ACTIVATION_KEY);
+      if (activated === 'true') {
+        state.isActivated = true;
+        $('activationScreen').classList.add('hidden');
+      } else {
+        state.isActivated = false;
+        $('activationScreen').classList.remove('hidden');
+      }
+    } catch(e) {
+      $('activationScreen').classList.remove('hidden');
+    }
+  }
+
+  function activateApp() {
+    const codeInput = $('activationCode');
+    const code = codeInput.value.trim().toUpperCase();
+    
+    // Честный формат: принимаем любой код длиннее 3 символов
+    if (code.length >= 3) {
+      try {
+        localStorage.setItem(ACTIVATION_KEY, 'true');
+        state.isActivated = true;
+        $('activationScreen').classList.add('hidden');
+        tone(1046, 0.1); setTimeout(() => tone(1318, 0.1), 100);
+      } catch(e) {}
+    } else {
+      alert('Пожалуйста, введите код с карточки (минимум 3 символа).');
+    }
+  }
+
+  $('activateBtn').addEventListener('click', activateApp);
+  $('skipBtn').addEventListener('click', () => {
+    try {
+      localStorage.setItem(ACTIVATION_KEY, 'true');
+      state.isActivated = true;
+      $('activationScreen').classList.add('hidden');
+    } catch(e) {}
+  });
+
+  // ===== ОСТАЛЬНАЯ ЛОГИКА =====
+  function tone(freq, dur = 0.12, type = 'sine') {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + dur);
+    } catch(e) {}
+  }
+  const sndPlace = () => { 
+    tone(1046, 0.08, 'sine'); 
+    setTimeout(() => tone(1318, 0.1, 'sine'), 50); 
+  };
+  const sndBad = () => { tone(300, 0.15, 'triangle'); };
+  const sndHouseDone = () => { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.12),i*100)); };
+  const sndWin = () => { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,0.15),i*120)); };
+  const sndHint = () => tone(800, 0.1, 'sine');
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function getActiveNumbers() { return LEVELS[state.level]; }
+  function getTotalCards() { return getActiveNumbers().reduce((s, n) => s + data[n].length, 0); }
+
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        level: state.level,
+        score: state.score,
+        done: [...state.done],
+        filled: state.filled,
+        trayOrder: state.trayOrder,
+        sessionStartTime: state.sessionStartTime,
+        hintsUsed: state.hintsUsed,
+        errorsMade: state.errorsMade,
+        hintsLeft: state.hintsLeft
+      }));
+    } catch(e) {}
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const obj = JSON.parse(raw);
+      if (!obj || typeof obj !== 'object') return false;
+      
+      state.level = obj.level || 'all';
+      state.score = obj.score ?? 0;
+      state.done = Array.isArray(obj.done) ? obj.done : [];
+      state.filled = obj.filled || {};
+      state.trayOrder = Array.isArray(obj.trayOrder) ? obj.trayOrder : [];
+      state.sessionStartTime = obj.sessionStartTime || Date.now();
+      state.hintsUsed = obj.hintsUsed || 0;
+      state.errorsMade = obj.errorsMade || 0;
+      state.hintsLeft = obj.hintsLeft ?? MAX_HINTS;
+      
+      document.querySelectorAll('#segLevel button').forEach(b => {
+        b.classList.toggle('active', b.dataset.level === state.level);
+      });
+      return true;
+    } catch(e) { return false; }
+  }
+
+  function loadAchievements() {
+    try {
+      const raw = localStorage.getItem(ACHIEVEMENTS_KEY);
+      if (raw) state.achievements = JSON.parse(raw);
+    } catch(e) {}
+  }
+  function saveAchievements() {
+    try { localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(state.achievements)); } catch(e) {}
+  }
+  function unlockAchievement(key) {
+    if (!state.achievements[key]) {
+      state.achievements[key] = true;
+      saveAchievements();
+    }
+  }
+
+  function loadTheme() {
+    const t = localStorage.getItem(THEME_KEY);
+    if (t === 'dark' || t === 'light') state.theme = t;
+    applyTheme();
+  }
+  function saveTheme() { localStorage.setItem(THEME_KEY, state.theme); }
+  function applyTheme() {
+    document.documentElement.setAttribute('data-theme', state.theme);
+    $('themeBtn').textContent = state.theme === 'dark' ? '☀️' : '🌙';
+  }
+
+  function showSavedBadge() {
+    const b = $('savedBadge');
+    b.classList.add('show');
+    clearTimeout(showSavedBadge._t);
+    showSavedBadge._t = setTimeout(() => b.classList.remove('show'), 1200);
+  }
+  function commit() { saveProgress(); showSavedBadge(); }
+
+  function updateBars() {
+    const activeNums = getActiveNumbers();
+    const doneCount = activeNums.filter(n => state.done.includes(n)).length;
+    const total = activeNums.length;
+    const percent = total === 0 ? 0 : (doneCount / total) * 100;
+    
+    const fill = $('progressFill');
+    fill.style.width = percent + '%';
+    fill.classList.remove('pulse');
+    void fill.offsetWidth;
+    fill.classList.add('pulse');
+
+    const hintPercent = (state.hintsLeft / MAX_HINTS) * 100;
+    const hintFill = $('hintFill');
+    hintFill.style.width = hintPercent + '%';
+    hintFill.classList.remove('pulse');
+    void hintFill.offsetWidth;
+    hintFill.classList.add('pulse');
+
+    $('doneCount').textContent = `${doneCount}/${total}`;
+    $('hintsCount').textContent = state.hintsLeft;
+
+    const sampleBtn = $('sampleBtn');
+    if (state.hintsLeft <= 0) {
+      sampleBtn.disabled = true;
+      sampleBtn.style.opacity = '0.5';
+      if (state.sampleOn) {
+        state.sampleOn = false;
+        $('sampleBtn').textContent = '👁️ Образец';
+        $('sampleBtn').classList.remove('active');
+        renderHouses(); 
+      }
+    } else {
+      sampleBtn.disabled = false;
+      sampleBtn.style.opacity = '1';
+    }
+  }
+
+  function renderSingleHouse(n, container) {
+    const doneSet = new Set(state.done);
+    const house = document.createElement('div');
+    house.className = 'house';
+    house.dataset.num = n;
+    
+    if (doneSet.has(n)) house.classList.add('done');
+    if (!getActiveNumbers().includes(n)) house.classList.add('inactive');
+
+    const newHouse = house.cloneNode(false); 
+    newHouse.addEventListener('click', (e) => {
+      if (e.target.classList.contains('house-title')) {
+        highlightCardsForNumber(n);
+      } else {
+        onHouseClick(n, newHouse);
+      }
+    });
+
+    const title = document.createElement('div');
+    title.className = 'house-title';
+    title.innerHTML = window.innerWidth < 1100 ? n : `ЧИСЛО ${n}`;
+    newHouse.appendChild(title);
+
+    const slotsContainer = document.createElement('div');
+    slotsContainer.className = 'slots-container';
+
+    data[n].forEach(([a, b], idx) => {
+      const key = `${n}-${idx}`;
+      const slot = document.createElement('div');
+      slot.className = 'slot-row';
+
+      const filled = state.filled[key];
+      let content = '';
+      if (filled) {
+        slot.classList.add('filled');
+        content = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+      } else if (state.sampleOn && getActiveNumbers().includes(n)) {
+        slot.classList.add('ghost');
+        content = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
+      } else {
+        content = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
+      }
+
+      slot.innerHTML = content;
+      slotsContainer.appendChild(slot);
+    });
+    
+    newHouse.appendChild(slotsContainer);
+    
+    const oldHouse = container.querySelector(`.house[data-num="${n}"]`);
+    if (oldHouse) container.replaceChild(newHouse, oldHouse);
+    else container.appendChild(newHouse);
+  }
+
+  function renderHouses() {
+    const container = $('houses');
+    container.innerHTML = '';
+    ALL_NUMBERS.forEach(n => renderSingleHouse(n, container));
+  }
+
+  function renderTray() {
+    const body = $('trayBody');
+    body.innerHTML = '';
+
+    let totalUsed = 0;
+    const allCards = [];
+    getActiveNumbers().forEach(n => {
+      data[n].forEach(([a, b], idx) => {
+        if (!state.filled[`${n}-${idx}`]) {
+          allCards.push({ n, idx, a, b });
+        } else {
+          totalUsed++;
+        }
+      });
+    });
+
+    const total = getTotalCards();
+    $('trayCount').textContent = `${total - totalUsed} / ${total}`;
+
+    let currentTray = [];
+    if (Array.isArray(state.trayOrder)) {
+      currentTray = state.trayOrder.filter(c => allCards.some(ac => ac.n === c.n && ac.idx === c.idx));
+    }
+    
+    const missing = allCards.filter(c => !currentTray.some(tc => tc.n === c.n && tc.idx === c.idx));
+    state.trayOrder = [...currentTray, ...shuffle(missing)];
+
+    state.trayOrder.forEach(({ n, idx, a, b }) => {
+      const card = document.createElement('button');
+      card.className = 'card';
+      card.dataset.num = n;
+      card.dataset.idx = idx;
+      card.innerHTML = `<span>${a}</span><span class="op">+</span><span>${b}</span>`;
+      if (state.picked && state.picked.num === n && state.picked.idx === idx) {
+        card.classList.add('picked');
+      }
+      card.addEventListener('click', () => onCardClick(n, idx, a, b));
+      body.appendChild(card);
+    });
+
+    if (body.children.length === 0) {
+      body.innerHTML = '<div class="tray-empty">Все карточки расставлены ✅</div>';
+    }
+  }
+
+  function highlightCardsForNumber(n) {
+    if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
+    
+    if (state.hintsLeft <= 0) {
+      const house = document.querySelector(`.house[data-num="${n}"]`);
+      if (house) house.animate([{transform:"translateX(0)"},{transform:"translateX(-4px)"},{transform:"translateX(4px)"},{transform:"translateX(0)"}], {duration:200});
+      return;
+    }
+
+    sndHint();
+    state.hintsUsed++; 
+    state.hintsLeft--;
+    updateBars();
+    commit(); 
+
+    const allCards = document.querySelectorAll('.card');
+    allCards.forEach(card => card.classList.remove('hint-highlight'));
+    allCards.forEach(card => {
+      if (+card.dataset.num === n) card.classList.add('hint-highlight');
+    });
+    clearTimeout(highlightCardsForNumber.timer);
+    highlightCardsForNumber.timer = setTimeout(() => {
+      document.querySelectorAll('.hint-highlight').forEach(c => c.classList.remove('hint-highlight'));
+    }, 2000);
+  }
+
+  function onCardClick(n, idx, a, b) {
+    if (state.done.includes(n) || !getActiveNumbers().includes(n)) return;
+    if (state.filled[`${n}-${idx}`]) return;
+    if (state.picked && state.picked.num === n && state.picked.idx === idx) {
+      state.picked = null;
+    } else {
+      state.picked = { num: n, idx, a, b };
+    }
+    document.querySelectorAll('.hint-highlight').forEach(c => c.classList.remove('hint-highlight'));
+    renderTray(); 
+  }
+
+  function onHouseClick(n, houseEl) {
+    if (!state.picked) return; 
+    if (state.done.includes(n) || !getActiveNumbers().includes(n)) return; 
+
+    const { a, b, num } = state.picked;
+
+    if (num !== n || a + b !== n) {
+      sndBad(); 
+      state.errorsMade++;
+      commit();
+      houseEl.classList.add('flash-bad');
+      setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
+      return;
+    }
+
+    const targetIdx = data[n].findIndex(([expA, expB], i) => {
+      const isFilled = !!state.filled[`${n}-${i}`];
+      return !isFilled && expA === a && expB === b;
+    });
+
+    if (targetIdx === -1) {
+      sndBad(); 
+      state.errorsMade++;
+      commit();
+      houseEl.classList.add('flash-bad');
+      setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
+      return;
+    }
+
+    state.filled[`${n}-${targetIdx}`] = { a, b };
+    state.score++;
+    sndPlace();
+    state.picked = null;
+
+    $('score').textContent = state.score;
+    
+    renderSingleHouse(n, $('houses'));
+    renderTray();
+
+    const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
+    if (targetSlot) {
+      targetSlot.classList.add('pop-anim');
+      setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
+    }
+
+    const done = data[n].every((_, i) => state.filled[`${n}-${i}`]);
+    if (done && !state.done.includes(n)) {
+      state.done.push(n);
+      sndHouseDone();
+      
+      updateBars();
+      
+      setTimeout(() => {
+        if (getActiveNumbers().every(num => state.done.includes(num))) winGame();
+        else { commit(); renderSingleHouse(n, $('houses')); }
+      }, 600);
+    } else {
+      commit();
+    }
+  }
+
+  function renderAll() {
+    $('score').textContent = state.score;
+    
+    renderHouses();
+    renderTray();
+    updateBars();
+
+    $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
+    $('sampleBtn').classList.toggle('active', state.sampleOn);
+  }
+
+  function toggleSample() {
+    if (state.hintsLeft <= 0) return;
+    
+    state.sampleOn = !state.sampleOn;
+    tone(state.sampleOn ? 660 : 440, 0.1);
+    
+    if (state.sampleOn) {
+      state.hintsUsed++; 
+      state.hintsLeft--;
+      updateBars();
+      commit();
+    }
+    
+    renderHouses(); 
+    $('sampleBtn').textContent = state.sampleOn ? '🙈 Скрыть' : '👁️ Образец';
+    $('sampleBtn').classList.toggle('active', state.sampleOn);
+  }
+
+  function winGame() {
+    const timeSpentMs = Date.now() - state.sessionStartTime;
+    const timeSpentSec = Math.floor(timeSpentMs / 1000);
+    const timeFormatted = `${Math.floor(timeSpentSec / 60)}:${String(timeSpentSec % 60).padStart(2, '0')}`;
+
+    let statsHistory = {};
+    try {
+      statsHistory = JSON.parse(localStorage.getItem(STATS_KEY)) || {};
+    } catch (e) {}
+
+    const currentLevelKey = state.level;
+    const prevRecord = statsHistory[currentLevelKey];
+
+    let statsHtml = '';
+    
+    let timeDiffHtml = '';
+    if (prevRecord) {
+      const diff = timeSpentSec - prevRecord.time;
+      if (diff < -1) timeDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)} сек</span>`;
+      else if (diff > 1) timeDiffHtml = `<span class="stat-diff down">↑ ${diff} сек</span>`;
+      else timeDiffHtml = `<span class="stat-diff same">=</span>`;
+    }
+    statsHtml += `<div class="stat-row"><span class="stat-label">⏱️ Время:</span><span class="stat-value">${timeFormatted} ${timeDiffHtml}</span></div>`;
+
+    let errDiffHtml = '';
+    if (prevRecord) {
+      const diff = state.errorsMade - prevRecord.errors;
+      if (diff < 0) errDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)}</span>`;
+      else if (diff > 0) errDiffHtml = `<span class="stat-diff down">↑ ${diff}</span>`;
+      else errDiffHtml = `<span class="stat-diff same">=</span>`;
+    }
+    statsHtml += `<div class="stat-row"><span class="stat-label">❌ Ошибки:</span><span class="stat-value">${state.errorsMade} ${errDiffHtml}</span></div>`;
+
+    let hintDiffHtml = '';
+    if (prevRecord) {
+      const diff = state.hintsUsed - prevRecord.hintsUsed;
+      if (diff < 0) hintDiffHtml = `<span class="stat-diff up">↓ ${Math.abs(diff)}</span>`;
+      else if (diff > 0) hintDiffHtml = `<span class="stat-diff down">↑ ${diff}</span>`;
+      else hintDiffHtml = `<span class="stat-diff same">=</span>`;
+    }
+    statsHtml += `<div class="stat-row"><span class="stat-label">💡 Подсказки:</span><span class="stat-value">${state.hintsUsed} ${hintDiffHtml}</span></div>`;
+
+    const levelNames = { low: '2–5', high: '6–10', all: 'Все' };
+    statsHtml += `<div class="stat-row"><span class="stat-label">📚 Уровень:</span><span class="stat-value">${levelNames[state.level]}</span></div>`;
+
+    $('statsContainer').innerHTML = statsHtml;
+
+    let achievementsHtml = '';
+    const achList = [
+      { id: 'perfect', title: 'Без ошибок', emoji: '🎯', cond: state.errorsMade === 0 },
+      { id: 'genius', title: 'Гений', emoji: '🧠', cond: state.hintsUsed === 0 },
+      { id: 'fast', title: 'Скоростной', emoji: '⚡', cond: timeSpentSec < 60 }
+    ];
+
+    achList.forEach(ach => {
+      if (ach.cond) {
+        unlockAchievement(ach.id);
+        achievementsHtml += `<div class="achievement unlocked">${ach.emoji} ${ach.title}</div>`;
+      } else {
+        if (state.achievements[ach.id]) {
+          achievementsHtml += `<div class="achievement unlocked" style="opacity: 0.5;">${ach.emoji} ${ach.title}</div>`;
+        } else {
+          achievementsHtml += `<div class="achievement">${ach.emoji} ${ach.title}</div>`;
+        }
+      }
+    });
+
+    $('achievementsWrap').innerHTML = achievementsHtml;
+
+    const isBetter = !prevRecord || (timeSpentSec < prevRecord.time && state.errorsMade <= prevRecord.errors);
+    if (isBetter) {
+       statsHistory[currentLevelKey] = { time: timeSpentSec, errors: state.errorsMade, hintsUsed: state.hintsUsed };
+       localStorage.setItem(STATS_KEY, JSON.stringify(statsHistory));
+    }
+
+    $('overlayTitle').textContent = '🎉 Победа!';
+    $('overlayBig').innerHTML = `⭐ <span id="finalScore">${state.score}</span>`;
+    $('overlay').classList.add('show');
+    sndWin();
+    fireConfetti();
+    
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  }
+
+  function fireConfetti() {
+    const colors = ['#e53935','#fb8c00','#fdd835','#7cb342','#1e88e5','#5e35b1','#d81b60'];
+    for (let i = 0; i < 80; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      el.style.animationDelay = (Math.random() * 0.6) + 's';
+      el.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+  }
+
+  function resetGame() {
+    state.score = 0;
+    state.done = [];
+    state.filled = {};
+    state.picked = null;
+    state.trayOrder = [];
+    state.sampleOn = false;
+    state.sessionStartTime = Date.now();
+    state.hintsUsed = 0;
+    state.errorsMade = 0;
+    state.hintsLeft = MAX_HINTS;
+    
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+    $('overlay').classList.remove('show');
+    $('houses').innerHTML = ''; 
+    renderAll();
+  }
+
+  $('resetStatsBtn').addEventListener('click', () => {
+    if (confirm('Удалить все рекорды и достижения?')) {
+      try {
+        localStorage.removeItem(STATS_KEY);
+        localStorage.removeItem(ACHIEVEMENTS_KEY);
+        state.achievements = {};
+        
+        const b = $('savedBadge');
+        b.textContent = '🗑️ Рекорды и достижения сброшены';
+        b.classList.add('show');
+        setTimeout(() => b.classList.remove('show'), 1500);
+        
+        $('overlay').classList.remove('show');
+      } catch(e) {}
+    }
+  });
+
+  $('sampleBtn').addEventListener('click', toggleSample);
+  $('resetBtn').addEventListener('click', () => {
+    if (confirm('Начать заново? Все успехи сбросятся.')) resetGame();
+  });
+  $('playAgain').addEventListener('click', resetGame);
+  
+  $('themeBtn').addEventListener('click', () => {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    saveTheme(); applyTheme();
+  });
+
+  $('segLevel').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-level]');
+    if (!btn || btn.dataset.level === state.level) return;
+    
+    state.level = btn.dataset.level;
+    document.querySelectorAll('#segLevel button').forEach(b => b.classList.toggle('active', b.dataset.level === state.level));
+    
+    state.picked = null;
+    state.sampleOn = false;
+    state.trayOrder = []; 
+    state.sessionStartTime = Date.now();
+    state.hintsUsed = 0;
+    state.errorsMade = 0;
+    state.hintsLeft = MAX_HINTS;
+    
+    saveProgress();
+    renderAll();
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed: ', err));
+    });
+  }
+
+  // Инициализация при загрузке
+  loadTheme();
+  loadAchievements();
+  checkActivation();
+  const loaded = loadProgress();
+  if (!loaded) state.sessionStartTime = Date.now();
+  renderAll();
+  
+  if (loaded) {
+    setTimeout(() => {
+      const b = $('savedBadge');
+      b.textContent = '↩️ Прогресс восстановлен';
+      b.classList.add('show');
+      setTimeout(() => b.classList.remove('show'), 1800);
+    }, 300);
+  }
+</script>
+
+</body>
+</html>
