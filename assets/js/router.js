@@ -4,12 +4,6 @@
 
 import { THEMES } from './tasks.js';
 
-const ROUTES = {
-  '': 'menu',
-  'game': 'game',
-  'parents': 'parents'
-};
-
 let currentCleanup = null;
 
 export async function navigate(hash) {
@@ -27,7 +21,9 @@ export async function navigate(hash) {
 
   if (route === 'game' && path[1] === 'composition') {
     // Загружаем игру «Состав чисел»
-    const { mount } = await import('../games/composition/game.js');
+    // Обратите внимание на путь: мы находимся в assets/js/router.js, 
+    // а игра лежит в games/composition/game.js (на два уровня выше)
+    const { mount } = await import('../../games/composition/game.js');
     const result = await mount(container);
     if (result && result.cleanup) currentCleanup = result.cleanup;
   } else if (route === 'parents') {
