@@ -13,9 +13,7 @@ html, body {
   -webkit-user-select: none;
 }
 
-#app {
-  min-height: 100vh;
-}
+#app { min-height: 100vh; }
 
 /* ===== Меню ===== */
 .menu-screen {
@@ -24,18 +22,8 @@ html, body {
   padding: 40px 20px;
   text-align: center;
 }
-
-.menu-title {
-  font-size: 36px;
-  color: #1976d2;
-  margin-bottom: 8px;
-}
-
-.menu-subtitle {
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 32px;
-}
+.menu-title { font-size: 36px; color: #1976d2; margin-bottom: 8px; }
+.menu-subtitle { font-size: 16px; color: #666; margin-bottom: 32px; }
 
 .themes-grid {
   display: grid;
@@ -55,12 +43,10 @@ html, body {
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);
 }
-
 .theme-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(25, 118, 210, 0.25);
 }
-
 .theme-emoji { font-size: 48px; margin-bottom: 12px; }
 .theme-title { font-size: 20px; font-weight: bold; color: #1976d2; margin-bottom: 6px; }
 .theme-desc { font-size: 14px; color: #666; margin-bottom: 8px; }
@@ -75,11 +61,7 @@ html, body {
   border: 1px solid #1976d2;
   border-radius: 8px;
 }
-
-.menu-parents:hover {
-  background: #e3f2fd;
-}
-
+.menu-parents:hover { background: #e3f2fd; }
 .menu-back {
   display: inline-block;
   margin-top: 24px;
@@ -101,7 +83,6 @@ html, body {
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
 }
-
 .btn:hover { background: #1565c0; }
 .btn:active { transform: scale(0.97); }
 .btn.ghost { background: #fff; color: #1976d2; border: 2px solid #1976d2; }
@@ -151,21 +132,3 @@ html, body {
 @keyframes fall {
   to { transform: translateY(110vh) rotate(720deg); opacity: 0.6; }
 }
-
-/* ===== Общие стили игры (шапка) ===== */
-.topbar {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 2px 0 6px;
-  font-size: 14px; font-weight: bold;
-  flex-shrink: 0;
-}
-.topbar .title { color: #1976d2; font-size: 16px; }
-.topbar .score { color: #fb8c00; }
-.topbar .progress-text { color: #666; font-size: 13px; }
-.back-btn {
-  font-size: 24px;
-  color: #1976d2;
-  text-decoration: none;
-  padding: 0 8px;
-}
-.back-btn:hover { background: #e3f2fd; border-radius: 6px; }
