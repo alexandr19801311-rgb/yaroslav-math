@@ -100,7 +100,9 @@ export function fireConfetti() {
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 4000);
   }
-  // ===== Модалка с фактом =====
+} // <--- ВОТ ЭТА СКОБКА БЫЛА ПРОПУЩЕНА
+
+// ===== Модалка с фактом =====
 export function showFactModal(fact, lang = 'ru') {
   const modal = document.getElementById('factModal');
   if (!modal) return;
@@ -114,5 +116,4 @@ export function showFactModal(fact, lang = 'ru') {
 export function hideFactModal() {
   const modal = document.getElementById('factModal');
   if (modal) modal.classList.remove('show');
-}
 }
