@@ -8,7 +8,15 @@
 </head>
 <body>
   <div id="app"></div>
-
+<div class="fact-modal" id="factModal">
+  <div class="fact-content">
+    <div class="fact-emoji" id="factEmoji">🖐️</div>
+    <div class="fact-era" id="factEra">Древний мир</div>
+    <h3 class="fact-title" id="factTitle">Пальцы</h3>
+    <p class="fact-text" id="factText">Текст факта</p>
+    <button class="btn" id="factClose">Закрыть</button>
+  </div>
+</div>
   <script type="module">
     import { initRouter } from './assets/js/router.js';
     initRouter();
