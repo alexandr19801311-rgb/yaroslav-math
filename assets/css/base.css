@@ -1,1 +1,171 @@
+/* ============================================================
+   BASE.CSS — Общие стили платформы
+   ============================================================ */
 
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  min-height: 100vh;
+  color: #333;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* ===== Меню ===== */
+.menu-screen {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.menu-title {
+  font-size: 36px;
+  color: #1976d2;
+  margin-bottom: 8px;
+}
+
+.menu-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 32px;
+}
+
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.theme-card {
+  display: block;
+  background: #fff;
+  border: 2px solid #1976d2;
+  border-radius: 16px;
+  padding: 24px;
+  text-decoration: none;
+  color: #333;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);
+}
+
+.theme-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(25, 118, 210, 0.25);
+}
+
+.theme-emoji { font-size: 48px; margin-bottom: 12px; }
+.theme-title { font-size: 20px; font-weight: bold; color: #1976d2; margin-bottom: 6px; }
+.theme-desc { font-size: 14px; color: #666; margin-bottom: 8px; }
+.theme-age { font-size: 12px; color: #999; }
+
+.menu-parents {
+  display: inline-block;
+  font-size: 14px;
+  color: #1976d2;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid #1976d2;
+  border-radius: 8px;
+}
+
+.menu-parents:hover {
+  background: #e3f2fd;
+}
+
+.menu-back {
+  display: inline-block;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #1976d2;
+  text-decoration: none;
+}
+
+/* ===== Кнопки (общие) ===== */
+.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #1976d2;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn:hover { background: #1565c0; }
+.btn:active { transform: scale(0.97); }
+.btn.ghost { background: #fff; color: #1976d2; border: 2px solid #1976d2; }
+.btn.ghost:hover { background: #e3f2fd; }
+.btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
+
+/* ===== Оверлей ===== */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,0.96);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s;
+  z-index: 100;
+  text-align: center;
+}
+.overlay.show { opacity: 1; pointer-events: auto; }
+.overlay h2 { font-size: 32px; color: #1976d2; margin-bottom: 10px; }
+.overlay p { font-size: 18px; color: #555; margin-bottom: 6px; }
+.overlay .big { font-size: 48px; margin: 14px 0; }
+
+/* ===== Бейдж ===== */
+.saved-badge {
+  position: fixed;
+  bottom: 16px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #388e3c; color: #fff;
+  padding: 8px 18px;
+  border-radius: 18px;
+  font-size: 13px; font-weight: bold;
+  box-shadow: 0 4px 12px rgba(56,142,60,0.4);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 150;
+  pointer-events: none;
+}
+.saved-badge.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== Конфетти ===== */
+.confetti {
+  position: fixed; top: -20px; width: 10px; height: 16px;
+  pointer-events: none; z-index: 200;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(720deg); opacity: 0.6; }
+}
+
+/* ===== Общие стили игры (шапка) ===== */
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 2px 0 6px;
+  font-size: 14px; font-weight: bold;
+  flex-shrink: 0;
+}
+.topbar .title { color: #1976d2; font-size: 16px; }
+.topbar .score { color: #fb8c00; }
+.topbar .progress-text { color: #666; font-size: 13px; }
+.back-btn {
+  font-size: 24px;
+  color: #1976d2;
+  text-decoration: none;
+  padding: 0 8px;
+}
+.back-btn:hover { background: #e3f2fd; border-radius: 6px; }
