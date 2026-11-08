@@ -7,7 +7,6 @@ import { THEMES } from './tasks.js';
 let currentCleanup = null;
 
 export async function navigate(hash) {
-  // Вызываем cleanup у предыдущего экрана (если есть)
   if (currentCleanup) {
     try { currentCleanup(); } catch(e) {}
     currentCleanup = null;
@@ -20,14 +19,10 @@ export async function navigate(hash) {
   container.innerHTML = '';
 
   if (route === 'game' && path[1] === 'composition') {
-    // Загружаем игру «Состав чисел»
-    // Обратите внимание на путь: мы находимся в assets/js/router.js, 
-    // а игра лежит в games/composition/game.js (на два уровня выше)
     const { mount } = await import('../../games/composition/game.js');
     const result = await mount(container);
     if (result && result.cleanup) currentCleanup = result.cleanup;
   } else if (route === 'parents') {
-    // Заглушка кабинета родителя
     container.innerHTML = `
       <div class="menu-screen">
         <h1 class="menu-title">📊 Кабинет родителя</h1>
@@ -36,7 +31,6 @@ export async function navigate(hash) {
       </div>
     `;
   } else {
-    // Главное меню
     renderMenu(container);
   }
 }
