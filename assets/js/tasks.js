@@ -21,6 +21,4 @@ export const THEMES = {
       return variants;
     }
   }
-  
-  // Сюда позже добавим: subtraction, multiplication
 };
