@@ -28,7 +28,14 @@ let NUMBERS = [];
 let data = {};
 
 export async function mount(container) {
-  // Загружаем уровень из hash (#/game/composition/easy)
+  // Подгружаем CSS для игры, если его еще нет на странице
+  if (!document.getElementById('composition-game-style')) {
+    const link = document.createElement('link');
+    link.id = 'composition-game-style';
+    link.rel = 'stylesheet';
+    link.href = 'games/composition/game.css'; // Путь от корня сайта
+    document.head.appendChild(link);
+  }
   const path = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   const levelId = path[2] || 'all';
   currentLevel = THEME.levels.find(l => l.id === levelId) || THEME.levels[THEME.levels.length - 1];
