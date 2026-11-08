@@ -128,9 +128,8 @@ export async function mount(container) {
 
     <!-- ВЕРСИЯ СБОРКИ -->
     <div style="position:fixed; bottom:2px; right:6px; font-size:10px; color:var(--text); opacity:0.5; z-index:100; pointer-events:none;">
-      v6.0 (2026-11-08)
+      v6.1
     </div>
-  `;
 
   renderAll();
   attachHandlers();
