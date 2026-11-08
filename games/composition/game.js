@@ -1,5 +1,5 @@
 // ============================================================
-// GAME.JS — Игра «Состав чисел» (модуль) — v2 с фиксами
+// GAME.JS — Игра «Состав чисел» (модуль) — v6.0
 // ============================================================
 
 import { THEMES } from '../../assets/js/tasks.js';
@@ -9,8 +9,8 @@ import {
 } from '../../assets/js/core.js';
 
 const THEME = THEMES.composition;
-const STORAGE_KEY = 'composition_progress_v2';
-const THEME_KEY = 'composition_theme_v2';
+const STORAGE_KEY = 'composition_progress_v6';
+const THEME_KEY = 'composition_theme_v6';
 
 let state = null;
 let currentLevel = null;
@@ -71,6 +71,7 @@ export async function mount(container) {
   state.picked = null;
   state.sampleOn = false;
 
+  // Рендер
   container.innerHTML = `
     <div class="game-screen">
       <div class="topbar">
@@ -124,6 +125,11 @@ export async function mount(container) {
     </div>
 
     <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
+
+    <!-- ВЕРСИЯ СБОРКИ -->
+    <div style="position:fixed; bottom:2px; right:6px; font-size:10px; color:var(--text); opacity:0.5; z-index:100; pointer-events:none;">
+      v6.0 (2026-11-08)
+    </div>
   `;
 
   renderAll();
@@ -138,7 +144,6 @@ export async function mount(container) {
 
 // ===== Отрисовка одного домика =====
 function renderSingleHouse(n, container) {
-  // Защита: если числа нет в текущем уровне, не рисуем
   if (!data[n]) return;
 
   const doneSet = new Set(state.done);
@@ -192,12 +197,11 @@ function renderSingleHouse(n, container) {
   else container.appendChild(newHouse);
 }
 
-// ===== Отрисовка всех домиков ТЕКУЩЕГО уровня =====
+// ===== Отрисовка всех домиков =====
 function renderHouses() {
   const container = $('houses');
   if (!container) return;
   container.innerHTML = '';
-  // Рисуем только те числа, что есть в текущем уровне
   NUMBERS.forEach(n => renderSingleHouse(n, container));
 }
 
@@ -265,7 +269,7 @@ function updateProgressBar() {
   }
 }
 
-// ===== Подсветка =====
+// ===== Подсветка карточек =====
 function highlightCardsForNumber(n) {
   if (state.done.includes(n) || !NUMBERS.includes(n)) return;
   sndHint();
