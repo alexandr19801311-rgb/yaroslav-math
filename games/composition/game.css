@@ -1,4 +1,418 @@
-/* ===== Нижняя панель ===== */
+/* ============================================================
+   GAME.CSS — Стили игры «Состав чисел» (v2 с фиксами)
+   ============================================================ */
+
+/* ===== ЦВЕТОВЫЕ ПЕРЕМЕННЫЕ (светлая тема) ===== */
+:root {
+  --bg-grad: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  --text: #333;
+  --house-bg: #fff;
+  --house-border: #1976d2;
+  --house-done-bg: #f1f8e9;
+  --house-done-border: #388e3c;
+  --slot-bg: #f5f5f5;
+  --slot-border: #bbb;
+  --slot-filled-bg: #e3f2fd;
+  --slot-filled-border: #1976d2;
+  --tray-bg: #fff9c4;
+  --tray-border: #f57f17;
+  --card-bg: #fff;
+  --card-border: #1976d2;
+  --card-picked-bg: #bbdefb;
+  --card-picked-border: #0d47a1;
+  --card-hint-bg: #fff59d;
+  --card-hint-border: #fbc02d;
+  --btn-bg: #1976d2;
+  --btn-text: #fff;
+  --btn-ghost-bg: #fff;
+  --overlay-bg: rgba(255,255,255,0.96);
+  
+  --progress-bg: #e0e0e0;
+  --progress-fill: linear-gradient(90deg, #4caf50, #8bc34a);
+  --progress-glow: rgba(76, 175, 80, 0.6);
+  
+  --c-2: #e53935; --c-3: #fb8c00; --c-4: #fdd835; --c-5: #7cb342;
+  --c-6: #00897b; --c-7: #1e88e5; --c-8: #5e35b1; --c-9: #d81b60; --c-10: #6d4c41;
+
+  --inactive-house-bg: #e0e0e0;
+  --inactive-house-border: #bdbdbd;
+  --inactive-text: #757575;
+  --inactive-slot-bg: #eeeeee;
+
+  --num-color: #1976d2;
+  --op-color: #d32f2f;
+}
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+[data-theme="dark"] {
+  --bg-grad: linear-gradient(135deg, #12161f 0%, #1a1a2e 100%);
+  --text: #e8edf5;
+  --house-bg: #1b2130;
+  --house-border: #35405a;
+  --house-done-bg: #1b2e1b;
+  --house-done-border: #4caf50;
+  --slot-bg: #232b3d;
+  --slot-border: #4a5a78;
+  --slot-filled-bg: #1e3a5f;
+  --slot-filled-border: #64b5f6;
+  --tray-bg: #2a2518;
+  --tray-border: #5c4a1a;
+  --card-bg: #232b3d;
+  --card-border: #64b5f6;
+  --card-picked-bg: #1e3a5f;
+  --card-picked-border: #90caf9;
+  --card-hint-bg: #5c4a1a;
+  --card-hint-border: #ffb300;
+  --btn-bg: #35405a;
+  --btn-text: #64b5f6;
+  --btn-ghost-bg: #1b2130;
+  --overlay-bg: rgba(18,22,31,0.96);
+  
+  --progress-bg: #2a3545;
+  --progress-fill: linear-gradient(90deg, #66bb6a, #aed581);
+  --progress-glow: rgba(102, 187, 106, 0.6);
+  
+  --c-2: #ef5350; --c-3: #ffa726; --c-4: #ffee58; --c-5: #9ccc65;
+  --c-6: #26a69a; --c-7: #42a5f5; --c-8: #ab47bc; --c-9: #ec407a; --c-10: #8d6e63;
+
+  --inactive-house-bg: #2a2a35;
+  --inactive-house-border: #444455;
+  --inactive-text: #a0a0b0;
+  --inactive-slot-bg: #333340;
+
+  --num-color: #ffffff;
+  --op-color: #ef5350;
+}
+
+/* ===== БАЗОВЫЕ СБРОСЫ ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== ОСНОВНОЙ КОНТЕЙНЕР ИГРЫ ===== */
+.game-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4px 6px;
+  background: var(--bg-grad);
+  color: var(--text);
+  overflow: hidden;
+  transition: background .3s, color .3s;
+}
+
+/* ===== ШАПКА ===== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0 6px;
+  font-size: 14px;
+  font-weight: bold;
+  flex-shrink: 0;
+  gap: 10px;
+}
+.topbar .title {
+  color: var(--house-border);
+  font-size: 16px;
+  white-space: nowrap;
+}
+.topbar .score {
+  color: var(--c-3);
+  white-space: nowrap;
+}
+.back-btn {
+  font-size: 24px;
+  text-decoration: none;
+  color: var(--house-border);
+  padding: 0 6px;
+  border-radius: 6px;
+}
+.back-btn:hover { background: rgba(25, 118, 210, 0.1); }
+
+/* ===== ПОЛОСА ПРОГРЕССА ===== */
+.progress-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 500px;
+  margin: 0 10px;
+}
+.progress-wrapper {
+  flex: 1;
+  height: 16px;
+  background: var(--progress-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid var(--house-border);
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--progress-fill);
+  border-radius: 8px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.progress-fill.pulse {
+  animation: progress-pulse 0.6s ease-out;
+}
+@keyframes progress-pulse {
+  0% { box-shadow: 0 0 0 0 var(--progress-glow); }
+  50% { box-shadow: 0 0 12px 4px var(--progress-glow); }
+  100% { box-shadow: 0 0 0 0 var(--progress-glow); }
+}
+.progress-text {
+  font-size: 13px;
+  color: var(--text);
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+/* ===== ДОМИКИ ===== */
+.houses {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 3px;
+  flex-shrink: 0;
+  margin-bottom: 6px;
+  height: 50vh;
+}
+.house {
+  border: 1.5px solid var(--house-border);
+  border-radius: 6px;
+  background: var(--house-bg);
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: all .2s;
+}
+.house.done {
+  border-color: var(--house-done-border);
+  background: var(--house-done-bg);
+  cursor: default;
+}
+.house.done::after {
+  content: '✅';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 12px;
+}
+.house.flash-bad {
+  animation: flashBad 0.5s;
+}
+@keyframes flashBad {
+  0%, 100% { background: var(--house-bg); }
+  50% { background: #ffcdd2; border-color: #d32f2f; }
+}
+
+/* Неактивный домик (для будущих уровней) */
+.house.inactive {
+  background: var(--inactive-house-bg);
+  border-color: var(--inactive-house-border);
+  pointer-events: none;
+  opacity: 0.85;
+}
+.house.inactive .house-title { filter: grayscale(1) opacity(0.5); }
+.house.inactive .slot-row {
+  border-color: var(--inactive-house-border);
+  background: var(--inactive-slot-bg);
+  color: var(--inactive-text);
+}
+.house.inactive .slot-row .num-blue,
+.house.inactive .slot-row .op-red,
+.house.inactive .slot-row .eq,
+.house.inactive .slot-row .result {
+  color: var(--inactive-text);
+}
+
+/* ===== ЗАГОЛОВОК ДОМИКА ===== */
+.house-title {
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  padding: 3px 0;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+.house-title:hover { filter: brightness(0.9); }
+
+/* Цвета домиков */
+.house[data-num="2"]  .house-title { background: var(--c-2); }
+.house[data-num="3"]  .house-title { background: var(--c-3); }
+.house[data-num="4"]  .house-title { background: var(--c-4); color: #333; }
+.house[data-num="5"]  .house-title { background: var(--c-5); }
+.house[data-num="6"]  .house-title { background: var(--c-6); }
+.house[data-num="7"]  .house-title { background: var(--c-7); }
+.house[data-num="8"]  .house-title { background: var(--c-8); }
+.house[data-num="9"]  .house-title { background: var(--c-9); }
+.house[data-num="10"] .house-title { background: var(--c-10); }
+
+/* ===== СЛОТЫ (ЯЧЕЙКИ) ВНУТРИ ДОМИКА ===== */
+.slots-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0 2px 2px 2px;
+  flex: 1;
+  overflow-y: auto;
+}
+.slot-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  background: var(--slot-bg);
+  border-radius: 3px;
+  border: 1px dashed var(--slot-border);
+  color: var(--slot-border);
+  pointer-events: none;
+  min-height: 22px;
+  padding: 1px;
+  line-height: 1;
+  transition: background 0.2s, border-color 0.2s;
+}
+.slot-row.filled {
+  border-style: solid;
+  border-color: var(--slot-filled-border);
+  background: var(--slot-filled-bg);
+}
+
+/* Анимация «шлепка» */
+@keyframes slot-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15); background: #c8e6c9; border-color: #388e3c; color: #2e7d32; }
+  100% { transform: scale(1); background: var(--slot-filled-bg); border-color: var(--slot-filled-border); }
+}
+.slot-row.pop-anim {
+  animation: slot-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  z-index: 2;
+}
+
+/* «Призрак» — образец */
+.slot-row.ghost {
+  border-color: #b39ddb;
+  background: rgba(179,157,219,0.1);
+  font-style: italic;
+}
+.slot-row.ghost .num-blue,
+.slot-row.ghost .op-red,
+.slot-row.ghost .eq,
+.slot-row.ghost .result {
+  color: #9575cd;
+}
+
+/* Цвета цифр и знаков */
+.num-blue { color: var(--num-color); }
+.op-red { color: var(--op-color); }
+.eq { color: var(--op-color); }
+.result { color: var(--num-color); }
+
+/* ===== ЛОТОК С КАРТОЧКАМИ ===== */
+.tray-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--tray-bg);
+  border: 2px dashed var(--tray-border);
+  border-radius: 8px;
+  padding: 4px 6px;
+  min-height: 0;
+  transition: background .3s, border-color .3s;
+}
+.tray-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--tray-border);
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+.tray-header .left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tray-header .count {
+  background: var(--house-bg);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+.tray-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+  gap: 6px;
+  align-content: flex-start;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+/* ===== КАРТОЧКА ===== */
+.card {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px 0;
+  border: 1.5px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--num-color);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 32px;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.card.picked {
+  background: var(--card-picked-bg);
+  border-color: var(--card-picked-border);
+  box-shadow: 0 2px 6px rgba(13,71,161,0.3);
+  transform: scale(1.05);
+}
+.card.hint-highlight {
+  background: var(--card-hint-bg);
+  border-color: var(--card-hint-border);
+  box-shadow: 0 0 8px rgba(251, 192, 45, 0.8);
+  transform: scale(1.05);
+  z-index: 10;
+}
+.card .op { color: var(--op-color); }
+.tray-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text);
+  opacity: 0.5;
+  font-size: 13px;
+  padding: 10px;
+}
+
+/* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -9,6 +423,7 @@
   flex-shrink: 0;
 }
 
+/* Переключатель уровней */
 .seg {
   display: inline-flex;
   background: var(--house-bg);
@@ -29,15 +444,19 @@
   font-weight: bold;
   transition: background .15s, color .15s;
 }
-.seg button.active { background: var(--btn-bg); color: var(--btn-text); }
+.seg button.active {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
 
-/* Кнопки "Образец" и "Заново" — в отдельной группе */
+/* Кнопки «Образец» и «Заново» — в отдельной группе */
 .actions {
   display: flex;
   gap: 6px;
   margin-left: auto;
 }
 
+/* Кнопки */
 .btn {
   font-family: inherit;
   font-size: 13px;
@@ -52,9 +471,18 @@
   white-space: nowrap;
 }
 .btn:active { transform: scale(0.97); }
-.btn.ghost { background: var(--btn-ghost-bg); color: var(--btn-text); border: 2px solid var(--btn-bg); }
-.btn.active { background: #7e57c2; border-color: #7e57c2; color: #fff; }
+.btn.ghost {
+  background: var(--btn-ghost-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--btn-bg);
+}
+.btn.active {
+  background: #7e57c2;
+  border-color: #7e57c2;
+  color: #fff;
+}
 
+/* Кнопка темы */
 .icon-btn {
   background: var(--btn-ghost-bg);
   border: 2px solid var(--btn-bg);
@@ -66,17 +494,177 @@
   white-space: nowrap;
 }
 
-/* ===== Адаптив для нижней панели ===== */
+/* ===== ОВЕРЛЕЙ ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  z-index: 100;
+  text-align: center;
+}
+.overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.overlay h2 {
+  font-size: 32px;
+  color: var(--house-border);
+  margin-bottom: 10px;
+}
+.overlay p {
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.overlay .big {
+  font-size: 48px;
+  margin: 14px 0;
+  color: var(--c-3);
+}
+
+/* ===== БЕЙДЖ «СОХРАНЕНО» ===== */
+.saved-badge {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #388e3c;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(56,142,60,0.4);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 150;
+  pointer-events: none;
+}
+.saved-badge.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== КОНФЕТТИ ===== */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  z-index: 99;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  to { transform: translateY(100vh) rotate(720deg); }
+}
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+
+/* 🖥️ КОМПЬЮТЕР (широкий экран) */
+@media (min-width: 1100px) {
+  .houses {
+    grid-template-columns: repeat(3, 1fr);
+    height: auto;
+  }
+  .house { padding: 4px; }
+  .house-title {
+    font-size: 14px;
+    padding: 4px 0;
+    margin-bottom: 4px;
+  }
+  .slots-container {
+    gap: 4px;
+    padding: 0 4px 4px 4px;
+  }
+  .slot-row {
+    font-size: 14px;
+    min-height: 28px;
+    border-radius: 4px;
+    padding-left: 6px;
+  }
+}
+
+/* 📱 ПЛАНШЕТ / ТЕЛЕФОН (узкий экран) */
 @media (max-width: 768px) {
+  .houses {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    gap: 8px;
+    height: 45vh;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .houses::-webkit-scrollbar { height: 6px; }
+  .houses::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+    border-radius: 3px;
+  }
+  .houses::-webkit-scrollbar-thumb {
+    background: var(--house-border);
+    border-radius: 3px;
+  }
+
+  .house {
+    min-width: 110px;
+    scroll-snap-align: start;
+    border-width: 2px;
+  }
+  .house-title {
+    font-size: 14px;
+    padding: 4px 0;
+  }
+  .slot-row {
+    font-size: 14px;
+    min-height: 26px;
+  }
+  .tray-wrap {
+    flex: 0 0 35vh;
+  }
+  .tray-body {
+    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+    gap: 4px;
+  }
+  
+  /* Нижняя панель на мобильных */
   .controls {
     gap: 6px;
     padding: 4px 0;
   }
-  .seg button { padding: 6px 10px; font-size: 12px; }
-  .btn { padding: 6px 10px; font-size: 12px; }
+  .seg button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
   .actions {
     margin-left: 0;
-    flex: 1 1 100%;         /* переносим на новую строку */
+    flex: 1 1 100%; /* Переносим на новую строку */
     justify-content: flex-end;
+  }
+  
+  .progress-container {
+    max-width: none;
+    margin: 0 4px;
+  }
+  .progress-wrapper {
+    height: 12px;
+  }
+  .progress-text {
+    font-size: 11px;
   }
 }
