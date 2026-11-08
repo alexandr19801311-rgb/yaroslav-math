@@ -163,8 +163,11 @@ function renderSingleHouse(n, container) {
 
   const title = document.createElement('div');
   title.className = 'house-title';
-  // ИСПРАВЛЕНА СТРОКА НИЖЕ (убраны кавычки, используется обычная конкатенация)
-  title.innerHTML = window.innerWidth < 1100 ? n : 'ЧИСЛО ' + n;
+  if (window.innerWidth < 1100) {
+    title.innerHTML = n;
+  } else {
+    title.innerHTML = `ЧИСЛО ${n}`;
+  }
   newHouse.appendChild(title);
 
   const slotsContainer = document.createElement('div');
