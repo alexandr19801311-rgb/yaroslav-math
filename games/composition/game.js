@@ -1,14 +1,15 @@
 // ============================================================
-// GAME.JS — Игра «Состав чисел» (модуль) — v6.1
+// GAME.JS — Игра «Состав чисел» (модуль) — v6.1 + факты
 // ============================================================
-import { HISTORY_FACTS, getRandomFact } from '../../assets/data/history.js';
-import { showFactModal, hideFactModal } from '../../assets/js/core.js';
-import { getLang } from '../../assets/js/i18n.js';
+
 import { THEMES } from '../../assets/js/tasks.js';
 import { 
   $, shuffle, sndPlace, sndBad, sndHouseDone, sndWin, sndHint,
-  saveProgress, loadProgress, clearProgress, showSavedBadge, showOverlay, hideOverlay, fireConfetti
+  saveProgress, loadProgress, clearProgress, showSavedBadge, showOverlay, hideOverlay, fireConfetti,
+  showFactModal
 } from '../../assets/js/core.js';
+import { HISTORY_FACTS, getRandomFact } from '../../assets/data/history.js';
+import { getLang } from '../../assets/js/i18n.js';
 
 const THEME = THEMES.composition;
 const STORAGE_KEY = 'composition_progress_v6';
@@ -128,7 +129,7 @@ export async function mount(container) {
     <div class="saved-badge" id="savedBadge">💾 Прогресс сохранён</div>
 
     <div style="position:fixed; bottom:2px; right:6px; font-size:10px; color:var(--text); opacity:0.5; z-index:100; pointer-events:none;">
-      v6.1
+      v6.2
     </div>
   `;
 
@@ -142,6 +143,7 @@ export async function mount(container) {
   };
 }
 
+// ===== Отрисовка одного домика =====
 function renderSingleHouse(n, container) {
   if (!data[n]) return;
 
@@ -200,6 +202,7 @@ function renderSingleHouse(n, container) {
   else container.appendChild(newHouse);
 }
 
+// ===== Отрисовка всех домиков =====
 function renderHouses() {
   const container = $('houses');
   if (!container) return;
@@ -207,6 +210,7 @@ function renderHouses() {
   NUMBERS.forEach(n => renderSingleHouse(n, container));
 }
 
+// ===== Отрисовка банка карточек =====
 function renderTray() {
   const body = $('trayBody');
   if (!body) return;
@@ -249,15 +253,11 @@ function renderTray() {
     body.appendChild(card);
   });
 
-  if (body.children.length === 0) {
-    body.innerHTML = '<div class="tray-empty">Все карточки расставлены ✅</div>';
-  }
-}
-  // ===== Карточка-экспонат (награда после 3 успехов) =====
+  // ===== Карточка-экспонат (награда) =====
   if (state.score >= 3 && HISTORY_FACTS[THEME.id]) {
     const existingArtifact = document.querySelector('.artifact-card');
     if (!existingArtifact) {
-      const fact = HISTORY_FACTS[THEME.id][0]; // берём первый факт (Пальцы)
+      const fact = HISTORY_FACTS[THEME.id][0];
       const artifact = document.createElement('button');
       artifact.className = 'artifact-card';
       artifact.innerHTML = `<span style="font-size: 22px;">${fact.emoji}</span><span style="font-size: 10px; opacity: 0.8;">${fact.title[getLang()] || fact.title.ru}</span>`;
@@ -268,6 +268,12 @@ function renderTray() {
     }
   }
 
+  if (body.children.length === 0) {
+    body.innerHTML = '<div class="tray-empty">Все карточки расставлены ✅</div>';
+  }
+}
+
+// ===== Прогресс-бар =====
 function updateProgressBar() {
   const activeNums = NUMBERS;
   const doneCount = activeNums.filter(n => state.done.includes(n)).length;
@@ -283,6 +289,7 @@ function updateProgressBar() {
   }
 }
 
+// ===== Подсветка карточек =====
 function highlightCardsForNumber(n) {
   if (state.done.includes(n) || !NUMBERS.includes(n)) return;
   sndHint();
@@ -296,6 +303,7 @@ function highlightCardsForNumber(n) {
   }, 2000);
 }
 
+// ===== Клик по карточке =====
 function onCardClick(n, idx, a, b) {
   if (state.done.includes(n) || !NUMBERS.includes(n)) return;
   if (state.filled[`${n}-${idx}`]) return;
@@ -308,6 +316,7 @@ function onCardClick(n, idx, a, b) {
   renderTray();
 }
 
+// ===== Клик по домику =====
 function onHouseClick(n, houseEl) {
   if (!state.picked) return;
   if (state.done.includes(n) || !NUMBERS.includes(n)) return;
@@ -370,6 +379,7 @@ function onHouseClick(n, houseEl) {
   }
 }
 
+// ===== Сохранение =====
 function saveCurrentProgress() {
   saveProgress(STORAGE_KEY, {
     score: state.score,
@@ -380,13 +390,13 @@ function saveCurrentProgress() {
   showSavedBadge();
 }
 
-ffunction winGame() {
+// ===== Победа =====
+function winGame() {
   sndWin();
   showOverlay('🎉 Победа!', `Ты собрал все ${NUMBERS.length} домиков!`, state.score);
   fireConfetti();
   clearProgress(STORAGE_KEY);
 
-  // Через 2.5 секунды — показать факт
   setTimeout(() => {
     hideOverlay();
     const fact = getRandomFact(THEME.id);
@@ -396,6 +406,7 @@ ffunction winGame() {
   }, 2500);
 }
 
+// ===== Общая отрисовка =====
 function renderAll() {
   const scoreEl = $('score');
   const doneEl = $('doneCount');
@@ -439,6 +450,7 @@ function resetGame() {
   renderAll();
 }
 
+// ===== Обработчики =====
 function attachHandlers() {
   const sb = $('sampleBtn');
   if (sb) sb.addEventListener('click', toggleSample);
