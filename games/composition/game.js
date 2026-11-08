@@ -253,6 +253,20 @@ function renderTray() {
     body.innerHTML = '<div class="tray-empty">Все карточки расставлены ✅</div>';
   }
 }
+  // ===== Карточка-экспонат (награда после 3 успехов) =====
+  if (state.score >= 3 && HISTORY_FACTS[THEME.id]) {
+    const existingArtifact = document.querySelector('.artifact-card');
+    if (!existingArtifact) {
+      const fact = HISTORY_FACTS[THEME.id][0]; // берём первый факт (Пальцы)
+      const artifact = document.createElement('button');
+      artifact.className = 'artifact-card';
+      artifact.innerHTML = `<span style="font-size: 22px;">${fact.emoji}</span><span style="font-size: 10px; opacity: 0.8;">${fact.title[getLang()] || fact.title.ru}</span>`;
+      artifact.addEventListener('click', () => {
+        showFactModal(fact, getLang());
+      });
+      body.appendChild(artifact);
+    }
+  }
 
 function updateProgressBar() {
   const activeNums = NUMBERS;
