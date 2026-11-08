@@ -466,4 +466,161 @@
   white-space: nowrap;
   transition: transform 0.1s;
 }
-.btn:active { transform: scale(0.
+.btn:active { transform: scale(0.97); }
+.btn.ghost {
+  background: var(--btn-ghost-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--btn-bg);
+}
+.btn.active {
+  background: #7e57c2;
+  border-color: #7e57c2;
+  color: #fff;
+}
+
+.icon-btn {
+  background: var(--btn-ghost-bg);
+  border: 2px solid var(--btn-bg);
+  color: var(--btn-text);
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ===== ОВЕРЛЕЙ ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  z-index: 100;
+  text-align: center;
+}
+.overlay.show { opacity: 1; pointer-events: auto; }
+.overlay h2 { font-size: 32px; color: var(--house-border); margin-bottom: 10px; }
+.overlay p { font-size: 18px; color: var(--text); margin-bottom: 6px; }
+.overlay .big { font-size: 48px; margin: 14px 0; color: var(--c-3); }
+
+/* ===== БЕЙДЖ ===== */
+.saved-badge {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #388e3c;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(56,142,60,0.4);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 150;
+  pointer-events: none;
+}
+.saved-badge.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== КОНФЕТТИ ===== */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  z-index: 99;
+  animation: fall linear forwards;
+}
+@keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+
+/* 🖥️ КОМПЬЮТЕР */
+@media (min-width: 1100px) {
+  .houses {
+    grid-template-columns: repeat(3, 1fr);
+    height: auto;
+  }
+  .house { padding: 4px; }
+  .house-title { font-size: 14px; padding: 4px 0; margin-bottom: 4px; }
+  .slots-container { gap: 4px; padding: 0 4px 4px 4px; }
+  .slot-row { font-size: 14px; min-height: 28px; border-radius: 4px; padding-left: 6px; }
+  
+  .controls { justify-content: space-between; }
+  .actions { margin-left: auto; }
+}
+
+/* 📱 ПЛАНШЕТ / ТЕЛЕФОН */
+@media (max-width: 768px) {
+  /* Карусель домиков */
+  .houses {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    gap: 8px;
+    height: 44vh;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+  }
+  
+  .houses::-webkit-scrollbar { height: 6px; }
+  .houses::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
+  .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
+
+  .house { 
+    min-width: 110px; 
+    scroll-snap-align: start; 
+    border-width: 2px; 
+  }
+  .house-title { font-size: 14px; padding: 4px 0; }
+  .slot-row { font-size: 14px; min-height: 24px; }
+
+  /* Банк карточек — занимает всё оставшееся место */
+  .tray-wrap { 
+    flex: 1;
+    min-height: 100px;
+    margin-bottom: 4px;
+  }
+  
+  .tray-body { 
+    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); 
+    gap: 4px;
+  }
+  
+  /* Нижняя панель — фиксированная высота */
+  .controls {
+    flex-shrink: 0;
+    gap: 4px;
+    margin-top: 0;
+    padding-bottom: 2px;
+  }
+  
+  .seg { padding: 2px; }
+  .seg button { padding: 4px 6px; font-size: 11px; }
+  .btn { padding: 4px 8px; font-size: 12px; }
+  .icon-btn { padding: 3px 5px; font-size: 13px; }
+  
+  /* Шапка */
+  .topbar { gap: 4px; padding-bottom: 2px; flex-shrink: 0; }
+  .topbar .title { font-size: 14px; }
+  .progress-container { max-width: none; margin: 0 2px; }
+  .progress-wrapper { height: 10px; }
+  .progress-text { font-size: 10px; }
+}
