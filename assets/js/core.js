@@ -100,4 +100,19 @@ export function fireConfetti() {
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 4000);
   }
+  // ===== Модалка с фактом =====
+export function showFactModal(fact, lang = 'ru') {
+  const modal = document.getElementById('factModal');
+  if (!modal) return;
+  document.getElementById('factEmoji').textContent = fact.emoji;
+  document.getElementById('factEra').textContent = fact.era[lang] || fact.era.ru;
+  document.getElementById('factTitle').textContent = fact.title[lang] || fact.title.ru;
+  document.getElementById('factText').textContent = fact.text[lang] || fact.text.ru;
+  modal.classList.add('show');
+}
+
+export function hideFactModal() {
+  const modal = document.getElementById('factModal');
+  if (modal) modal.classList.remove('show');
+}
 }
