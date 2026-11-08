@@ -1,5 +1,5 @@
 // ============================================================
-// GAME.JS — Игра «Состав чисел» (модуль)
+// GAME.JS — Игра «Состав чисел» (модуль) — v2 с фиксами
 // ============================================================
 
 import { THEMES } from '../../assets/js/tasks.js';
@@ -9,8 +9,8 @@ import {
 } from '../../assets/js/core.js';
 
 const THEME = THEMES.composition;
-const STORAGE_KEY = 'composition_progress_v1';
-const THEME_KEY = 'composition_theme_v1';
+const STORAGE_KEY = 'composition_progress_v2';
+const THEME_KEY = 'composition_theme_v2';
 
 let state = null;
 let currentLevel = null;
@@ -71,11 +71,10 @@ export async function mount(container) {
   state.picked = null;
   state.sampleOn = false;
 
-  // Рендер
   container.innerHTML = `
     <div class="game-screen">
       <div class="topbar">
-        <a href="#/" class="back-btn" style="font-size:24px;text-decoration:none;color:var(--house-border);">←</a>
+        <a href="#/" class="back-btn">←</a>
         <div class="title">🏠 ${THEME.title}</div>
         <div class="progress-container">
           <div class="progress-wrapper">
@@ -109,11 +108,11 @@ export async function mount(container) {
         </div>
         
         <button class="icon-btn" id="themeBtn" title="Сменить тему">🌙</button>
-        
-        <div style="flex-grow: 1;"></div>
 
-        <button class="btn" id="sampleBtn">👁️ Образец</button>
-        <button class="btn ghost" id="resetBtn">🔄 Заново</button>
+        <div class="actions">
+          <button class="btn" id="sampleBtn">👁️ Образец</button>
+          <button class="btn ghost" id="resetBtn">🔄 Заново</button>
+        </div>
       </div>
     </div>
 
@@ -137,14 +136,16 @@ export async function mount(container) {
   };
 }
 
-// ===== Отрисовка =====
+// ===== Отрисовка одного домика =====
 function renderSingleHouse(n, container) {
+  // Защита: если числа нет в текущем уровне, не рисуем
+  if (!data[n]) return;
+
   const doneSet = new Set(state.done);
   const house = document.createElement('div');
   house.className = 'house';
   house.dataset.num = n;
   if (doneSet.has(n)) house.classList.add('done');
-  if (!NUMBERS.includes(n)) house.classList.add('inactive');
 
   const newHouse = house.cloneNode(false);
   newHouse.addEventListener('click', (e) => {
@@ -173,7 +174,7 @@ function renderSingleHouse(n, container) {
     if (filled) {
       slot.classList.add('filled');
       content = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
-    } else if (state.sampleOn && NUMBERS.includes(n)) {
+    } else if (state.sampleOn) {
       slot.classList.add('ghost');
       content = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
     } else {
@@ -191,17 +192,16 @@ function renderSingleHouse(n, container) {
   else container.appendChild(newHouse);
 }
 
+// ===== Отрисовка всех домиков ТЕКУЩЕГО уровня =====
 function renderHouses() {
   const container = $('houses');
   if (!container) return;
   container.innerHTML = '';
-  ALL_NUMBERS().forEach(n => renderSingleHouse(n, container));
+  // Рисуем только те числа, что есть в текущем уровне
+  NUMBERS.forEach(n => renderSingleHouse(n, container));
 }
 
-function ALL_NUMBERS() {
-  return [2,3,4,5,6,7,8,9,10];
-}
-
+// ===== Отрисовка банка карточек =====
 function renderTray() {
   const body = $('trayBody');
   if (!body) return;
@@ -210,6 +210,7 @@ function renderTray() {
   let totalUsed = 0;
   const allCards = [];
   NUMBERS.forEach(n => {
+    if (!data[n]) return;
     data[n].forEach(([a, b], idx) => {
       if (!state.filled[`${n}-${idx}`]) {
         allCards.push({ n, idx, a, b });
@@ -219,7 +220,7 @@ function renderTray() {
     });
   });
 
-  const total = NUMBERS.reduce((s, n) => s + data[n].length, 0);
+  const total = NUMBERS.reduce((s, n) => s + (data[n] ? data[n].length : 0), 0);
   $('trayCount').textContent = `${total - totalUsed} / ${total}`;
 
   if (!state.trayOrder || Object.keys(state.trayOrder).length === 0) {
@@ -248,6 +249,7 @@ function renderTray() {
   }
 }
 
+// ===== Прогресс-бар =====
 function updateProgressBar() {
   const activeNums = NUMBERS;
   const doneCount = activeNums.filter(n => state.done.includes(n)).length;
@@ -263,6 +265,7 @@ function updateProgressBar() {
   }
 }
 
+// ===== Подсветка =====
 function highlightCardsForNumber(n) {
   if (state.done.includes(n) || !NUMBERS.includes(n)) return;
   sndHint();
@@ -276,6 +279,7 @@ function highlightCardsForNumber(n) {
   }, 2000);
 }
 
+// ===== Клик по карточке =====
 function onCardClick(n, idx, a, b) {
   if (state.done.includes(n) || !NUMBERS.includes(n)) return;
   if (state.filled[`${n}-${idx}`]) return;
@@ -288,6 +292,7 @@ function onCardClick(n, idx, a, b) {
   renderTray();
 }
 
+// ===== Клик по домику =====
 function onHouseClick(n, houseEl) {
   if (!state.picked) return;
   if (state.done.includes(n) || !NUMBERS.includes(n)) return;
@@ -300,6 +305,8 @@ function onHouseClick(n, houseEl) {
     setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
     return;
   }
+
+  if (!data[n]) return;
 
   const targetIdx = data[n].findIndex(([expA, expB], i) => {
     return !state.filled[`${n}-${i}`] && expA === a && expB === b;
@@ -348,6 +355,7 @@ function onHouseClick(n, houseEl) {
   }
 }
 
+// ===== Сохранение =====
 function saveCurrentProgress() {
   saveProgress(STORAGE_KEY, {
     score: state.score,
@@ -358,6 +366,7 @@ function saveCurrentProgress() {
   showSavedBadge();
 }
 
+// ===== Победа =====
 function winGame() {
   sndWin();
   showOverlay('🎉 Победа!', `Ты собрал все ${NUMBERS.length} домиков!`, state.score);
@@ -365,11 +374,14 @@ function winGame() {
   clearProgress(STORAGE_KEY);
 }
 
+// ===== Общая отрисовка =====
 function renderAll() {
   const scoreEl = $('score');
   const doneEl = $('doneCount');
+  const totalEl = $('totalCount');
   if (scoreEl) scoreEl.textContent = state.score;
-  if (doneEl) doneEl.textContent = state.done.length;
+  if (doneEl) doneEl.textContent = state.done.filter(n => NUMBERS.includes(n)).length;
+  if (totalEl) totalEl.textContent = NUMBERS.length;
   renderHouses();
   renderTray();
   updateProgressBar();
@@ -406,6 +418,7 @@ function resetGame() {
   renderAll();
 }
 
+// ===== Обработчики =====
 function attachHandlers() {
   const sb = $('sampleBtn');
   if (sb) sb.addEventListener('click', toggleSample);
