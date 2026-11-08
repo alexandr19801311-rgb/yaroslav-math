@@ -380,11 +380,20 @@ function saveCurrentProgress() {
   showSavedBadge();
 }
 
-function winGame() {
+ffunction winGame() {
   sndWin();
   showOverlay('🎉 Победа!', `Ты собрал все ${NUMBERS.length} домиков!`, state.score);
   fireConfetti();
   clearProgress(STORAGE_KEY);
+
+  // Через 2.5 секунды — показать факт
+  setTimeout(() => {
+    hideOverlay();
+    const fact = getRandomFact(THEME.id);
+    if (fact) {
+      showFactModal(fact, getLang());
+    }
+  }, 2500);
 }
 
 function renderAll() {
