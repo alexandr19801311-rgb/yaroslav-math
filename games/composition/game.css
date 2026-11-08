@@ -1,5 +1,5 @@
 /* ============================================================
-   GAME.CSS — Стили игры «Состав чисел» (v6 — фикс скролла)
+   GAME.CSS — Стили игры «Состав чисел» (v6.1 — широкие домики на мобилке)
    ============================================================ */
 
 /* ===== ЦВЕТОВЫЕ ПЕРЕМЕННЫЕ (светлая тема) ===== */
@@ -576,6 +576,7 @@
     height: 44vh;
     margin-bottom: 4px;
     padding-bottom: 2px;
+    padding-right: 10px; /* Отступ, чтобы последний домик не прилипал к краю */
     -webkit-overflow-scrolling: touch;
     flex-shrink: 0;
   }
@@ -585,7 +586,7 @@
   .houses::-webkit-scrollbar-thumb { background: var(--house-border); border-radius: 3px; }
 
   .house { 
-    min-width: 110px; 
+    min-width: 130px; /* УВЕЛИЧИЛИ ШИРИНУ (было 110px) */
     scroll-snap-align: start; 
     border-width: 2px; 
   }
