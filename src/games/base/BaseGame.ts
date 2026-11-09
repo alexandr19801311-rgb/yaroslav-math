@@ -1,5 +1,6 @@
 import { StateManager } from '../../core/StateManager';
 import { Timer } from '../../core/Timer';
+import { SoundManager } from '../../core/SoundManager';
 
 export abstract class BaseGame {
   protected abstract gameId: string;
@@ -7,11 +8,13 @@ export abstract class BaseGame {
   protected isRunning: boolean = false;
   protected timer: Timer;
   protected stateManager: StateManager;
-  protected onExit?: () => void; // Колбэк для возврата в меню
+  protected soundManager: SoundManager;
+  protected onExit?: () => void;
 
   constructor(timeLimitSeconds: number = 60, onExit?: () => void) {
     this.timer = new Timer(timeLimitSeconds, () => this.onTimeUp());
     this.stateManager = new StateManager();
+    this.soundManager = SoundManager.getInstance();
     this.onExit = onExit;
   }
 
@@ -43,6 +46,9 @@ export abstract class BaseGame {
     this.isRunning = false;
     this.timer.stop();
     const isNewRecord = this.stateManager.saveHighScore(this.gameId, this.score);
+    if (isNewRecord) {
+      this.soundManager.playWin();
+    }
     this.showGameOverScreen(isNewRecord);
   }
 
@@ -51,7 +57,6 @@ export abstract class BaseGame {
   protected onWrong(): void {}
   protected onTick(_progress: number, _timeLeft: number): void {}
 
-  // Метод для безопасного выхода в меню
   protected exitToMenu(): void {
     this.isRunning = false;
     this.timer.stop();

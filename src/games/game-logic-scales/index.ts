@@ -40,7 +40,6 @@ export class SmartScalesGame extends BaseGame {
 
     container.innerHTML = `
       <div class="scales-card" id="scales-card">
-        <!-- Шкала времени -->
         <div class="timer-bar" id="timer-bar">
           <div class="timer-bar__fill" id="timer-fill"></div>
         </div>
@@ -81,7 +80,6 @@ export class SmartScalesGame extends BaseGame {
       </div>
     `;
 
-    // Получение элементов
     this.cardEl = document.getElementById('scales-card')!;
     this.timerBarEl = document.getElementById('timer-bar')!;
     this.timerFillEl = document.getElementById('timer-fill')!;
@@ -95,11 +93,23 @@ export class SmartScalesGame extends BaseGame {
     this.scoreEl = document.getElementById('scales-score')!;
     this.hintMsgEl = document.getElementById('scales-hint-msg')!;
 
-    // Обработчики
+    // Обработчики с добавлением звука клика
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
-    this.leftDropZoneEl.addEventListener('click', () => this.handleDrop(true));
-    this.rightDropZoneEl.addEventListener('click', () => this.handleDrop(false));
-    document.getElementById('btn-balance')?.addEventListener('click', () => this.checkAnswer('='));
+    
+    this.leftDropZoneEl.addEventListener('click', () => {
+      this.soundManager.playClick();
+      this.handleDrop(true);
+    });
+    
+    this.rightDropZoneEl.addEventListener('click', () => {
+      this.soundManager.playClick();
+      this.handleDrop(false);
+    });
+    
+    document.getElementById('btn-balance')?.addEventListener('click', () => {
+      this.soundManager.playClick();
+      this.checkAnswer('=');
+    });
 
     this.start();
   }
@@ -169,18 +179,19 @@ export class SmartScalesGame extends BaseGame {
     const isCorrect = answer === correctSymbol;
 
     if (isCorrect) {
+      this.soundManager.playCorrect();
+      
       const points = this.isHintMode ? 2 : 10;
       this.addScore(points);
       this.comboStreak = this.isHintMode ? 0 : this.comboStreak + 1;
       this.updateScoreUI();
       
-      // Показываем успех!
       this.showSuccessFeedback(points);
-      
-      // Небольшая задержка перед следующим заданием, чтобы ребенок увидел успех
       setTimeout(() => this.generateTask(), 400);
       return true;
     } else {
+      this.soundManager.playWrong();
+
       if (!this.isHintMode) {
         this.isHintMode = true;
         this.renderVisualHint();
@@ -200,17 +211,14 @@ export class SmartScalesGame extends BaseGame {
   }
 
   private showSuccessFeedback(points: number): void {
-    // 1. Зеленая вспышка карточки
     this.cardEl.classList.add('card--success');
     setTimeout(() => this.cardEl.classList.remove('card--success'), 300);
 
-    // 2. Всплывающий текст "+N"
     const popup = document.createElement('div');
     popup.className = 'points-popup';
     popup.textContent = `+${points}`;
     this.cardEl.appendChild(popup);
 
-    // Удаляем элемент после анимации
     popup.addEventListener('animationend', () => popup.remove());
   }
 

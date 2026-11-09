@@ -14,12 +14,10 @@
   transition: background-color 0.2s ease;
 }
 
-/* Вспышка при правильном ответе */
 .scales-card.card--success {
-  background-color: #f0fff4; /* Светло-зеленый */
+  background-color: #f0fff4;
 }
 
-/* Всплывающие очки */
 .points-popup {
   position: absolute;
   top: 50%;
@@ -39,7 +37,6 @@
   100% { opacity: 0; transform: translate(-50%, -120%) scale(1); }
 }
 
-/* Внутренние отступы для контента */
 .scales-header, .scales-hint-msg, .seesaw-container, .scales-instruction, .scales-controls {
   padding-left: 24px;
   padding-right: 24px;
