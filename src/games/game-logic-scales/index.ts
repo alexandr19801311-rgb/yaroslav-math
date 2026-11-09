@@ -21,6 +21,7 @@ export class SmartScalesGame extends BaseGame {
   private comboStreak: number = 0;
 
   // DOM-элементы
+  private cardEl!: HTMLElement;
   private timerFillEl!: HTMLElement;
   private timerBarEl!: HTMLElement;
   private beamEl!: HTMLElement;
@@ -38,7 +39,7 @@ export class SmartScalesGame extends BaseGame {
     if (!container) return;
 
     container.innerHTML = `
-      <div class="scales-card">
+      <div class="scales-card" id="scales-card">
         <!-- Шкала времени -->
         <div class="timer-bar" id="timer-bar">
           <div class="timer-bar__fill" id="timer-fill"></div>
@@ -52,7 +53,6 @@ export class SmartScalesGame extends BaseGame {
         <div class="scales-hint-msg" id="scales-hint-msg"></div>
 
         <div class="seesaw-container">
-          <!-- Левая чаша -->
           <button class="drop-zone drop-zone--left" id="btn-left">
              <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
@@ -63,7 +63,6 @@ export class SmartScalesGame extends BaseGame {
           <div class="seesaw-pivot"></div>
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
-          <!-- Правая чаша -->
           <button class="drop-zone drop-zone--right" id="btn-right">
              <div class="seesaw-label" id="right-label">?</div>
              <div class="seesaw-pan">
@@ -83,6 +82,7 @@ export class SmartScalesGame extends BaseGame {
     `;
 
     // Получение элементов
+    this.cardEl = document.getElementById('scales-card')!;
     this.timerBarEl = document.getElementById('timer-bar')!;
     this.timerFillEl = document.getElementById('timer-fill')!;
     this.beamEl = document.getElementById('seesaw-beam')!;
@@ -110,7 +110,6 @@ export class SmartScalesGame extends BaseGame {
     this.updateScoreUI();
   }
 
-  // Обновление шкалы времени
   protected onTick(progress: number, _timeLeft: number): void {
     const clamped = Math.max(0, Math.min(1, progress));
     this.timerFillEl.style.transform = `scaleX(${clamped})`;
@@ -170,10 +169,16 @@ export class SmartScalesGame extends BaseGame {
     const isCorrect = answer === correctSymbol;
 
     if (isCorrect) {
-      this.addScore(this.isHintMode ? 2 : 10);
+      const points = this.isHintMode ? 2 : 10;
+      this.addScore(points);
       this.comboStreak = this.isHintMode ? 0 : this.comboStreak + 1;
       this.updateScoreUI();
-      this.generateTask();
+      
+      // Показываем успех!
+      this.showSuccessFeedback(points);
+      
+      // Небольшая задержка перед следующим заданием, чтобы ребенок увидел успех
+      setTimeout(() => this.generateTask(), 400);
       return true;
     } else {
       if (!this.isHintMode) {
@@ -192,6 +197,21 @@ export class SmartScalesGame extends BaseGame {
         return false;
       }
     }
+  }
+
+  private showSuccessFeedback(points: number): void {
+    // 1. Зеленая вспышка карточки
+    this.cardEl.classList.add('card--success');
+    setTimeout(() => this.cardEl.classList.remove('card--success'), 300);
+
+    // 2. Всплывающий текст "+N"
+    const popup = document.createElement('div');
+    popup.className = 'points-popup';
+    popup.textContent = `+${points}`;
+    this.cardEl.appendChild(popup);
+
+    // Удаляем элемент после анимации
+    popup.addEventListener('animationend', () => popup.remove());
   }
 
   private getCorrectSymbol(left: number, right: number): AnswerSymbol {
