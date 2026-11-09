@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Добавили 'houses' в тип
   const startGame = (gameType: 'arith' | 'scales' | 'comp' | 'houses', maxNumber: number) => {
     if (!menuContainer || !gameContainer) return;
     
@@ -32,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const game = new SmartScalesGame(60, returnToMenu, maxNumber);
       game.init();
     } else if (gameType === 'houses') {
-      // Для домиков таймер не нужен (передаем 0 и false)
       const game = new NumberHousesGame(0, returnToMenu, 10, false);
       game.init();
     } else {
