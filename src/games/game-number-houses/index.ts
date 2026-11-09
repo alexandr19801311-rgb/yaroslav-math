@@ -3,7 +3,6 @@ import { t } from '../../core/i18n';
 import confetti from 'canvas-confetti';
 import './style.css';
 
-// Интерфейсы для данных
 interface HouseData {
   [key: number]: [number, number][];
 }
@@ -30,7 +29,6 @@ export class NumberHousesGame extends BaseGame {
     sampleOn: false
   };
 
-  // DOM-элементы
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
   private trayCountEl!: HTMLElement;
@@ -44,7 +42,7 @@ export class NumberHousesGame extends BaseGame {
     const container = document.getElementById('game-container');
     if (!container) return;
 
-    // Инициализация данных (2-10)
+    // 1. Инициализация данных
     const allNumbers = [2, 3, 4, 5, 6, 7, 8, 9, 10];
     allNumbers.forEach(n => {
       const list: [number, number][] = [];
@@ -54,6 +52,7 @@ export class NumberHousesGame extends BaseGame {
       this.data[n] = list;
     });
 
+    // 2. Отрисовка каркаса
     container.innerHTML = `
       <div class="houses-game-wrapper">
         <div class="topbar">
@@ -86,6 +85,7 @@ export class NumberHousesGame extends BaseGame {
       </div>
     `;
 
+    // 3. Получение ссылок на DOM
     this.housesContainerEl = document.getElementById('houses')!;
     this.trayBodyEl = document.getElementById('trayBody')!;
     this.trayCountEl = document.getElementById('trayCount')!;
@@ -100,6 +100,7 @@ export class NumberHousesGame extends BaseGame {
   }
 
   protected onStart(): void {
+    // Сбрасываем состояние
     this.state = {
       score: 0,
       done: [],
@@ -108,15 +109,25 @@ export class NumberHousesGame extends BaseGame {
       trayOrder: [],
       sampleOn: false
     };
-    // Вызываем отрисовку сразу после сброса состояния
+
+    // Формируем стартовый порядок карточек ОДИН РАЗ и перемешиваем
+    const initialOrder: { num: number, idx: number, a: number, b: number }[] = [];
+    [2,3,4,5,6,7,8,9,10].forEach(n => {
+      this.data[n].forEach(([a, b], idx) => {
+        initialOrder.push({ num: n, idx, a, b });
+      });
+    });
+    // Перемешиваем один раз
+    initialOrder.sort(() => Math.random() - 0.5);
+    this.state.trayOrder = initialOrder;
+
+    // Отрисовываем
     this.renderAll();
   }
 
-  // Обязательная заглушка
   protected generateTask(): void {}
   protected checkAnswer(_answer: unknown): boolean { return false; }
 
-  // Основная отрисовка
   protected renderAll(): void {
     this.scoreEl.textContent = String(this.score);
     this.doneCountEl.textContent = String(this.state.done.length);
@@ -193,26 +204,18 @@ export class NumberHousesGame extends BaseGame {
   private renderTray(): void {
     this.trayBodyEl.innerHTML = '';
     
-    // Собираем все незаполненные карточки
-    const availableCards: { num: number, idx: number, a: number, b: number }[] = [];
-    [2,3,4,5,6,7,8,9,10].forEach(n => {
-      this.data[n].forEach(([a, b], idx) => {
-        if (!this.state.filled[`${n}-${idx}`]) {
-          availableCards.push({ num: n, idx, a, b });
-        }
-      });
+    // Фильтруем исходный trayOrder, оставляя только незаполненные карточки
+    const availableCards = this.state.trayOrder.filter(card => {
+      return !this.state.filled[`${card.num}-${card.idx}`];
     });
 
-    const totalCards = availableCards.length + Object.keys(this.state.filled).length;
+    const totalCards = Object.keys(this.state.filled).length + availableCards.length;
     this.trayCountEl.textContent = `${availableCards.length} / ${totalCards}`;
 
     if (availableCards.length === 0) {
       this.trayBodyEl.innerHTML = `<div class="tray-empty">${t('houses.allPlaced')} ✅</div>`;
       return;
     }
-
-    // Перемешиваем для случайного порядка
-    availableCards.sort(() => Math.random() - 0.5);
 
     availableCards.forEach(({ num, idx, a, b }) => {
       const card = document.createElement('button');
@@ -239,6 +242,7 @@ export class NumberHousesGame extends BaseGame {
       this.state.picked = { num, idx, a, b };
       this.soundManager.playClick();
     }
+    // Перерисовываем только лоток, чтобы обновить подсветку
     this.renderTray();
   }
 
@@ -267,11 +271,13 @@ export class NumberHousesGame extends BaseGame {
       return;
     }
 
+    // Записываем заполнение и добавляем очки
     this.state.filled[`${n}-${targetIdx}`] = { a, b };
     this.state.score++;
     this.soundManager.playCorrect();
     this.state.picked = null;
 
+    // Перерисовываем всё (карточка исчезнет из лотка)
     this.renderAll();
 
     // Анимация слота
@@ -361,9 +367,7 @@ export class NumberHousesGame extends BaseGame {
 
     overlay.querySelector('#restart-btn')?.addEventListener('click', () => {
       overlay.remove();
-      this.state = { score: 0, done: [], filled: {}, picked: null, trayOrder: [], sampleOn: false };
-      this.score = 0;
-      this.renderAll();
+      this.start(); // Просто перезапускаем игру, onStart все сбросит
     });
 
     overlay.querySelector('#menu-btn')?.addEventListener('click', () => {
