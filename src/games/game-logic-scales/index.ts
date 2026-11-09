@@ -20,7 +20,6 @@ export class SmartScalesGame extends BaseGame {
   private currentTask: ScalesTask | null = null;
   private comboStreak: number = 0;
 
-  // DOM-элементы
   private cardEl!: HTMLElement;
   private timerFillEl!: HTMLElement;
   private timerBarEl!: HTMLElement;
@@ -163,9 +162,8 @@ export class SmartScalesGame extends BaseGame {
     this.leftLabelEl.textContent = leftLabel;
     this.rightLabelEl.textContent = rightLabel;
 
-    // СРАЗУ рендерим кружочки на чашах
-    this.renderItemsToContainer(this.leftHintEl, hintLeft);
-    this.renderItemsToContainer(this.rightHintEl, hintRight);
+    this.renderItemsToContainer(this.leftHintEl, hintLeft, 0);
+    this.renderItemsToContainer(this.rightHintEl, hintRight, 1);
   }
 
   private handleDrop(isLeft: boolean): void {
@@ -197,7 +195,7 @@ export class SmartScalesGame extends BaseGame {
 
       if (!this.isHintMode) {
         this.isHintMode = true;
-        this.renderVisualHint(); // Наклоняем балку
+        this.renderVisualHint();
         this.onWrong();
         this.hintMsgEl.textContent = t('scales.hintMsg');
         this.hintMsgEl.classList.add('visible');
@@ -234,8 +232,6 @@ export class SmartScalesGame extends BaseGame {
   private renderVisualHint(): void {
     if (!this.currentTask) return;
 
-    // В режиме подсказки мы только наклоняем балку
-    // (Кружочки уже отрисованы в generateTask)
     this.beamEl.classList.remove('tilt-left', 'tilt-right', 'balanced');
     if (this.currentTask.leftValue > this.currentTask.rightValue) {
       this.beamEl.classList.add('tilt-left');
@@ -246,20 +242,40 @@ export class SmartScalesGame extends BaseGame {
     }
   }
 
-  private renderItemsToContainer(container: HTMLElement, groups: number[]): void {
+  /**
+   * Рендерит "башни" из LEGO-кубиков.
+   * @param container - DOM-элемент чаши
+   * @param groups - массив чисел (например, [5, 4] — две башни)
+   * @param colorType - 0 для левой чаши, 1 для правой
+   */
+  private renderItemsToContainer(container: HTMLElement, groups: number[], colorType: number): void {
     container.innerHTML = '';
-    groups.forEach((count, groupIndex) => {
-      const groupEl = document.createElement('div');
-      groupEl.className = `hint-group hint-color-${groupIndex % 2}`;
+    
+    // Создаем контейнер для башен
+    const towersContainer = document.createElement('div');
+    towersContainer.className = 'towers-container';
+
+    groups.forEach((count) => {
+      const tower = document.createElement('div');
+      tower.className = `lego-tower lego-color-${colorType}`;
+      
+      // Строим башню снизу вверх
       for (let i = 0; i < count; i++) {
-        const item = document.createElement('span');
-        item.className = 'hint-item';
-        // Уменьшили задержку, так как кружочки теперь появляются сразу
-        item.style.animationDelay = `${i * 20}ms`;
-        groupEl.appendChild(item);
+        const brick = document.createElement('div');
+        brick.className = 'lego-brick';
+        // Добавляем "пупырышки" (studs) на кубик
+        brick.innerHTML = '<div class="lego-studs"><span></span><span></span><span></span><span></span></div>';
+        
+        // Анимация появления с задержкой (снизу вверх)
+        brick.style.animationDelay = `${i * 40}ms`;
+        
+        tower.appendChild(brick);
       }
-      container.appendChild(groupEl);
+      
+      towersContainer.appendChild(tower);
     });
+
+    container.appendChild(towersContainer);
   }
 
   private resetScalesVisuals(): void {
