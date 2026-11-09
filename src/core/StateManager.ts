@@ -1,5 +1,5 @@
 export class StateManager {
-  private prefix = 'yaroslav_math_';
+  private prefix = 'logikids_';
 
   public saveHighScore(gameId: string, score: number): boolean {
     const currentRecord = this.getHighScore(gameId);
