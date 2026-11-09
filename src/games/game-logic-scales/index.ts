@@ -52,6 +52,7 @@ export class SmartScalesGame extends BaseGame {
         <div class="scales-hint-msg" id="scales-hint-msg"></div>
 
         <div class="seesaw-container">
+          <!-- Левая чаша -->
           <button class="drop-zone drop-zone--left" id="btn-left">
              <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
@@ -62,6 +63,7 @@ export class SmartScalesGame extends BaseGame {
           <div class="seesaw-pivot"></div>
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
+          <!-- Правая чаша -->
           <button class="drop-zone drop-zone--right" id="btn-right">
              <div class="seesaw-label" id="right-label">?</div>
              <div class="seesaw-pan">
@@ -71,7 +73,7 @@ export class SmartScalesGame extends BaseGame {
         </div>
 
         <div class="scales-instruction">
-          Нажми на чашу, где больше!
+          Покажи, где больше!
         </div>
         
         <div class="scales-controls">
@@ -108,12 +110,11 @@ export class SmartScalesGame extends BaseGame {
     this.updateScoreUI();
   }
 
-  // Переопределяем хук, чтобы обновлять шкалу времени
+  // Обновление шкалы времени
   protected onTick(progress: number, _timeLeft: number): void {
     const clamped = Math.max(0, Math.min(1, progress));
     this.timerFillEl.style.transform = `scaleX(${clamped})`;
 
-    // Меняем цвета в зависимости от оставшегося времени
     this.timerBarEl.classList.remove('timer-bar--warn', 'timer-bar--danger');
     if (clamped <= 0.2) {
       this.timerBarEl.classList.add('timer-bar--danger');
