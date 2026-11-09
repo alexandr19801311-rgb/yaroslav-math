@@ -108,7 +108,8 @@ export class NumberHousesGame extends BaseGame {
       trayOrder: [],
       sampleOn: false
     };
-    // В этой игре нет таймера, поэтому generateTask не нужен
+    // Вызываем отрисовку сразу после сброса состояния
+    this.renderAll();
   }
 
   // Обязательная заглушка
@@ -299,11 +300,8 @@ export class NumberHousesGame extends BaseGame {
     
     const cards = this.trayBodyEl.querySelectorAll('.card');
     cards.forEach(card => {
-      // Простая подсветка всех карточек, которые относятся к числу n
       const text = card.textContent || '';
       if (text.includes('+')) {
-        // Упрощенная логика: если карточка была создана для этого числа, мы бы знали.
-        // Но в нашей структуре лоток перемешан, поэтому подсветим все подходящие по сумме.
         const parts = text.split('+');
         if (parts.length === 2) {
           const sum = parseInt(parts[0]) + parseInt(parts[1].replace(/[^0-9]/g, ''));
