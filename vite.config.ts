@@ -2,15 +2,14 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  root: '.', // Корневая директория проекта
-  base: './', // Относительные пути для беспроблемного деплоя на GitHub Pages
+  root: '.', 
+  // Указываем базовый путь — имя вашего репозитория на GitHub
+  base: '/yaroslav-math/', 
   build: {
     outDir: 'dist',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        // Сюда будете добавлять точки входа для новых игр, например:
-        // arithmetic: resolve(__dirname, 'src/games/game-arithmetic/index.html')
       }
     }
   },
