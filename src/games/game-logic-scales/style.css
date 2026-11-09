@@ -190,19 +190,7 @@
   box-shadow: none;
 }
 
-/* ===== Чаша ===== */
-.seesaw-pan {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  min-height: 100px;
-  padding: 5px;
-}
-
-/* Цифра теперь всегда над башнями и не перекрывается */
+/* Цифра над чашей */
 .seesaw-label {
   font-size: 1.3rem;
   font-weight: bold;
@@ -213,6 +201,21 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
   z-index: 5;
   white-space: nowrap;
+  margin-bottom: 8px; /* Отступ до чаши */
+}
+
+/* ===== Чаша (растет вверх вместе с башнями) ===== */
+.seesaw-pan {
+  width: 100px;
+  min-height: 60px; /* Минимальная высота дна */
+  background: #edf2f7;
+  border: 3px solid #a0aec0;
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
 }
 
 .seesaw-hint-area {
@@ -220,10 +223,10 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  min-height: 40px;
+  padding-bottom: 2px; /* Чтобы кубики не прилипали к краю */
 }
 
-/* ===== LEGO-кубики (Уменьшенные) ===== */
+/* ===== LEGO-кубики ===== */
 .towers-container {
   display: flex;
   gap: 4px;

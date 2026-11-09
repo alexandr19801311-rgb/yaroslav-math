@@ -52,8 +52,8 @@ export class SmartScalesGame extends BaseGame {
 
         <div class="seesaw-container">
           <button class="drop-zone drop-zone--left" id="btn-left">
+             <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
-               <div class="seesaw-label" id="left-label">?</div>
                <div class="seesaw-hint-area" id="left-hint"></div>
              </div>
           </button>
@@ -62,8 +62,8 @@ export class SmartScalesGame extends BaseGame {
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
           <button class="drop-zone drop-zone--right" id="btn-right">
+             <div class="seesaw-label" id="right-label">?</div>
              <div class="seesaw-pan">
-               <div class="seesaw-label" id="right-label">?</div>
                <div class="seesaw-hint-area" id="right-hint"></div>
              </div>
           </button>
@@ -162,7 +162,6 @@ export class SmartScalesGame extends BaseGame {
     this.leftLabelEl.textContent = leftLabel;
     this.rightLabelEl.textContent = rightLabel;
 
-    // Рендерим башни LEGO
     this.renderItemsToContainer(this.leftHintEl, hintLeft, 0);
     this.renderItemsToContainer(this.rightHintEl, hintRight, 1);
   }
@@ -257,7 +256,7 @@ export class SmartScalesGame extends BaseGame {
         const brick = document.createElement('div');
         brick.className = 'lego-brick';
         brick.innerHTML = '<div class="lego-studs"><span></span><span></span><span></span><span></span></div>';
-        brick.style.animationDelay = `${i * 30}ms`; // Ускорили анимацию
+        brick.style.animationDelay = `${i * 30}ms`;
         tower.appendChild(brick);
       }
       
