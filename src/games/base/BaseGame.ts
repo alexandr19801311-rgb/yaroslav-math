@@ -1,17 +1,15 @@
 import { StateManager } from '../../core/StateManager';
 import { Timer } from '../../core/Timer';
 
+/**
+ * Абстрактный шаблон жизненного цикла игры.
+ * Ядро не содержит UI-текстов и fallback-логики отображения:
+ * всё, что видит игрок, реализует конкретная игра.
+ */
 export abstract class BaseGame {
-  protected abstract gameId: string;       // Уникальный ID игры для сохранения рекордов
-  protected score: number = 0;              // Текущие очки игрока
-  protected isRunning: boolean = false;     // Статус игры (идет или на паузе)
-  protected addScore(points: number): void {
-  if (this.isRunning) {
-    this.score += points;
-  }
-}
-
-  // Общие инструменты для всех игр
+  protected abstract gameId: string;
+  protected score: number = 0;
+  protected isRunning: boolean = false;
   protected timer: Timer;
   protected stateManager: StateManager;
 
@@ -20,18 +18,22 @@ export abstract class BaseGame {
     this.stateManager = new StateManager();
   }
 
-  // Методы жизненного цикла игры, которые DeepSeek ОБЯЗАН реализовать внутри каждой игры
-  public abstract init(): void;             // Первичная отрисовка и подготовка игрового поля
-  protected abstract generateTask(): void;   // Генерация нового математического примера
-  protected abstract checkAnswer(answer: any): boolean; // Проверка ответа игрока
+  public abstract init(): void;
+  protected abstract generateTask(): void;
+  protected abstract checkAnswer(answer: unknown): boolean;
 
-  // Универсальные встроенные методы (DeepSeek не должен переписывать их заново)
+  /**
+   * Игра ОБЯЗАНА реализовать экран завершения.
+   * Ядро не показывает alert/console — только сообщает факт окончания.
+   */
+  protected abstract showGameOverScreen(isNewRecord: boolean): void;
+
   public start(): void {
     this.score = 0;
     this.isRunning = true;
-    this.timer.start((timeLeft) => this.updateTimerUI(timeLeft));
+    this.onStart();
+    this.timer.start((timeLeft, progress) => this.onTick(progress, timeLeft));
     this.generateTask();
-    console.log(`Игра ${this.gameId} началась!`);
   }
 
   public pause(): void {
@@ -39,19 +41,28 @@ export abstract class BaseGame {
     this.timer.pause();
   }
 
+  /**
+   * Централизованное начисление очков. Работает только во время игры.
+   */
+  protected addScore(points: number): void {
+    if (this.isRunning) {
+      this.score += points;
+    }
+  }
+
   protected onTimeUp(): void {
     this.isRunning = false;
-    this.stateManager.saveHighScore(this.gameId, this.score);
-    this.showGameOverScreen();
+    this.timer.stop();
+    const isNewRecord = this.stateManager.saveHighScore(this.gameId, this.score);
+    this.showGameOverScreen(isNewRecord);
   }
 
-  // Вспомогательные UI методы (будут переопределяться или наследоваться)
-  protected updateTimerUI(timeLeft: number): void {
-    const timerEl = document.getElementById('game-timer');
-    if (timerEl) timerEl.textContent = `Время: ${timeLeft}с`;
-  }
+  // ----- Хуки для переопределения в играх -----
 
-  protected showGameOverScreen(): void {
-    alert(`Время вышло! Ваш результат: ${this.score}. Рекорд сохранен!`);
-  }
+  /** Вызывается в начале start(), до первого тика таймера. */
+  protected onStart(): void {}
+
+  protected onCorrect(basePoints: number, awarded: number): void {}
+  protected onWrong(): void {}
+  protected onTick(progress: number, timeLeft: number): void {}
 }
