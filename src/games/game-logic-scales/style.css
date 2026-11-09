@@ -5,7 +5,7 @@
   border-radius: 20px;
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
   text-align: center;
-  max-width: 600px; /* Чуть шире для весов */
+  max-width: 600px;
   margin: 40px auto;
   font-family: system-ui, -apple-system, sans-serif;
   user-select: none;
@@ -126,13 +126,13 @@
   align-items: flex-end;
 }
 
-/* ===== Перетаскиваемый груз ===== */
+/* ===== Перетаскиваемый груз (теперь независимый) ===== */
 .drag-item {
   position: absolute;
-  top: -25px; /* Центрируем по балке */
+  bottom: 148px; /* Центрируем ровно по балке (160px - 12px) */
   left: 50%;
-  margin-left: -25px; /* Половина ширины */
-  width: 50px !important;  /* Жестко задаем размеры */
+  margin-left: -25px; /* Половина ширины для точного центра */
+  width: 50px !important; 
   height: 50px !important;
   background: #ed8936 !important;
   border-radius: 50% !important;
@@ -152,7 +152,7 @@
 .drag-item.dragging {
   opacity: 0.8;
   cursor: grabbing;
-  transform: scale(0.9); /* При захвате чуть уменьшается */
+  transform: scale(0.9);
 }
 
 /* ===== Кнопки ===== */

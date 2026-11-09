@@ -45,7 +45,7 @@ export class SmartScalesGame extends BaseGame {
         <div class="scales-hint-msg" id="scales-hint-msg"></div>
 
         <div class="seesaw-container">
-          <!-- Зоны для сброса (чаши) -->
+          <!-- Левая зона сброса -->
           <div class="drop-zone drop-zone--left" id="drop-left">
              <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
@@ -53,20 +53,23 @@ export class SmartScalesGame extends BaseGame {
              </div>
           </div>
 
+          <!-- Точка опоры -->
           <div class="seesaw-pivot"></div>
           
-          <!-- Балка с перетаскиваемым грузом -->
-          <div class="seesaw-beam" id="seesaw-beam">
-            <div class="drag-item" id="drag-item" draggable="true">
-              <span class="drag-handle">≡</span>
-            </div>
-          </div>
+          <!-- Балка (без кружка внутри) -->
+          <div class="seesaw-beam" id="seesaw-beam"></div>
 
+          <!-- Правая зона сброса -->
           <div class="drop-zone drop-zone--right" id="drop-right">
              <div class="seesaw-label" id="right-label">?</div>
              <div class="seesaw-pan">
                <div class="seesaw-hint-area" id="right-hint"></div>
              </div>
+          </div>
+
+          <!-- Перетаскиваемый груз (теперь отдельно от балки) -->
+          <div class="drag-item" id="drag-item" draggable="true">
+            <span class="drag-handle">≡</span>
           </div>
         </div>
         
@@ -131,7 +134,7 @@ export class SmartScalesGame extends BaseGame {
     this.leftLabelEl.textContent = leftLabel;
     this.rightLabelEl.textContent = rightLabel;
     
-    // Возвращаем груз на место
+    // Возвращаем груз на место при новом задании
     this.resetDragItem();
   }
 
@@ -149,7 +152,7 @@ export class SmartScalesGame extends BaseGame {
 
     [this.leftDropZoneEl, this.rightDropZoneEl].forEach(zone => {
       zone.addEventListener('dragover', (e) => {
-        e.preventDefault(); // Разрешаем drop
+        e.preventDefault(); 
         zone.classList.add('drag-over');
       });
       zone.addEventListener('dragleave', () => {
@@ -158,7 +161,6 @@ export class SmartScalesGame extends BaseGame {
       zone.addEventListener('drop', (e) => {
         e.preventDefault();
         zone.classList.remove('drag-over');
-        // Определяем, куда упал предмет
         const isLeft = zone.id === 'drop-left';
         this.handleDrop(isLeft);
       });
@@ -175,19 +177,18 @@ export class SmartScalesGame extends BaseGame {
       initialX = touch.clientX - currentX;
       initialY = touch.clientY - currentY;
       this.dragItemEl.style.transition = 'none';
-    });
+    }, { passive: true });
 
     this.dragItemEl.addEventListener('touchmove', (e) => {
-      e.preventDefault(); // Блокируем скролл страницы при перетаскивании
+      e.preventDefault(); 
       const touch = e.touches[0];
       currentX = touch.clientX - initialX;
       currentY = touch.clientY - initialY;
       this.dragItemEl.style.transform = `translate(${currentX}px, ${currentY}px)`;
-    });
+    }, { passive: false });
 
     this.dragItemEl.addEventListener('touchend', () => {
       this.dragItemEl.style.transition = 'transform 0.3s ease';
-      // Проверяем, над какой зоной отпустили палец
       const touchX = initialX + currentX;
       const touchY = initialY + currentY;
       
