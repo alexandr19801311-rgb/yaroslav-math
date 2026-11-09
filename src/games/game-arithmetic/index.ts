@@ -1,6 +1,6 @@
 import { BaseGame } from '../base/BaseGame';
+import { t } from '../../core/i18n';
 import './style.css';
-
 
 interface ComboState {
   streak: number;
@@ -10,10 +10,8 @@ interface ComboState {
 export class ArithmeticGame extends BaseGame {
   protected gameId = 'arithmetic';
 
-  // Состояние задачи
   private currentAnswer: number = 0;
 
-  // DOM-ссылки
   private problemEl!: HTMLElement;
   private inputEl!: HTMLInputElement;
   private submitBtn!: HTMLButtonElement;
@@ -25,7 +23,6 @@ export class ArithmeticGame extends BaseGame {
   private highScoreEl!: HTMLElement;
   private overlayEl: HTMLElement | null = null;
 
-  // Комбо
   private combo: ComboState = { streak: 0, multiplier: 1 };
   private static readonly BASE_POINTS = 10;
 
@@ -36,14 +33,15 @@ export class ArithmeticGame extends BaseGame {
     container.innerHTML = `
       <div class="game-card">
         <div class="game-header">
+          <button type="button" class="btn-exit" id="btn-exit" title="В меню">✖</button>
           <div class="timer-block">
             <div class="timer-bar" id="timer-bar">
               <div class="timer-bar__fill" id="timer-fill"></div>
             </div>
             <span class="timer-text" id="timer-text">60с</span>
           </div>
-          <div class="score-box">Очки: <span id="game-score">0</span></div>
-          <div class="record-box">Рекорд: <span id="game-record">0</span></div>
+          <div class="score-box">${t('game.score')}: <span id="game-score">0</span></div>
+          <div class="record-box">${t('game.record')}: <span id="game-record">0</span></div>
         </div>
 
         <div class="combo-box" id="combo-box" aria-live="polite"></div>
@@ -55,26 +53,27 @@ export class ArithmeticGame extends BaseGame {
             type="number"
             id="answer-input"
             placeholder="?"
-            autofocus
             inputmode="numeric"
             autocomplete="off"
           />
-          <button id="submit-btn" type="button">Ответить</button>
+          <button id="submit-btn" type="button">${t('game.answer')}</button>
         </div>
       </div>
     `;
 
-    this.problemEl = this.mustGet<HTMLElement>('problem-text');
-    this.inputEl = this.mustGet<HTMLInputElement>('answer-input');
-    this.submitBtn = this.mustGet<HTMLButtonElement>('submit-btn');
-    this.scoreEl = this.mustGet<HTMLElement>('game-score');
-    this.timerFillEl = this.mustGet<HTMLElement>('timer-fill');
-    this.timerBarEl = this.mustGet<HTMLElement>('timer-bar');
-    this.timerTextEl = this.mustGet<HTMLElement>('timer-text');
-    this.comboEl = this.mustGet<HTMLElement>('combo-box');
-    this.highScoreEl = this.mustGet<HTMLElement>('game-record');
+    this.problemEl = document.getElementById('problem-text')!;
+    this.inputEl = document.getElementById('answer-input') as HTMLInputElement;
+    this.submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+    this.scoreEl = document.getElementById('game-score')!;
+    this.timerFillEl = document.getElementById('timer-fill')!;
+    this.timerBarEl = document.getElementById('timer-bar')!;
+    this.timerTextEl = document.getElementById('timer-text')!;
+    this.comboEl = document.getElementById('combo-box')!;
+    this.highScoreEl = document.getElementById('game-record')!;
 
     this.highScoreEl.textContent = String(this.stateManager.getHighScore(this.gameId));
+
+    document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
 
     this.submitBtn.addEventListener('click', () => this.handleAnswerSubmit());
     this.inputEl.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -84,17 +83,22 @@ export class ArithmeticGame extends BaseGame {
     this.start();
   }
 
-  // ----- Жизненный цикл задачи -----
+  protected onStart(): void {
+    this.combo = { streak: 0, multiplier: 1 };
+    this.updateComboUI();
+    this.updateScoreUI();
+    this.highScoreEl.textContent = String(this.stateManager.getHighScore(this.gameId));
+  }
 
   protected generateTask(): void {
     const isAddition = Math.random() > 0.5;
-    let a = Math.floor(Math.random() * 15) + 1;
-    let b = Math.floor(Math.random() * 15) + 1;
+    let a = Math.floor(Math.random() * (this.maxNumber - 1)) + 1;
+    let b = Math.floor(Math.random() * (this.maxNumber - 1)) + 1;
 
     if (isAddition) {
-      while (a + b > 20) {
-        a = Math.floor(Math.random() * 15) + 1;
-        b = Math.floor(Math.random() * 15) + 1;
+      while (a + b > this.maxNumber) {
+        a = Math.floor(Math.random() * (this.maxNumber - 1)) + 1;
+        b = Math.floor(Math.random() * (this.maxNumber - 1)) + 1;
       }
       this.currentAnswer = a + b;
       this.problemEl.textContent = `${a} + ${b} =`;
@@ -113,16 +117,17 @@ export class ArithmeticGame extends BaseGame {
   }
 
   protected checkAnswer(answer: unknown): boolean {
-    // Type-guard вместо any
     if (typeof answer !== 'number' || !Number.isFinite(answer)) {
       return false;
     }
 
     if (answer === this.currentAnswer) {
+      this.soundManager.playCorrect();
       this.handleCorrect();
       return true;
     }
 
+    this.soundManager.playWrong();
     this.handleWrong();
     return false;
   }
@@ -138,8 +143,6 @@ export class ArithmeticGame extends BaseGame {
 
     this.checkAnswer(parsed);
   }
-
-  // ----- Комбо и очки -----
 
   private handleCorrect(): void {
     this.combo.streak += 1;
@@ -163,7 +166,6 @@ export class ArithmeticGame extends BaseGame {
     this.updateComboUI();
     this.onWrong();
 
-    // Небольшая задержка перед сменой задачи, чтобы анимация ошибки успела проиграться
     if (wasStreak > 0) {
       this.inputEl.value = '';
       this.inputEl.focus();
@@ -176,15 +178,13 @@ export class ArithmeticGame extends BaseGame {
     return 1;
   }
 
-  // ----- UI-обновления -----
-
   private updateScoreUI(): void {
     this.scoreEl.textContent = String(this.score);
   }
 
   private updateComboUI(): void {
     if (this.combo.streak >= 2) {
-      this.comboEl.textContent = `🔥 Комбо ×${this.combo.streak} (×${this.combo.multiplier} очков)`;
+      this.comboEl.textContent = t('game.combo', { streak: this.combo.streak, multiplier: this.combo.multiplier });
       this.comboEl.classList.add('combo-box--visible');
       this.comboEl.classList.toggle('combo-box--hot', this.combo.multiplier > 1);
     } else {
@@ -192,8 +192,6 @@ export class ArithmeticGame extends BaseGame {
       this.comboEl.classList.remove('combo-box--visible', 'combo-box--hot');
     }
   }
-
-  // ----- Хуки BaseGame -----
 
   protected onTick(progress: number, timeLeft: number): void {
     const clamped = Math.max(0, Math.min(1, progress));
@@ -209,16 +207,12 @@ export class ArithmeticGame extends BaseGame {
   }
 
   protected onCorrect(_basePoints: number, awarded: number): void {
-    // Анимация карточки задачи
     this.problemEl.classList.remove('problem-display--pop');
-    // reflow, чтобы анимация перезапускалась
     void this.problemEl.offsetWidth;
     this.problemEl.classList.add('problem-display--pop');
 
-    // Всплывающий +N
     this.spawnFloatingPoints(awarded);
 
-    // Мигание кнопки
     this.submitBtn.classList.remove('btn--flash');
     void this.submitBtn.offsetWidth;
     this.submitBtn.classList.add('btn--flash');
@@ -239,14 +233,9 @@ export class ArithmeticGame extends BaseGame {
     float.addEventListener('animationend', () => float.remove());
   }
 
-  // ----- Экран финала -----
-
-  protected showGameOverScreen(): void {
+  protected showGameOverScreen(isNewRecord: boolean): void {
     const finalScore = this.score;
-    const prevRecord = this.stateManager.getHighScore(this.gameId);
-    // saveHighScore уже вызван в BaseGame.onTimeUp до этого метода.
     const record = this.stateManager.getHighScore(this.gameId);
-    const isNewRecord = record > prevRecord || (record === finalScore && finalScore > prevRecord);
 
     if (this.overlayEl) {
       this.overlayEl.remove();
@@ -256,12 +245,12 @@ export class ArithmeticGame extends BaseGame {
     overlay.className = 'game-overlay';
     overlay.innerHTML = `
       <div class="game-overlay__card">
-        <h2 class="game-overlay__title">Время вышло!</h2>
-        <p class="game-overlay__score">Очки: <strong>${finalScore}</strong></p>
+        <h2 class="game-overlay__title">${t('game.timeUp')}</h2>
+        <p class="game-overlay__score">${t('game.score')}: <strong>${finalScore}</strong></p>
         <p class="game-overlay__record">
-          ${isNewRecord ? '🎉 Новый рекорд!' : `Рекорд: <strong>${record}</strong>`}
+          ${isNewRecord ? `🎉 ${t('game.newRecord')}` : `${t('game.record')}: <strong>${record}</strong>`}
         </p>
-        <button type="button" class="game-overlay__btn" id="overlay-restart">Играть снова</button>
+        <button type="button" class="game-overlay__btn" id="overlay-restart">${t('game.playAgain')}</button>
       </div>
     `;
 
@@ -269,34 +258,14 @@ export class ArithmeticGame extends BaseGame {
     this.overlayEl = overlay;
 
     const restartBtn = overlay.querySelector<HTMLButtonElement>('#overlay-restart');
-    restartBtn?.addEventListener('click', () => this.restartGame());
+    restartBtn?.addEventListener('click', () => {
+      if (this.overlayEl) {
+        this.overlayEl.remove();
+        this.overlayEl = null;
+      }
+      this.timer.reset();
+      this.start();
+    });
     restartBtn?.focus();
-  }
-
-  private restartGame(): void {
-    if (this.overlayEl) {
-      this.overlayEl.remove();
-      this.overlayEl = null;
-    }
-
-    // Сброс комбо
-    this.combo = { streak: 0, multiplier: 1 };
-    this.updateComboUI();
-    this.updateScoreUI();
-    this.highScoreEl.textContent = String(this.stateManager.getHighScore(this.gameId));
-
-    // Сброс таймера и повторный старт
-    this.timer.reset();
-    this.start();
-  }
-
-  // ----- Утилиты -----
-
-  private mustGet<T extends HTMLElement>(id: string): T {
-    const el = document.getElementById(id);
-    if (!el) {
-      throw new Error(`[ArithmeticGame] Element #${id} not found`);
-    }
-    return el as T;
   }
 }

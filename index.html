@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LogiKids — Развивающие игры</title>
-    <!-- Убрали link на CSS, теперь он импортируется в main.ts -->
   </head>
   <body>
     <div id="app">
@@ -15,21 +14,27 @@
       <main id="menu-container">
         <div class="menu-card">
           <h3>⚡ Быстрый счет</h3>
-          <p>Сложение и вычитание в пределах 20 на время.</p>
-          <button id="btn-start-arithmetic" class="btn-main">Играть</button>
+          <p>Сложение и вычитание на время.</p>
+          <div class="difficulty-buttons">
+            <button id="start-arith-easy" class="btn-diff btn-easy">Легко</button>
+            <button id="start-arith-medium" class="btn-diff btn-medium">Средне</button>
+            <button id="start-arith-hard" class="btn-diff btn-hard">Сложно</button>
+          </div>
         </div>
         
-        <!-- Новая игра -->
         <div class="menu-card">
           <h3>⚖️ Умные весы</h3>
-          <p>Сравни математические выражения и найди правильный знак.</p>
-          <button id="btn-start-scales" class="btn-main">Играть</button>
+          <p>Сравни математические выражения.</p>
+          <div class="difficulty-buttons">
+            <button id="start-scales-easy" class="btn-diff btn-easy">Легко</button>
+            <button id="start-scales-medium" class="btn-diff btn-medium">Средне</button>
+            <button id="start-scales-hard" class="btn-diff btn-hard">Сложно</button>
+          </div>
         </div>
       </main>
 
       <main id="game-container" style="display: none;"></main>
     </div>
-    <!-- Абсолютный путь от корня, Vite подставит base сам -->
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

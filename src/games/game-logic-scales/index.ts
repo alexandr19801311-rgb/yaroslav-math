@@ -20,7 +20,6 @@ export class SmartScalesGame extends BaseGame {
   private currentTask: ScalesTask | null = null;
   private comboStreak: number = 0;
 
-  // DOM-элементы
   private cardEl!: HTMLElement;
   private timerFillEl!: HTMLElement;
   private timerBarEl!: HTMLElement;
@@ -93,7 +92,6 @@ export class SmartScalesGame extends BaseGame {
     this.scoreEl = document.getElementById('scales-score')!;
     this.hintMsgEl = document.getElementById('scales-hint-msg')!;
 
-    // Обработчики с добавлением звука клика
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     
     this.leftDropZoneEl.addEventListener('click', () => {
@@ -143,19 +141,20 @@ export class SmartScalesGame extends BaseGame {
     let leftLabel: string;
     let hintLeft: number[];
 
+    // Используем this.maxNumber
     if (leftIsSum) {
-      const a = Math.floor(Math.random() * 5) + 1;
-      const b = Math.floor(Math.random() * 5) + 1;
+      const a = Math.floor(Math.random() * (this.maxNumber / 2)) + 1;
+      const b = Math.floor(Math.random() * (this.maxNumber / 2)) + 1;
       leftValue = a + b;
       leftLabel = `${a} + ${b}`;
       hintLeft = [a, b];
     } else {
-      leftValue = Math.floor(Math.random() * 10) + 1;
+      leftValue = Math.floor(Math.random() * this.maxNumber) + 1;
       leftLabel = leftValue.toString();
       hintLeft = [leftValue];
     }
 
-    const rightValue = Math.floor(Math.random() * 10) + 1;
+    const rightValue = Math.floor(Math.random() * this.maxNumber) + 1;
     const rightLabel = rightValue.toString();
     const hintRight = [rightValue];
 

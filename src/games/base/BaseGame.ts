@@ -10,12 +10,45 @@ export abstract class BaseGame {
   protected stateManager: StateManager;
   protected soundManager: SoundManager;
   protected onExit?: () => void;
+  protected maxNumber: number; // <--- НОВОЕ: Максимальное число для генерации
 
-  constructor(timeLimitSeconds: number = 60, onExit?: () => void) {
+  constructor(
+    timeLimitSeconds: number = 60,
+    onExit?: () => void,
+    maxNumber: number = 10 // Дефолтное значение для обратной совместимости
+  ) {
     this.timer = new Timer(timeLimitSeconds, () => this.onTimeUp());
     this.stateManager = new StateManager();
     this.soundManager = SoundManager.getInstance();
     this.onExit = onExit;
+    this.maxNumber = maxNumber;
+  }
+
+  // ... (остальные методы без изменений)
+}import { StateManager } from '../../core/StateManager';
+import { Timer } from '../../core/Timer';
+import { SoundManager } from '../../core/SoundManager';
+
+export abstract class BaseGame {
+  protected abstract gameId: string;
+  protected score: number = 0;
+  protected isRunning: boolean = false;
+  protected timer: Timer;
+  protected stateManager: StateManager;
+  protected soundManager: SoundManager;
+  protected onExit?: () => void;
+  protected maxNumber: number;
+
+  constructor(
+    timeLimitSeconds: number = 60,
+    onExit?: () => void,
+    maxNumber: number = 10
+  ) {
+    this.timer = new Timer(timeLimitSeconds, () => this.onTimeUp());
+    this.stateManager = new StateManager();
+    this.soundManager = SoundManager.getInstance();
+    this.onExit = onExit;
+    this.maxNumber = maxNumber;
   }
 
   public abstract init(): void;

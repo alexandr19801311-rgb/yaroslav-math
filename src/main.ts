@@ -6,40 +6,38 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuContainer = document.getElementById('menu-container');
   const gameContainer = document.getElementById('game-container');
 
-  const startArithmeticBtn = document.getElementById('btn-start-arithmetic');
-  const startScalesBtn = document.getElementById('btn-start-scales');
-
-  // Функция для возврата в меню
   const returnToMenu = () => {
     if (gameContainer) {
       gameContainer.style.display = 'none';
-      gameContainer.innerHTML = ''; // Очищаем DOM игры
+      gameContainer.innerHTML = '';
     }
     if (menuContainer) {
-      // Если у тебя меню на flex, замени 'block' на 'flex'
-      menuContainer.style.display = 'block'; 
+      menuContainer.style.display = 'flex';
     }
   };
 
-  if (startArithmeticBtn) {
-    startArithmeticBtn.addEventListener('click', () => {
-      if (menuContainer && gameContainer) {
-        menuContainer.style.display = 'none';
-        gameContainer.style.display = 'block';
-        const game = new ArithmeticGame(60, returnToMenu);
-        game.init();
-      }
-    });
-  }
+  const startGame = (gameType: 'arith' | 'scales', maxNumber: number) => {
+    if (!menuContainer || !gameContainer) return;
+    
+    menuContainer.style.display = 'none';
+    gameContainer.style.display = 'block';
 
-  if (startScalesBtn) {
-    startScalesBtn.addEventListener('click', () => {
-      if (menuContainer && gameContainer) {
-        menuContainer.style.display = 'none';
-        gameContainer.style.display = 'block';
-        const game = new SmartScalesGame(60, returnToMenu);
-        game.init();
-      }
-    });
-  }
+    if (gameType === 'arith') {
+      const game = new ArithmeticGame(60, returnToMenu, maxNumber);
+      game.init();
+    } else {
+      const game = new SmartScalesGame(60, returnToMenu, maxNumber);
+      game.init();
+    }
+  };
+
+  // Арифметика
+  document.getElementById('start-arith-easy')?.addEventListener('click', () => startGame('arith', 10));
+  document.getElementById('start-arith-medium')?.addEventListener('click', () => startGame('arith', 20));
+  document.getElementById('start-arith-hard')?.addEventListener('click', () => startGame('arith', 100));
+
+  // Весы
+  document.getElementById('start-scales-easy')?.addEventListener('click', () => startGame('scales', 10));
+  document.getElementById('start-scales-medium')?.addEventListener('click', () => startGame('scales', 20));
+  document.getElementById('start-scales-hard')?.addEventListener('click', () => startGame('scales', 100));
 });
