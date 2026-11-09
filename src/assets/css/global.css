@@ -270,3 +270,40 @@ header h1 {
 
 .game-overlay__btn:hover { filter: brightness(1.05); }
 .game-overlay__btn:active { transform: scale(0.97); }
+/* ===== Экран Триумфа (Кнопки) ===== */
+.game-overlay__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* Общие стили для кнопок оверлея */
+.game-overlay__btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.2s;
+  font-family: inherit;
+}
+
+/* Главная кнопка (Играть снова) */
+.game-overlay__btn--primary {
+  background: #4299e1 !important; /* Синий, как на скрине */
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+}
+
+/* Второстепенная кнопка (В меню) - делаем серой */
+.game-overlay__btn--secondary {
+  background: #edf2f7 !important;
+  color: #4a5568 !important;
+  box-shadow: none;
+}
+
+.game-overlay__btn:hover { filter: brightness(1.05); }
+.game-overlay__btn:active { transform: scale(0.97); }
