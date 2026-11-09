@@ -14,4 +14,5 @@ export const en: Dictionary = {
   'game.newRecord': 'New record!',
   'game.combo': 'Combo ×{streak} (×{multiplier} points)',
   'game.comboShort': 'Combo ×{streak}',
+  'scales.hintMsg': 'Look at the hint and try again!',
 };

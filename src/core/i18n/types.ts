@@ -20,7 +20,8 @@ export type TranslationKey =
   | 'game.timeUp'
   | 'game.newRecord'
   | 'game.combo'
-  | 'game.comboShort';
+  | 'game.comboShort'
+  | 'scales.hintMsg';
 
 export type Dictionary = Record<TranslationKey, string>;
 
