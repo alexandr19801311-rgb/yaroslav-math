@@ -1,6 +1,5 @@
 import { BaseGame } from '../base/BaseGame';
 import { t } from '../../core/i18n';
-import { DragDropManager, Draggable, Droppable } from '@dnd-kit/dom';
 import './style.css';
 
 interface ScalesTask {
@@ -21,15 +20,10 @@ export class SmartScalesGame extends BaseGame {
   private currentTask: ScalesTask | null = null;
   private comboStreak: number = 0;
 
-  // DnD Kit
-  private manager: DragDropManager | null = null;
-  private draggable: Draggable | null = null;
-
   // DOM-элементы
   private beamEl!: HTMLElement;
   private leftDropZoneEl!: HTMLElement;
   private rightDropZoneEl!: HTMLElement;
-  private dragItemEl!: HTMLElement;
   private leftHintEl!: HTMLElement;
   private rightHintEl!: HTMLElement;
   private leftLabelEl!: HTMLElement;
@@ -50,31 +44,31 @@ export class SmartScalesGame extends BaseGame {
         <div class="scales-hint-msg" id="scales-hint-msg"></div>
 
         <div class="seesaw-container">
-          <div class="drop-zone drop-zone--left" id="drop-left">
+          <!-- Левая чаша (теперь это кликабельная кнопка) -->
+          <button class="drop-zone drop-zone--left" id="btn-left">
              <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
                <div class="seesaw-hint-area" id="left-hint"></div>
              </div>
-          </div>
+          </button>
 
+          <!-- Точка опоры -->
           <div class="seesaw-pivot"></div>
           
+          <!-- Балка -->
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
-          <div class="drop-zone drop-zone--right" id="drop-right">
+          <!-- Правая чаша (теперь это кликабельная кнопка) -->
+          <button class="drop-zone drop-zone--right" id="btn-right">
              <div class="seesaw-label" id="right-label">?</div>
              <div class="seesaw-pan">
                <div class="seesaw-hint-area" id="right-hint"></div>
              </div>
-          </div>
-
-          <div class="drag-item" id="drag-item">
-            <span class="drag-handle">≡</span>
-          </div>
+          </button>
         </div>
 
         <div class="scales-instruction">
-          Перетащи груз на ту чашу, где больше!
+          Нажми на чашу, где больше!
         </div>
         
         <div class="scales-controls">
@@ -84,9 +78,8 @@ export class SmartScalesGame extends BaseGame {
     `;
 
     this.beamEl = document.getElementById('seesaw-beam')!;
-    this.leftDropZoneEl = document.getElementById('drop-left')!;
-    this.rightDropZoneEl = document.getElementById('drop-right')!;
-    this.dragItemEl = document.getElementById('drag-item')!;
+    this.leftDropZoneEl = document.getElementById('btn-left')!;
+    this.rightDropZoneEl = document.getElementById('btn-right')!;
     this.leftHintEl = document.getElementById('left-hint')!;
     this.rightHintEl = document.getElementById('right-hint')!;
     this.leftLabelEl = document.getElementById('left-label')!;
@@ -94,62 +87,12 @@ export class SmartScalesGame extends BaseGame {
     this.scoreEl = document.getElementById('scales-score')!;
     this.hintMsgEl = document.getElementById('scales-hint-msg')!;
 
-    this.setupDndKit();
+    // Вешаем обработчики кликов на чаши и кнопку "Равно"
+    this.leftDropZoneEl.addEventListener('click', () => this.handleDrop(true));
+    this.rightDropZoneEl.addEventListener('click', () => this.handleDrop(false));
     document.getElementById('btn-balance')?.addEventListener('click', () => this.checkAnswer('='));
 
     this.start();
-  }
-
-  private setupDndKit(): void {
-    // 1. Инициализируем менеджер
-    this.manager = new DragDropManager();
-
-    // 2. Регистрируем перетаскиваемый элемент
-    this.draggable = new Draggable({
-      id: 'weight-item',
-      element: this.dragItemEl,
-    }, this.manager);
-
-    // 3. Регистрируем зоны сброса
-    new Droppable({
-      id: 'left-zone',
-      element: this.leftDropZoneEl,
-    }, this.manager);
-
-    new Droppable({
-      id: 'right-zone',
-      element: this.rightDropZoneEl,
-    }, this.manager);
-
-    // 4. Слушаем события
-    this.manager.monitor.addEventListener('dragstart', () => {
-      this.dragItemEl.classList.add('dragging');
-    });
-
-    this.manager.monitor.addEventListener('dragend', (event) => {
-      this.dragItemEl.classList.remove('dragging');
-      
-      // Если перетаскивание отменено (например, Escape), возвращаем на место
-      if (event.canceled) {
-        this.resetDragItem();
-        return;
-      }
-
-      const target = event.target;
-      if (target) {
-        // Если упало на левую или правую чашу
-        if (target.id === 'left-zone') {
-          this.handleDrop(true);
-        } else if (target.id === 'right-zone') {
-          this.handleDrop(false);
-        } else {
-          this.resetDragItem();
-        }
-      } else {
-        // Упало мимо чаш
-        this.resetDragItem();
-      }
-    });
   }
 
   protected onStart(): void {
@@ -189,20 +132,12 @@ export class SmartScalesGame extends BaseGame {
 
     this.leftLabelEl.textContent = leftLabel;
     this.rightLabelEl.textContent = rightLabel;
-    
-    this.resetDragItem();
   }
 
   private handleDrop(isLeft: boolean): void {
     if (!this.isRunning) return;
     const answer: AnswerSymbol = isLeft ? '>' : '<';
     this.checkAnswer(answer);
-  }
-
-  private resetDragItem(): void {
-    // Сбрасываем позицию элемента через dnd-kit, если нужно
-    // В dnd-kit элемент возвращается сам, но мы можем сбросить классы
-    this.dragItemEl.classList.remove('dragging');
   }
 
   protected checkAnswer(answer: unknown): boolean {

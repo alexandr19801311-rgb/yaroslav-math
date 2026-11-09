@@ -11,9 +11,5 @@
   "devDependencies": {
     "typescript": "^5.3.3",
     "vite": "^5.1.4"
-  },
-  "dependencies": {
-    "@dnd-kit/abstract": "^0.5.3",
-    "@dnd-kit/dom": "^0.5.3"
   }
 }
