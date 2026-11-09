@@ -17,4 +17,5 @@ export const en: Dictionary = {
   'scales.hintMsg': 'Look at the hint and try again!',
   'scales.hintMsg': 'Look at the scales and try again!',
   'game.answer': 'Correct answer',
+  'scales.balance': 'Equal',
 };

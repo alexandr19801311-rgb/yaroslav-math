@@ -23,7 +23,8 @@ export type TranslationKey =
   | 'game.comboShort'
   | 'scales.hintMsg'
   | 'scales.hintMsg'
-  | 'game.answer';
+  | 'game.answer'
+  | 'scales.balance';
 
 export type Dictionary = Record<TranslationKey, string>;
 

@@ -16,4 +16,5 @@ export const ru: Dictionary = {
   'game.comboShort': 'Комбо ×{streak}',
   'scales.hintMsg': 'Посмотри на весы и попробуй еще раз!',
   'game.answer': 'Правильный ответ',
+  'scales.balance': 'Равно',
 };
