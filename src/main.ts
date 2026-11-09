@@ -54,6 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start-comp-medium')?.addEventListener('click', () => startGame('comp', 20));
   document.getElementById('start-comp-hard')?.addEventListener('click', () => startGame('comp', 30));
 
-  // Домики
-  document.getElementById('start-houses')?.addEventListener('click', () => startGame('houses', 10));
+  // Домики (ВОТ ТУТ ИСПРАВЛЕН ID)
+  document.getElementById('start-houses-all')?.addEventListener('click', () => startGame('houses', 10));
 });
