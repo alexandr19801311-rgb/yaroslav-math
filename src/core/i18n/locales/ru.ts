@@ -7,14 +7,14 @@ export const ru: Dictionary = {
   'game.score': 'Очки',
   'game.record': 'Рекорд',
   'game.level': 'Уровень',
-  'game.answer': 'Ответить',
+  'game.answer': 'Правильный ответ', // Оставили этот вариант
   'game.placeholder': '?',
   'game.playAgain': 'Играть снова',
   'game.timeUp': 'Время вышло!',
   'game.newRecord': 'Новый рекорд!',
   'game.combo': 'Комбо ×{streak} (×{multiplier} очков)',
   'game.comboShort': 'Комбо ×{streak}',
+  
   'scales.hintMsg': 'Посмотри на весы и попробуй еще раз!',
-  'game.answer': 'Правильный ответ',
   'scales.balance': 'Равно',
 };

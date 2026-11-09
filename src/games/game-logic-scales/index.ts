@@ -165,7 +165,6 @@ export class SmartScalesGame extends BaseGame {
     });
 
     // 2. Обработка Touch-событий (Mobile)
-    // Так как нативная поддержка drag-and-drop на тач-устройствах отсутствует
     let initialX = 0;
     let initialY = 0;
     let currentX = 0;
@@ -299,6 +298,24 @@ export class SmartScalesGame extends BaseGame {
   }
 
   protected showGameOverScreen(isNewRecord: boolean): void {
-    // ... (остается без изменений, как в прошлом коде)
+    const finalScore = this.score;
+    const overlay = document.createElement('div');
+    overlay.className = 'game-overlay';
+    overlay.innerHTML = `
+      <div class="game-overlay__card">
+        <h2 class="game-overlay__title">${t('game.timeUp')}</h2>
+        <p class="game-overlay__score">${t('game.score')}: <strong>${finalScore}</strong></p>
+        <p class="game-overlay__record">
+          ${isNewRecord ? `🎉 ${t('game.newRecord')}` : ''}
+        </p>
+        <button type="button" class="game-overlay__btn" id="restart-btn">${t('game.playAgain')}</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#restart-btn')?.addEventListener('click', () => {
+      overlay.remove();
+      this.timer.reset();
+      this.start();
+    });
   }
 }

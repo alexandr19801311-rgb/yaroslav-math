@@ -1,9 +1,3 @@
-/**
- * Типы локализации LogiKids.
- * TranslationKey — строгий union всех ключей.
- * Расширяется по мере добавления строк.
- */
-
 export type Locale = 'ru' | 'en';
 
 export type TranslationKey =
@@ -21,9 +15,8 @@ export type TranslationKey =
   | 'game.newRecord'
   | 'game.combo'
   | 'game.comboShort'
+  // Игра "Умные весы"
   | 'scales.hintMsg'
-  | 'scales.hintMsg'
-  | 'game.answer'
   | 'scales.balance';
 
 export type Dictionary = Record<TranslationKey, string>;
