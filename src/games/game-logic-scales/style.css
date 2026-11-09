@@ -1,50 +1,18 @@
-/* ===== Карточка игры ===== */
-.scales-card {
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
-  text-align: center;
-  max-width: 500px;
-  margin: 40px auto;
-  font-family: system-ui, -apple-system, sans-serif;
-  user-select: none;
-}
-
-.scales-header {
-  margin-bottom: 16px;
-  font-size: 1.1rem;
-  color: #4a5568;
-}
-
-.scales-hint-msg {
-  color: #d69e2e;
-  font-weight: 600;
-  min-height: 24px;
-  margin-bottom: 10px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.scales-hint-msg.visible {
-  opacity: 1;
-}
-
 /* ===== Весы-качели ===== */
 .seesaw-container {
   position: relative;
   height: 320px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between; /* Чаши по краям */
+  align-items: flex-end;
+  padding: 0 10px;
 }
 
-/* Точка опоры */
+/* Точка опоры (треугольник) */
 .seesaw-pivot {
   position: absolute;
-  bottom: 20px;
+  bottom: 120px; /* Подняли выше, чтобы балка легла ровно */
   left: 50%;
   transform: translateX(-50%);
   width: 0;
@@ -58,157 +26,11 @@
 /* Балка */
 .seesaw-beam {
   position: absolute;
-  bottom: 80px;
+  bottom: 180px; /* Балка лежит на шарнире */
   left: 50%;
   transform: translateX(-50%) rotate(0deg);
   transform-origin: center center;
-  width: 100%;
-  height: 12px;
-  background: #4a5568;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  z-index: 2;
-}
-
-/* Состояния наклона */
-.seesaw-beam.tilt-left {
-  transform: translateX(-50%) rotate(-12deg); /* Левая вниз, правая вверх */
-}
-
-.seesaw-beam.tilt-right {
-  transform: translateX(-50%) rotate(12deg); /* Правая вниз, левая вверх */
-}
-
-.seesaw-beam.balanced {
-  transform: translateX(-50%) rotate(0deg);
-}
-
-/* Чаши */
-.seesaw-side {
-  position: absolute;
-  bottom: -120px; /* Смещаем вниз от балки */
-  width: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.seesaw-side--left { left: 0; }
-.seesaw-side--right { right: 0; }
-
-.seesaw-label {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2d3748;
-  margin-bottom: 8px;
-  background: #fff;
-  padding: 2px 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.seesaw-pan {
-  width: 120px;
-  height: 80px;
-  background: #edf2f7;
-  border: 3px solid #a0aec0;
-  border-top: none;
-  border-radius: 0 0 40px 40px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.seesaw-hint-area {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  padding: 6px;
-  justify-content: center;
-  align-items: flex-end;
-}
-
-/* Кружочки */
-.hint-group {
-  display: flex;
-  gap: 2px;
-}
-
-.hint-item {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  animation: popIn 0.3s ease-out forwards;
-}
-
-.hint-color-0 .hint-item { background: #e53e3e; }
-.hint-color-1 .hint-item { background: #3182ce; }
-
-@keyframes popIn {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-/* ===== Кнопки ===== */
-.scales-controls {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-}
-
-.scales-btn {
-  background: #4299e1;
-  color: #fff;
-  border: none;
-  width: 60px;
-  height: 60px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.scales-btn:hover { background: #3182ce; }
-.scales-btn:active { transform: scale(0.95); }
-/* ===== Основные стили (без изменений) ===== */
-/* ... (стили карточки, шапки, чаш, кружочков) ... */
-
-/* ===== Весы-качели ===== */
-.seesaw-container {
-  position: relative;
-  height: 320px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 10px;
-}
-
-.seesaw-pivot {
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
-  border-bottom: 60px solid #718096;
-  z-index: 1;
-}
-
-.seesaw-beam {
-  position: absolute;
-  bottom: 140px;
-  left: 50%;
-  transform: translateX(-50%) rotate(0deg);
-  transform-origin: center center;
-  width: 100%;
+  width: calc(100% - 20px);
   height: 12px;
   background: #4a5568;
   border-radius: 6px;
@@ -223,15 +45,17 @@
 .seesaw-beam.tilt-right { transform: translateX(-50%) rotate(12deg); }
 .seesaw-beam.balanced { transform: translateX(-50%) rotate(0deg); }
 
-/* ===== Зоны сброса (Чаши) ===== */
+/* Зоны сброса (Чаши) */
 .drop-zone {
-  width: 140px;
+  width: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: background-color 0.2s, transform 0.2s;
   border-radius: 12px;
   padding: 10px 5px;
+  position: relative;
+  z-index: 3;
 }
 
 /* Подсветка при наведении */
@@ -254,12 +78,12 @@
 }
 
 .seesaw-pan {
-  width: 120px;
-  height: 80px;
+  width: 100px;
+  height: 70px;
   background: #edf2f7;
   border: 3px solid #a0aec0;
   border-top: none;
-  border-radius: 0 0 40px 40px;
+  border-radius: 0 0 50px 50px; /* Красивая форма чаши */
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -267,53 +91,11 @@
   overflow: hidden;
 }
 
-/* ===== Перетаскиваемый груз ===== */
-.drag-item {
-  width: 50px;
-  height: 50px;
-  background: #ed8936; /* Оранжевый цвет, чтобы выделяться */
-  border-radius: 50%;
+.seesaw-hint-area {
   display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
   justify-content: center;
-  align-items: center;
-  color: white;
-  font-weight: bold;
-  font-size: 1.2rem;
-  cursor: grab;
-  box-shadow: 0 4px 12px rgba(237, 137, 54, 0.4);
-  transition: transform 0.2s ease, box-shadow 0.2s;
-  z-index: 10;
-  user-select: none;
-  touch-action: none; /* Отключает скролл при перетаскивании на мобильных */
+  align-items: flex-end;
 }
-
-.drag-item:active {
-  cursor: grabbing;
-  transform: scale(0.9);
-  box-shadow: 0 2px 6px rgba(237, 137, 54, 0.4);
-}
-
-.drag-item.dragging {
-  opacity: 0.7;
-}
-
-/* ===== Кнопка равновесия ===== */
-.scales-controls {
-  display: flex;
-  justify-content: center;
-}
-
-.scales-btn--balance {
-  background: #48bb78;
-  color: white;
-  border: none;
-  padding: 12px 30px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.scales-btn--balance:hover { background: #38a169; }
-.scales-btn--balance:active { transform: scale(0.95); }
