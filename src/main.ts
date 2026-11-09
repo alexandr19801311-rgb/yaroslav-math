@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const startGame = (gameType: 'arith' | 'scales' | 'comp', maxNumber: number) => {
+  // Добавили 'houses' в тип
+  const startGame = (gameType: 'arith' | 'scales' | 'comp' | 'houses', maxNumber: number) => {
     if (!menuContainer || !gameContainer) return;
     
     menuContainer.style.display = 'none';
@@ -29,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
       game.init();
     } else if (gameType === 'scales') {
       const game = new SmartScalesGame(60, returnToMenu, maxNumber);
+      game.init();
+    } else if (gameType === 'houses') {
+      // Для домиков таймер не нужен (передаем 0 и false)
+      const game = new NumberHousesGame(0, returnToMenu, 10, false);
       game.init();
     } else {
       const game = new NumberCompositionGame(60, returnToMenu, maxNumber);
@@ -50,4 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start-comp-easy')?.addEventListener('click', () => startGame('comp', 10));
   document.getElementById('start-comp-medium')?.addEventListener('click', () => startGame('comp', 20));
   document.getElementById('start-comp-hard')?.addEventListener('click', () => startGame('comp', 30));
+
+  // Домики
+  document.getElementById('start-houses')?.addEventListener('click', () => startGame('houses', 10));
 });

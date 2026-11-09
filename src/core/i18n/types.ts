@@ -15,9 +15,18 @@ export type TranslationKey =
   | 'game.newRecord'
   | 'game.combo'
   | 'game.comboShort'
+  | 'game.menu'
   // Игра "Умные весы"
   | 'scales.hintMsg'
-  | 'scales.balance';
+  | 'scales.balance'
+  // Игра "Домики"
+  | 'houses.title'
+  | 'houses.collected'
+  | 'houses.cards'
+  | 'houses.number'
+  | 'houses.allPlaced'
+  | 'houses.winTitle'
+  | 'houses.winDesc';
 
 export type Dictionary = Record<TranslationKey, string>;
 
