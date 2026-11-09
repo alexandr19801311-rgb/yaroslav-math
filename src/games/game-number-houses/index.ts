@@ -334,7 +334,7 @@ export class NumberHousesGame extends BaseGame {
     this.showGameOverScreen(true, { correct: this.state.score, wrong: 0 });
   }
 
-  protected showGameOverScreen(isNewRecord: boolean, stats: { correct: number, wrong: number }): void {
+  protected showGameOverScreen(_isNewRecord: boolean, _stats: { correct: number, wrong: number }): void {
     if (this.overlayEl) this.overlayEl.remove();
 
     const overlay = document.createElement('div');
