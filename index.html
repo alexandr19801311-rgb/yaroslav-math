@@ -1,36 +1,30 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Математика — обучающая платформа</title>
-<link rel="stylesheet" href="assets/css/base.css">
-</head>
-<body>
-  <div id="app"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ярослав: Математика</title>
+    <link rel="stylesheet" href="/src/assets/css/global.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>🎮 Математические игры для Ярослава</h1>
+      </header>
+      
+      <!-- Главное меню -->
+      <main id="menu-container">
+        <div class="menu-card">
+          <h3>⚡ Быстрый счет</h3>
+          <p>Сложение и вычитание в пределах 20 на время.</p>
+          <button id="btn-start-arithmetic" class="btn-main">Играть</button>
+        </div>
+        <!-- Сюда в будущем DeepSeek будет добавлять новые карточки игр -->
+      </main>
 
-  <!-- Модалка с фактом -->
-  <div class="fact-modal" id="factModal">
-    <div class="fact-content">
-      <div class="fact-emoji" id="factEmoji">🖐️</div>
-      <div class="fact-era" id="factEra">Древний мир</div>
-      <h3 class="fact-title" id="factTitle">Пальцы</h3>
-      <p class="fact-text" id="factText">Текст факта</p>
-      <button class="btn" id="factClose">Закрыть</button>
+      <!-- Игровой контейнер (сюда монтируются игры) -->
+      <main id="game-container" style="display: none;"></main>
     </div>
-  </div>
-
-  <!-- ВАЖНО: подключаем как модуль! -->
-  <script type="module">
-    import { initRouter } from './assets/js/router.js';
-    import { hideFactModal } from './assets/js/core.js';
-
-    initRouter();
-
-    document.getElementById('factClose')?.addEventListener('click', hideFactModal);
-    document.getElementById('factModal')?.addEventListener('click', (e) => {
-      if (e.target.id === 'factModal') hideFactModal();
-    });
-  </script>
-</body>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
