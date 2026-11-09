@@ -21,7 +21,9 @@ export type TranslationKey =
   | 'game.newRecord'
   | 'game.combo'
   | 'game.comboShort'
-  | 'scales.hintMsg';
+  | 'scales.hintMsg'
+  | 'scales.hintMsg'
+  | 'game.answer';
 
 export type Dictionary = Record<TranslationKey, string>;
 

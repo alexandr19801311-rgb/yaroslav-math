@@ -21,6 +21,7 @@ export class SmartScalesGame extends BaseGame {
   private comboStreak: number = 0;
 
   // DOM-элементы
+  private beamEl!: HTMLElement;
   private leftPanEl!: HTMLElement;
   private rightPanEl!: HTMLElement;
   private leftHintEl!: HTMLElement;
@@ -42,20 +43,21 @@ export class SmartScalesGame extends BaseGame {
         
         <div class="scales-hint-msg" id="scales-hint-msg"></div>
 
-        <div class="scales-board">
-          <div class="scale-side" id="left-side">
-            <div class="scale-label" id="left-label">?</div>
-            <div class="scale-pan" id="left-pan">
-              <div class="scale-hint-area" id="left-hint"></div>
+        <div class="seesaw-container">
+          <div class="seesaw-pivot"></div>
+          <div class="seesaw-beam" id="seesaw-beam">
+            <div class="seesaw-side seesaw-side--left" id="left-side">
+              <div class="seesaw-label" id="left-label">?</div>
+              <div class="seesaw-pan" id="left-pan">
+                <div class="seesaw-hint-area" id="left-hint"></div>
+              </div>
             </div>
-          </div>
-          
-          <div class="scale-center">⚖️</div>
-          
-          <div class="scale-side" id="right-side">
-            <div class="scale-label" id="right-label">?</div>
-            <div class="scale-pan" id="right-pan">
-              <div class="scale-hint-area" id="right-hint"></div>
+            
+            <div class="seesaw-side seesaw-side--right" id="right-side">
+              <div class="seesaw-label" id="right-label">?</div>
+              <div class="seesaw-pan" id="right-pan">
+                <div class="seesaw-hint-area" id="right-hint"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -68,7 +70,7 @@ export class SmartScalesGame extends BaseGame {
       </div>
     `;
 
-    // Получаем ссылки на элементы
+    this.beamEl = document.getElementById('seesaw-beam')!;
     this.leftPanEl = document.getElementById('left-side')!;
     this.rightPanEl = document.getElementById('right-side')!;
     this.leftHintEl = document.getElementById('left-hint')!;
@@ -78,7 +80,6 @@ export class SmartScalesGame extends BaseGame {
     this.scoreEl = document.getElementById('scales-score')!;
     this.hintMsgEl = document.getElementById('scales-hint-msg')!;
 
-    // Вешаем обработчики на кнопки
     container.querySelectorAll('.scales-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget as HTMLButtonElement;
@@ -101,8 +102,7 @@ export class SmartScalesGame extends BaseGame {
     this.hintMsgEl.textContent = '';
     this.hintMsgEl.classList.remove('visible');
 
-    // Простая генерация: числа от 1 до 10. 
-    // Левая часть может быть суммой (например, 3 + 4), чтобы было интереснее.
+    // Генерируем примеры с суммой (как на левой чаше, так и просто числа)
     const leftIsSum = Math.random() > 0.5;
     let leftValue: number;
     let leftLabel: string;
@@ -151,7 +151,7 @@ export class SmartScalesGame extends BaseGame {
 
     if (isCorrect) {
       if (this.isHintMode) {
-        this.addScore(2); // Сниженные очки
+        this.addScore(2);
         this.comboStreak = 0;
       } else {
         this.addScore(10);
@@ -164,10 +164,10 @@ export class SmartScalesGame extends BaseGame {
       if (!this.isHintMode) {
         this.isHintMode = true;
         this.renderVisualHint();
-        this.onWrong(); // Тряска из BaseGame
+        this.onWrong();
         this.hintMsgEl.textContent = t('scales.hintMsg');
         this.hintMsgEl.classList.add('visible');
-        return false; // Ждем вторую попытку
+        return false;
       } else {
         this.isHintMode = false;
         this.onWrong();
@@ -185,22 +185,25 @@ export class SmartScalesGame extends BaseGame {
     return '=';
   }
 
+  /**
+   * Рендер визуальной подсказки.
+   * Включает физику: балка наклоняется, объекты появляются на чашах.
+   */
   private renderVisualHint(): void {
     if (!this.currentTask) return;
 
     this.renderItemsToContainer(this.leftHintEl, this.currentTask.hintLeft);
     this.renderItemsToContainer(this.rightHintEl, this.currentTask.hintRight);
 
-    // Анимация наклона
-    this.leftPanEl.classList.remove('tip-down', 'tip-up');
-    this.rightPanEl.classList.remove('tip-down', 'tip-up');
+    // Наклоняем балку через CSS-класс
+    this.beamEl.classList.remove('tilt-left', 'tilt-right', 'balanced');
 
     if (this.currentTask.leftValue > this.currentTask.rightValue) {
-      this.leftPanEl.classList.add('tip-down');
-      this.rightPanEl.classList.add('tip-up');
+      this.beamEl.classList.add('tilt-left'); // Левая чаша тяжелее
     } else if (this.currentTask.leftValue < this.currentTask.rightValue) {
-      this.leftPanEl.classList.add('tip-up');
-      this.rightPanEl.classList.add('tip-down');
+      this.beamEl.classList.add('tilt-right'); // Правая чаша тяжелее
+    } else {
+      this.beamEl.classList.add('balanced'); // Равновесие
     }
   }
 
@@ -213,7 +216,7 @@ export class SmartScalesGame extends BaseGame {
       for (let i = 0; i < count; i++) {
         const item = document.createElement('span');
         item.className = 'hint-item';
-        item.style.animationDelay = `${i * 50}ms`;
+        item.style.animationDelay = `${i * 40}ms`;
         groupEl.appendChild(item);
       }
       container.appendChild(groupEl);
@@ -221,8 +224,7 @@ export class SmartScalesGame extends BaseGame {
   }
 
   private resetScalesVisuals(): void {
-    this.leftPanEl.classList.remove('tip-down', 'tip-up');
-    this.rightPanEl.classList.remove('tip-down', 'tip-up');
+    this.beamEl.classList.remove('tilt-left', 'tilt-right', 'balanced');
     this.leftHintEl.innerHTML = '';
     this.rightHintEl.innerHTML = '';
   }
@@ -234,7 +236,7 @@ export class SmartScalesGame extends BaseGame {
   protected showGameOverScreen(isNewRecord: boolean): void {
     const finalScore = this.score;
     const overlay = document.createElement('div');
-    overlay.className = 'game-overlay'; // Используем глобальные стили оверлея
+    overlay.className = 'game-overlay';
     overlay.innerHTML = `
       <div class="game-overlay__card">
         <h2 class="game-overlay__title">${t('game.timeUp')}</h2>

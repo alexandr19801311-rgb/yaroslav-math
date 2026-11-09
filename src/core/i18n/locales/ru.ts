@@ -14,5 +14,6 @@ export const ru: Dictionary = {
   'game.newRecord': 'Новый рекорд!',
   'game.combo': 'Комбо ×{streak} (×{multiplier} очков)',
   'game.comboShort': 'Комбо ×{streak}',
-  'scales.hintMsg': 'Посмотри на подсказку и попробуй еще раз!',
+  'scales.hintMsg': 'Посмотри на весы и попробуй еще раз!',
+  'game.answer': 'Правильный ответ',
 };

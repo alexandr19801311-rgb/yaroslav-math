@@ -15,4 +15,6 @@ export const en: Dictionary = {
   'game.combo': 'Combo ×{streak} (×{multiplier} points)',
   'game.comboShort': 'Combo ×{streak}',
   'scales.hintMsg': 'Look at the hint and try again!',
+  'scales.hintMsg': 'Look at the scales and try again!',
+  'game.answer': 'Correct answer',
 };
