@@ -7,8 +7,10 @@ export class NumberCompositionGame extends BaseGame {
   protected gameId = 'number-composition';
 
   private targetValue: number = 0;
-  private leftValue: number = 0;
-  private rightValue: number = 0;
+  private currentLeftValue: number = 0;
+  private currentRightValue: number = 0;
+  private combinationsFound: number = 0;
+  private maxCombinations: number = 0;
 
   private cardEl!: HTMLElement;
   private timerFillEl!: HTMLElement;
@@ -21,6 +23,7 @@ export class NumberCompositionGame extends BaseGame {
   private scoreEl!: HTMLElement;
   private targetMsgEl!: HTMLElement;
   private rightDropZoneEl!: HTMLElement;
+  private progressEl!: HTMLElement;
 
   public init(): void {
     const container = document.getElementById('game-container');
@@ -40,9 +43,10 @@ export class NumberCompositionGame extends BaseGame {
         <div class="scales-hint-msg" id="scales-hint-msg" style="color: #3182ce; font-size: 1.5rem; font-weight: bold; min-height: 30px;">
           Собери число <span id="target-value">?</span>
         </div>
+        
+        <div class="progress-info" id="progress-info"></div>
 
         <div class="seesaw-container">
-          <!-- Левая чаша (фиксированная) -->
           <div class="drop-zone drop-zone--left" id="btn-left" style="cursor: default;">
              <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
@@ -53,7 +57,6 @@ export class NumberCompositionGame extends BaseGame {
           <div class="seesaw-pivot"></div>
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
-          <!-- Правая чаша (кликабельная) -->
           <button class="drop-zone drop-zone--right" id="btn-right">
              <div class="seesaw-label" id="right-label">0</div>
              <div class="seesaw-pan">
@@ -63,7 +66,7 @@ export class NumberCompositionGame extends BaseGame {
           </button>
         </div>
 
-        <div class="scales-instruction">
+        <div class="scales-instruction" id="instruction-text">
           Нажимай на правую чашу, чтобы добавить кубик!
         </div>
       </div>
@@ -80,29 +83,31 @@ export class NumberCompositionGame extends BaseGame {
     this.rightLabelEl = document.getElementById('right-label')!;
     this.scoreEl = document.getElementById('scales-score')!;
     this.targetMsgEl = document.getElementById('target-value')!;
+    this.progressEl = document.getElementById('progress-info')!;
 
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
 
-    // Клик по правой чаше добавляет кубик
     this.rightDropZoneEl.addEventListener('click', () => {
       if (!this.isRunning) return;
-      if (this.leftValue + this.rightValue < this.targetValue) {
+      if (this.currentLeftValue + this.currentRightValue < this.targetValue) {
         this.soundManager.playClick();
-        this.rightValue++;
-        this.renderItemsToContainer(this.rightHintEl, [this.rightValue], 1);
-        this.rightLabelEl.textContent = String(this.rightValue);
+        this.currentRightValue++;
+        this.renderItemsToContainer(this.rightHintEl, [this.currentRightValue], 1);
+        this.rightLabelEl.textContent = String(this.currentRightValue);
         this.checkWinCondition();
       }
     });
 
     this.start();
   }
-  // Заглушка для абстрактного метода, так как в этой игре нет текстового ввода
-  protected checkAnswer(_answer: unknown): boolean {
-    return false;
-  }
+
   protected onStart(): void {
     this.updateScoreUI();
+  }
+
+  // Заглушка для абстрактного метода
+  protected checkAnswer(_answer: unknown): boolean {
+    return false;
   }
 
   protected onTick(progress: number, _timeLeft: number): void {
@@ -118,47 +123,73 @@ export class NumberCompositionGame extends BaseGame {
   }
 
   protected generateTask(): void {
-    this.beamEl.classList.remove('tilt-left', 'tilt-right', 'balanced');
-    this.leftHintEl.innerHTML = '';
-    this.rightHintEl.innerHTML = '';
-
-    // Генерируем целевое число (от 3 до maxNumber)
-    this.targetValue = Math.floor(Math.random() * (this.maxNumber - 2)) + 3;
+    // Выбираем число от 4 до maxNumber (обычно до 10)
+    this.targetValue = Math.floor(Math.random() * (this.maxNumber - 3)) + 4;
     
-    // Генерируем левое число (от 1 до targetValue - 1)
-    this.leftValue = Math.floor(Math.random() * (this.targetValue - 1)) + 1;
-    this.rightValue = 0;
+    // Начинаем с 1
+    this.currentLeftValue = 1;
+    this.currentRightValue = 0;
+    this.combinationsFound = 0;
+    
+    // Всего вариантов: от 1 до target-1 (например, для 6: 1+5, 2+4, 3+3, 4+2, 5+1)
+    this.maxCombinations = this.targetValue - 1;
 
     this.targetMsgEl.textContent = String(this.targetValue);
-    this.leftLabelEl.textContent = String(this.leftValue);
+    this.updateProgressUI();
+    this.setupRound();
+  }
+
+  private setupRound(): void {
+    this.beamEl.classList.remove('tilt-left', 'tilt-right', 'balanced');
+    this.currentRightValue = 0;
+
+    this.leftLabelEl.textContent = String(this.currentLeftValue);
     this.rightLabelEl.textContent = '0';
 
-    // Рендерим левую башню
-    this.renderItemsToContainer(this.leftHintEl, [this.leftValue], 0);
+    this.renderItemsToContainer(this.leftHintEl, [this.currentLeftValue], 0);
     this.renderItemsToContainer(this.rightHintEl, [0], 1);
   }
 
+  private updateProgressUI(): void {
+    this.progressEl.textContent = `Найдено вариантов: ${this.combinationsFound} из ${this.maxCombinations}`;
+  }
+
   private checkWinCondition(): void {
-    if (this.leftValue + this.rightValue === this.targetValue) {
+    if (this.currentLeftValue + this.currentRightValue === this.targetValue) {
       this.soundManager.playCorrect();
-      this.addScore(10);
+      this.addScore(5);
       this.updateScoreUI();
       this.correctAnswers++;
+      this.combinationsFound++;
 
-      // Анимация победы
+      // Анимация
       this.cardEl.classList.add('card--success');
       this.beamEl.classList.add('balanced');
 
       const popup = document.createElement('div');
       popup.className = 'points-popup';
-      popup.textContent = `+10`;
+      popup.textContent = `+5`;
       this.cardEl.appendChild(popup);
       popup.addEventListener('animationend', () => popup.remove());
 
-      // Задержка перед новым заданием
       setTimeout(() => {
         this.cardEl.classList.remove('card--success');
-        this.generateTask();
+        
+        // Проверяем, все ли варианты найдены
+        if (this.currentLeftValue >= this.targetValue - 1) {
+          // Все собрано! Празднуем и переходим к новому числу
+          confetti({
+            particleCount: 100,
+            spread: 60,
+            origin: { y: 0.6 }
+          });
+          this.generateTask();
+        } else {
+          // Переходим к следующему варианту
+          this.currentLeftValue++;
+          this.setupRound();
+          this.updateProgressUI();
+        }
       }, 1000);
     }
   }
@@ -170,7 +201,7 @@ export class NumberCompositionGame extends BaseGame {
     towersContainer.className = 'towers-container';
 
     groups.forEach((count) => {
-      if (count === 0) return; // Не рисуем пустую башню
+      if (count === 0) return;
       
       const tower = document.createElement('div');
       tower.className = `lego-tower lego-color-${colorType}`;
@@ -209,10 +240,10 @@ export class NumberCompositionGame extends BaseGame {
         origin: { y: 0.6 },
         colors: ['#48bb78', '#4299e1', '#ed8936', '#e53e3e']
       });
-    } else if (finalScore > 50) {
+    } else if (finalScore > 30) {
       emoji = '🌟';
       title = 'Отличная работа!';
-    } else if (finalScore < 20) {
+    } else if (finalScore < 10) {
       emoji = '💪';
       title = 'Хорошая попытка!';
     }

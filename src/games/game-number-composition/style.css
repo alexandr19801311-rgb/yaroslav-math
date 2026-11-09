@@ -101,6 +101,14 @@
 
 .btn-exit:hover { background: #edf2f7; color: #e53e3e; }
 
+/* ===== Прогресс ===== */
+.progress-info {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
 /* ===== Весы-качели ===== */
 .seesaw-container {
   position: relative;
@@ -207,7 +215,7 @@
   padding-bottom: 2px;
 }
 
-/* ===== Подсказка "+1" для правой чаши ===== */
+/* ===== Подсказка "+1" ===== */
 .click-hint {
   position: absolute;
   bottom: -20px;
@@ -254,8 +262,8 @@
   box-shadow: 0 1px 0 rgba(0,0,0,0.2);
 }
 
-.lego-color-0 .lego-brick { background: #4299e1; } /* Левая (синяя) */
-.lego-color-1 .lego-brick { background: #ed8936; } /* Правая (оранжевая) */
+.lego-color-0 .lego-brick { background: #4299e1; }
+.lego-color-1 .lego-brick { background: #ed8936; }
 
 .lego-studs {
   position: absolute;
