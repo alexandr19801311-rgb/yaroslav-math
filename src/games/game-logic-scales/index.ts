@@ -38,13 +38,14 @@ export class SmartScalesGame extends BaseGame {
     container.innerHTML = `
       <div class="scales-card">
         <div class="scales-header">
+          <button type="button" class="btn-exit" id="btn-exit" title="В меню">✖</button>
           <div class="scales-score">${t('game.score')}: <span id="scales-score">0</span></div>
         </div>
         
         <div class="scales-hint-msg" id="scales-hint-msg"></div>
 
         <div class="seesaw-container">
-          <!-- Левая чаша (теперь это кликабельная кнопка) -->
+          <!-- Левая чаша (кликабельная кнопка) -->
           <button class="drop-zone drop-zone--left" id="btn-left">
              <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
@@ -58,7 +59,7 @@ export class SmartScalesGame extends BaseGame {
           <!-- Балка -->
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
-          <!-- Правая чаша (теперь это кликабельная кнопка) -->
+          <!-- Правая чаша (кликабельная кнопка) -->
           <button class="drop-zone drop-zone--right" id="btn-right">
              <div class="seesaw-label" id="right-label">?</div>
              <div class="seesaw-pan">
@@ -87,7 +88,8 @@ export class SmartScalesGame extends BaseGame {
     this.scoreEl = document.getElementById('scales-score')!;
     this.hintMsgEl = document.getElementById('scales-hint-msg')!;
 
-    // Вешаем обработчики кликов на чаши и кнопку "Равно"
+    // Обработчики
+    document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     this.leftDropZoneEl.addEventListener('click', () => this.handleDrop(true));
     this.rightDropZoneEl.addEventListener('click', () => this.handleDrop(false));
     document.getElementById('btn-balance')?.addEventListener('click', () => this.checkAnswer('='));

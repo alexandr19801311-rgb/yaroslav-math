@@ -7,10 +7,12 @@ export abstract class BaseGame {
   protected isRunning: boolean = false;
   protected timer: Timer;
   protected stateManager: StateManager;
+  protected onExit?: () => void; // Колбэк для возврата в меню
 
-  constructor(timeLimitSeconds: number = 60) {
+  constructor(timeLimitSeconds: number = 60, onExit?: () => void) {
     this.timer = new Timer(timeLimitSeconds, () => this.onTimeUp());
     this.stateManager = new StateManager();
+    this.onExit = onExit;
   }
 
   public abstract init(): void;
@@ -22,7 +24,6 @@ export abstract class BaseGame {
     this.score = 0;
     this.isRunning = true;
     this.onStart();
-    // Типы теперь выводятся из Timer.start()
     this.timer.start((timeLeft, progress) => this.onTick(progress, timeLeft));
     this.generateTask();
   }
@@ -45,9 +46,17 @@ export abstract class BaseGame {
     this.showGameOverScreen(isNewRecord);
   }
 
-  // Префикс _ отключает ошибку TS6133 (unused parameter)
   protected onStart(): void {}
   protected onCorrect(_basePoints: number, _awarded: number): void {}
   protected onWrong(): void {}
   protected onTick(_progress: number, _timeLeft: number): void {}
+
+  // Метод для безопасного выхода в меню
+  protected exitToMenu(): void {
+    this.isRunning = false;
+    this.timer.stop();
+    if (this.onExit) {
+      this.onExit();
+    }
+  }
 }

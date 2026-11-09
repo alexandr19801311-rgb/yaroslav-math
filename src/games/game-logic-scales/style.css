@@ -9,13 +9,47 @@
   margin: 40px auto;
   font-family: system-ui, -apple-system, sans-serif;
   user-select: none;
+  position: relative;
 }
 
+/* ===== Шапка ===== */
 .scales-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
+  position: relative;
+}
+
+.scales-score {
+  flex-grow: 1;
+  text-align: center;
   font-size: 1.2rem;
   color: #4a5568;
   font-weight: 600;
+  margin-left: -32px; /* Компенсация ширины кнопки для идеального центра */
+}
+
+/* ===== Кнопка выхода ===== */
+.btn-exit {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #a0aec0;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
+  z-index: 10;
+}
+
+.btn-exit:hover {
+  background: #edf2f7;
+  color: #e53e3e;
 }
 
 .scales-hint-msg {
@@ -79,24 +113,28 @@
 .seesaw-beam.tilt-right { transform: translateX(-50%) rotate(10deg); }
 .seesaw-beam.balanced { transform: translateX(-50%) rotate(0deg); }
 
+/* ===== Кликабельные чаши ===== */
 .drop-zone {
   width: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: all 0.2s;
-  border-radius: 12px;
+  background: transparent;
+  border: none;
   padding: 10px 5px;
   position: relative;
   z-index: 3;
-  border: 2px dashed transparent;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.2s, filter 0.2s;
 }
 
-/* dnd-kit добавит класс, когда элемент над зоной */
-.drop-zone[data-dnd-kit-over] {
-  border-color: #4299e1;
-  background-color: #ebf8ff;
-  transform: scale(1.05);
+.drop-zone:hover {
+  filter: brightness(0.95);
+}
+
+.drop-zone:active {
+  transform: scale(0.95);
 }
 
 .seesaw-label {
@@ -132,42 +170,7 @@
   align-items: flex-end;
 }
 
-/* ===== Перетаскиваемый груз ===== */
-@keyframes pulse-orange {
-  0% { box-shadow: 0 0 0 0 rgba(237, 137, 54, 0.7); }
-  70% { box-shadow: 0 0 0 15px rgba(237, 137, 54, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(237, 137, 54, 0); }
-}
-
-.drag-item {
-  position: absolute;
-  bottom: 148px;
-  left: 50%;
-  margin-left: -25px;
-  width: 50px !important; 
-  height: 50px !important;
-  background: #ed8936 !important;
-  border-radius: 50% !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  color: white;
-  font-weight: bold;
-  font-size: 1.5rem;
-  cursor: grab;
-  z-index: 10;
-  transition: transform 0.2s;
-  animation: pulse-orange 2s infinite;
-}
-
-.drag-item.dragging {
-  opacity: 0.8;
-  cursor: grabbing;
-  transform: scale(0.9);
-  animation: none;
-}
-
-/* ===== Кнопки ===== */
+/* ===== Кнопка Равно ===== */
 .scales-controls {
   display: flex;
   justify-content: center;
@@ -190,7 +193,7 @@
   transform: scale(0.95);
 }
 
-/* Кружочки подсказки */
+/* ===== Кружочки подсказки ===== */
 .hint-group { display: flex; gap: 2px; padding: 2px; }
 .hint-item { width: 10px; height: 10px; border-radius: 50%; animation: popIn 0.3s ease-out forwards; }
 .hint-color-0 .hint-item { background: #e53e3e; }
