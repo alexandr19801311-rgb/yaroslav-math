@@ -97,7 +97,10 @@ export class NumberCompositionGame extends BaseGame {
 
     this.start();
   }
-
+  // Заглушка для абстрактного метода, так как в этой игре нет текстового ввода
+  protected checkAnswer(_answer: unknown): boolean {
+    return false;
+  }
   protected onStart(): void {
     this.updateScoreUI();
   }
