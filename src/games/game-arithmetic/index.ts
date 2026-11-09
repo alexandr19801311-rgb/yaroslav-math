@@ -1,4 +1,6 @@
 import { BaseGame } from '../base/BaseGame';
+import './style.css';
+
 
 interface ComboState {
   streak: number;

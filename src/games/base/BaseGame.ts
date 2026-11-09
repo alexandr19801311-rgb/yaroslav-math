@@ -5,7 +5,12 @@ export abstract class BaseGame {
   protected abstract gameId: string;       // Уникальный ID игры для сохранения рекордов
   protected score: number = 0;              // Текущие очки игрока
   protected isRunning: boolean = false;     // Статус игры (идет или на паузе)
-  
+  protected addScore(points: number): void {
+  if (this.isRunning) {
+    this.score += points;
+  }
+}
+
   // Общие инструменты для всех игр
   protected timer: Timer;
   protected stateManager: StateManager;
