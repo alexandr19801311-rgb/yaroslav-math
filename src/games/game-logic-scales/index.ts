@@ -20,6 +20,7 @@ export class SmartScalesGame extends BaseGame {
   private currentTask: ScalesTask | null = null;
   private comboStreak: number = 0;
 
+  // DOM-элементы
   private cardEl!: HTMLElement;
   private timerFillEl!: HTMLElement;
   private timerBarEl!: HTMLElement;
@@ -141,7 +142,6 @@ export class SmartScalesGame extends BaseGame {
     let leftLabel: string;
     let hintLeft: number[];
 
-    // Используем this.maxNumber
     if (leftIsSum) {
       const a = Math.floor(Math.random() * (this.maxNumber / 2)) + 1;
       const b = Math.floor(Math.random() * (this.maxNumber / 2)) + 1;
@@ -162,6 +162,10 @@ export class SmartScalesGame extends BaseGame {
 
     this.leftLabelEl.textContent = leftLabel;
     this.rightLabelEl.textContent = rightLabel;
+
+    // СРАЗУ рендерим кружочки на чашах
+    this.renderItemsToContainer(this.leftHintEl, hintLeft);
+    this.renderItemsToContainer(this.rightHintEl, hintRight);
   }
 
   private handleDrop(isLeft: boolean): void {
@@ -193,7 +197,7 @@ export class SmartScalesGame extends BaseGame {
 
       if (!this.isHintMode) {
         this.isHintMode = true;
-        this.renderVisualHint();
+        this.renderVisualHint(); // Наклоняем балку
         this.onWrong();
         this.hintMsgEl.textContent = t('scales.hintMsg');
         this.hintMsgEl.classList.add('visible');
@@ -229,9 +233,9 @@ export class SmartScalesGame extends BaseGame {
 
   private renderVisualHint(): void {
     if (!this.currentTask) return;
-    this.renderItemsToContainer(this.leftHintEl, this.currentTask.hintLeft);
-    this.renderItemsToContainer(this.rightHintEl, this.currentTask.hintRight);
 
+    // В режиме подсказки мы только наклоняем балку
+    // (Кружочки уже отрисованы в generateTask)
     this.beamEl.classList.remove('tilt-left', 'tilt-right', 'balanced');
     if (this.currentTask.leftValue > this.currentTask.rightValue) {
       this.beamEl.classList.add('tilt-left');
@@ -250,7 +254,8 @@ export class SmartScalesGame extends BaseGame {
       for (let i = 0; i < count; i++) {
         const item = document.createElement('span');
         item.className = 'hint-item';
-        item.style.animationDelay = `${i * 40}ms`;
+        // Уменьшили задержку, так как кружочки теперь появляются сразу
+        item.style.animationDelay = `${i * 20}ms`;
         groupEl.appendChild(item);
       }
       container.appendChild(groupEl);
