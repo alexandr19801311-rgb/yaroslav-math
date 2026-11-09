@@ -48,7 +48,6 @@
   padding: 0 20px;
 }
 
-/* Треугольник */
 .seesaw-pivot {
   position: absolute;
   bottom: 100px;
@@ -62,7 +61,6 @@
   z-index: 1;
 }
 
-/* Балка */
 .seesaw-beam {
   position: absolute;
   bottom: 160px;
@@ -81,7 +79,6 @@
 .seesaw-beam.tilt-right { transform: translateX(-50%) rotate(10deg); }
 .seesaw-beam.balanced { transform: translateX(-50%) rotate(0deg); }
 
-/* Чаши */
 .drop-zone {
   width: 120px;
   display: flex;
@@ -95,15 +92,10 @@
   border: 2px dashed transparent;
 }
 
-/* Когда тащат груз, зоны подсвечиваются пунктиром */
-.seesaw-container:has(.drag-item:active) .drop-zone {
-  border-color: #cbd5e0;
-}
-
-.drop-zone.drag-over {
-  background-color: #ebf8ff;
-  box-shadow: 0 0 0 3px #4299e1 inset;
+/* dnd-kit добавит класс, когда элемент над зоной */
+.drop-zone[data-dnd-kit-over] {
   border-color: #4299e1;
+  background-color: #ebf8ff;
   transform: scale(1.05);
 }
 
@@ -149,9 +141,9 @@
 
 .drag-item {
   position: absolute;
-  bottom: 148px; /* Центрируем ровно по балке (160px - 12px) */
+  bottom: 148px;
   left: 50%;
-  margin-left: -25px; /* Половина ширины для точного центра */
+  margin-left: -25px;
   width: 50px !important; 
   height: 50px !important;
   background: #ed8936 !important;
@@ -164,7 +156,6 @@
   font-size: 1.5rem;
   cursor: grab;
   z-index: 10;
-  touch-action: none;
   transition: transform 0.2s;
   animation: pulse-orange 2s infinite;
 }
@@ -199,7 +190,7 @@
   transform: scale(0.95);
 }
 
-/* Стили для кружочков подсказки */
+/* Кружочки подсказки */
 .hint-group { display: flex; gap: 2px; padding: 2px; }
 .hint-item { width: 10px; height: 10px; border-radius: 50%; animation: popIn 0.3s ease-out forwards; }
 .hint-color-0 .hint-item { background: #e53e3e; }

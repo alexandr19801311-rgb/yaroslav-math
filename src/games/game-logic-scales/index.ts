@@ -1,5 +1,6 @@
 import { BaseGame } from '../base/BaseGame';
 import { t } from '../../core/i18n';
+import { DragDropManager, Draggable, Droppable } from '@dnd-kit/dom';
 import './style.css';
 
 interface ScalesTask {
@@ -19,6 +20,10 @@ export class SmartScalesGame extends BaseGame {
   private isHintMode: boolean = false;
   private currentTask: ScalesTask | null = null;
   private comboStreak: number = 0;
+
+  // DnD Kit
+  private manager: DragDropManager | null = null;
+  private draggable: Draggable | null = null;
 
   // DOM-элементы
   private beamEl!: HTMLElement;
@@ -45,7 +50,6 @@ export class SmartScalesGame extends BaseGame {
         <div class="scales-hint-msg" id="scales-hint-msg"></div>
 
         <div class="seesaw-container">
-          <!-- Левая зона сброса -->
           <div class="drop-zone drop-zone--left" id="drop-left">
              <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
@@ -53,13 +57,10 @@ export class SmartScalesGame extends BaseGame {
              </div>
           </div>
 
-          <!-- Точка опоры -->
           <div class="seesaw-pivot"></div>
           
-          <!-- Балка -->
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
-          <!-- Правая зона сброса -->
           <div class="drop-zone drop-zone--right" id="drop-right">
              <div class="seesaw-label" id="right-label">?</div>
              <div class="seesaw-pan">
@@ -67,8 +68,7 @@ export class SmartScalesGame extends BaseGame {
              </div>
           </div>
 
-          <!-- Перетаскиваемый груз -->
-          <div class="drag-item" id="drag-item" draggable="true">
+          <div class="drag-item" id="drag-item">
             <span class="drag-handle">≡</span>
           </div>
         </div>
@@ -94,10 +94,62 @@ export class SmartScalesGame extends BaseGame {
     this.scoreEl = document.getElementById('scales-score')!;
     this.hintMsgEl = document.getElementById('scales-hint-msg')!;
 
-    this.setupDragAndDrop();
+    this.setupDndKit();
     document.getElementById('btn-balance')?.addEventListener('click', () => this.checkAnswer('='));
 
     this.start();
+  }
+
+  private setupDndKit(): void {
+    // 1. Инициализируем менеджер
+    this.manager = new DragDropManager();
+
+    // 2. Регистрируем перетаскиваемый элемент
+    this.draggable = new Draggable({
+      id: 'weight-item',
+      element: this.dragItemEl,
+    }, this.manager);
+
+    // 3. Регистрируем зоны сброса
+    new Droppable({
+      id: 'left-zone',
+      element: this.leftDropZoneEl,
+    }, this.manager);
+
+    new Droppable({
+      id: 'right-zone',
+      element: this.rightDropZoneEl,
+    }, this.manager);
+
+    // 4. Слушаем события
+    this.manager.monitor.addEventListener('dragstart', () => {
+      this.dragItemEl.classList.add('dragging');
+    });
+
+    this.manager.monitor.addEventListener('dragend', (event) => {
+      this.dragItemEl.classList.remove('dragging');
+      
+      // Если перетаскивание отменено (например, Escape), возвращаем на место
+      if (event.canceled) {
+        this.resetDragItem();
+        return;
+      }
+
+      const target = event.target;
+      if (target) {
+        // Если упало на левую или правую чашу
+        if (target.id === 'left-zone') {
+          this.handleDrop(true);
+        } else if (target.id === 'right-zone') {
+          this.handleDrop(false);
+        } else {
+          this.resetDragItem();
+        }
+      } else {
+        // Упало мимо чаш
+        this.resetDragItem();
+      }
+    });
   }
 
   protected onStart(): void {
@@ -138,79 +190,7 @@ export class SmartScalesGame extends BaseGame {
     this.leftLabelEl.textContent = leftLabel;
     this.rightLabelEl.textContent = rightLabel;
     
-    // Возвращаем груз на место при новом задании
     this.resetDragItem();
-  }
-
-  private setupDragAndDrop(): void {
-    // 1. Обработка перетаскивания мышью (Desktop)
-    this.dragItemEl.addEventListener('dragstart', (e) => {
-      e.dataTransfer?.setData('text/plain', 'drag');
-      this.dragItemEl.classList.add('dragging');
-    });
-
-    this.dragItemEl.addEventListener('dragend', () => {
-      this.dragItemEl.classList.remove('dragging');
-      this.resetDragItem();
-    });
-
-    [this.leftDropZoneEl, this.rightDropZoneEl].forEach(zone => {
-      zone.addEventListener('dragover', (e) => {
-        e.preventDefault(); 
-        zone.classList.add('drag-over');
-      });
-      zone.addEventListener('dragleave', () => {
-        zone.classList.remove('drag-over');
-      });
-      zone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-        const isLeft = zone.id === 'drop-left';
-        this.handleDrop(isLeft);
-      });
-    });
-
-    // 2. Обработка Touch-событий (Mobile)
-    let initialX = 0;
-    let initialY = 0;
-    let currentX = 0;
-    let currentY = 0;
-
-    this.dragItemEl.addEventListener('touchstart', (e) => {
-      const touch = e.touches[0];
-      initialX = touch.clientX - currentX;
-      initialY = touch.clientY - currentY;
-      this.dragItemEl.style.transition = 'none';
-    }, { passive: true });
-
-    this.dragItemEl.addEventListener('touchmove', (e) => {
-      e.preventDefault(); 
-      const touch = e.touches[0];
-      currentX = touch.clientX - initialX;
-      currentY = touch.clientY - initialY;
-      this.dragItemEl.style.transform = `translate(${currentX}px, ${currentY}px)`;
-    }, { passive: false });
-
-    this.dragItemEl.addEventListener('touchend', () => {
-      this.dragItemEl.style.transition = 'transform 0.3s ease';
-      const touchX = initialX + currentX;
-      const touchY = initialY + currentY;
-      
-      const leftRect = this.leftDropZoneEl.getBoundingClientRect();
-      const rightRect = this.rightDropZoneEl.getBoundingClientRect();
-
-      if (this.isPointInRect(touchX, touchY, leftRect)) {
-        this.handleDrop(true);
-      } else if (this.isPointInRect(touchX, touchY, rightRect)) {
-        this.handleDrop(false);
-      } else {
-        this.resetDragItem();
-      }
-    });
-  }
-
-  private isPointInRect(x: number, y: number, rect: DOMRect): boolean {
-    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
   }
 
   private handleDrop(isLeft: boolean): void {
@@ -220,7 +200,8 @@ export class SmartScalesGame extends BaseGame {
   }
 
   private resetDragItem(): void {
-    this.dragItemEl.style.transform = 'translate(0, 0)';
+    // Сбрасываем позицию элемента через dnd-kit, если нужно
+    // В dnd-kit элемент возвращается сам, но мы можем сбросить классы
     this.dragItemEl.classList.remove('dragging');
   }
 
