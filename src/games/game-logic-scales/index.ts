@@ -56,7 +56,7 @@ export class SmartScalesGame extends BaseGame {
           <!-- Точка опоры -->
           <div class="seesaw-pivot"></div>
           
-          <!-- Балка (без кружка внутри) -->
+          <!-- Балка -->
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
           <!-- Правая зона сброса -->
@@ -67,10 +67,14 @@ export class SmartScalesGame extends BaseGame {
              </div>
           </div>
 
-          <!-- Перетаскиваемый груз (теперь отдельно от балки) -->
+          <!-- Перетаскиваемый груз -->
           <div class="drag-item" id="drag-item" draggable="true">
             <span class="drag-handle">≡</span>
           </div>
+        </div>
+
+        <div class="scales-instruction">
+          Перетащи груз на ту чашу, где больше!
         </div>
         
         <div class="scales-controls">
