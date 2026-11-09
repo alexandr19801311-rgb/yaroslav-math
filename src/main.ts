@@ -1,3 +1,4 @@
+import './assets/css/global.css'; // Подключаем стили через Vite
 import { ArithmeticGame } from './games/game-arithmetic/index';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,12 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (startArithmeticBtn && menuContainer && gameContainer) {
     startArithmeticBtn.addEventListener('click', () => {
-      // Прячем меню, показываем игровое поле
       menuContainer.style.display = 'none';
       gameContainer.style.display = 'block';
 
-      // Запускаем игру через наше архитектурное ядро
-      const game = new ArithmeticGame(60); // 60 секунд на игру
+      const game = new ArithmeticGame(60);
       game.init();
     });
   }

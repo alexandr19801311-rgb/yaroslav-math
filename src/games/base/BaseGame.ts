@@ -1,11 +1,6 @@
 import { StateManager } from '../../core/StateManager';
 import { Timer } from '../../core/Timer';
 
-/**
- * Абстрактный шаблон жизненного цикла игры.
- * Ядро не содержит UI-текстов и fallback-логики отображения:
- * всё, что видит игрок, реализует конкретная игра.
- */
 export abstract class BaseGame {
   protected abstract gameId: string;
   protected score: number = 0;
@@ -21,17 +16,13 @@ export abstract class BaseGame {
   public abstract init(): void;
   protected abstract generateTask(): void;
   protected abstract checkAnswer(answer: unknown): boolean;
-
-  /**
-   * Игра ОБЯЗАНА реализовать экран завершения.
-   * Ядро не показывает alert/console — только сообщает факт окончания.
-   */
   protected abstract showGameOverScreen(isNewRecord: boolean): void;
 
   public start(): void {
     this.score = 0;
     this.isRunning = true;
     this.onStart();
+    // Типы теперь выводятся из Timer.start()
     this.timer.start((timeLeft, progress) => this.onTick(progress, timeLeft));
     this.generateTask();
   }
@@ -41,9 +32,6 @@ export abstract class BaseGame {
     this.timer.pause();
   }
 
-  /**
-   * Централизованное начисление очков. Работает только во время игры.
-   */
   protected addScore(points: number): void {
     if (this.isRunning) {
       this.score += points;
@@ -57,12 +45,9 @@ export abstract class BaseGame {
     this.showGameOverScreen(isNewRecord);
   }
 
-  // ----- Хуки для переопределения в играх -----
-
-  /** Вызывается в начале start(), до первого тика таймера. */
+  // Префикс _ отключает ошибку TS6133 (unused parameter)
   protected onStart(): void {}
-
-  protected onCorrect(basePoints: number, awarded: number): void {}
+  protected onCorrect(_basePoints: number, _awarded: number): void {}
   protected onWrong(): void {}
-  protected onTick(progress: number, timeLeft: number): void {}
+  protected onTick(_progress: number, _timeLeft: number): void {}
 }

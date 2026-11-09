@@ -208,7 +208,7 @@ export class ArithmeticGame extends BaseGame {
     }
   }
 
-  protected onCorrect(basePoints: number, awarded: number): void {
+  protected onCorrect(_basePoints: number, awarded: number): void {
     // Анимация карточки задачи
     this.problemEl.classList.remove('problem-display--pop');
     // reflow, чтобы анимация перезапускалась

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LogiKids — Развивающие игры</title>
+    <!-- Убрали link на CSS, теперь он импортируется в main.ts -->
+    <script type="module" crossorigin src="/yaroslav-math/assets/main-CUK4-iJY.js"></script>
+    <link rel="stylesheet" crossorigin href="/yaroslav-math/assets/main-CJ5fYdXE.css">
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>🎮 LogiKids: Развивающие игры</h1>
+      </header>
+      
+      <main id="menu-container">
+        <div class="menu-card">
+          <h3>⚡ Быстрый счет</h3>
+          <p>Сложение и вычитание в пределах 20 на время.</p>
+          <button id="btn-start-arithmetic" class="btn-main">Играть</button>
+        </div>
+      </main>
+
+      <main id="game-container" style="display: none;"></main>
+    </div>
+    <!-- Абсолютный путь от корня, Vite подставит base сам -->
+  </body>
+</html>

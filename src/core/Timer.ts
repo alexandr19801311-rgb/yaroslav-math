@@ -10,13 +10,17 @@ export class Timer {
     this.onTimeUp = onTimeUpCallback;
   }
 
-  public start(onTick: (timeLeft: number) => void): void {
-    if (this.timerId) return; // Таймер уже запущен
+  // Явно указываем типы для timeLeft и progress
+  public start(onTick: (timeLeft: number, progress: number) => void): void {
+    if (this.timerId !== null) return;
+    
+    onTick(this.timeLeft, 1.0);
 
-    onTick(this.timeLeft);
     this.timerId = window.setInterval(() => {
       this.timeLeft--;
-      onTick(this.timeLeft);
+      const progress = this.timeLeft / this.duration;
+      
+      onTick(this.timeLeft, progress);
 
       if (this.timeLeft <= 0) {
         this.stop();
@@ -34,8 +38,9 @@ export class Timer {
     this.timeLeft = this.duration;
   }
 
-  private stop(): void {
-    if (this.timerId) {
+  // Сделали public, чтобы BaseGame мог останавливать таймер
+  public stop(): void {
+    if (this.timerId !== null) {
       clearInterval(this.timerId);
       this.timerId = null;
     }

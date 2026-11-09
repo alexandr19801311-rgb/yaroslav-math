@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LogiKids — Развивающие игры</title>
-    <!-- Путь начинается строго с ./ -->
-    <link rel="stylesheet" href="./src/assets/css/global.css" />
+    <!-- Убрали link на CSS, теперь он импортируется в main.ts -->
   </head>
   <body>
     <div id="app">
@@ -23,7 +22,7 @@
 
       <main id="game-container" style="display: none;"></main>
     </div>
-    <!-- Путь начинается строго с ./ -->
-    <script type="module" src="./src/main.ts"></script>
+    <!-- Абсолютный путь от корня, Vite подставит base сам -->
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
