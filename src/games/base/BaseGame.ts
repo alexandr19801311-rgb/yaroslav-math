@@ -11,21 +11,23 @@ export abstract class BaseGame {
   protected soundManager: SoundManager;
   protected onExit?: () => void;
   protected maxNumber: number;
+  protected hasTimer: boolean; // <--- НОВОЕ
 
-  // Статистика
   protected correctAnswers: number = 0;
   protected wrongAnswers: number = 0;
 
   constructor(
     timeLimitSeconds: number = 60,
     onExit?: () => void,
-    maxNumber: number = 10
+    maxNumber: number = 10,
+    hasTimer: boolean = true // По умолчанию таймер есть
   ) {
     this.timer = new Timer(timeLimitSeconds, () => this.onTimeUp());
     this.stateManager = new StateManager();
     this.soundManager = SoundManager.getInstance();
     this.onExit = onExit;
     this.maxNumber = maxNumber;
+    this.hasTimer = hasTimer;
   }
 
   public abstract init(): void;
@@ -39,13 +41,17 @@ export abstract class BaseGame {
     this.wrongAnswers = 0;
     this.isRunning = true;
     this.onStart();
-    this.timer.start((timeLeft, progress) => this.onTick(progress, timeLeft));
+    
+    if (this.hasTimer) {
+      this.timer.start((timeLeft, progress) => this.onTick(progress, timeLeft));
+    }
+    
     this.generateTask();
   }
 
   public pause(): void {
     this.isRunning = false;
-    this.timer.pause();
+    if (this.hasTimer) this.timer.pause();
   }
 
   protected addScore(points: number): void {
@@ -74,7 +80,7 @@ export abstract class BaseGame {
 
   protected exitToMenu(): void {
     this.isRunning = false;
-    this.timer.stop();
+    if (this.hasTimer) this.timer.stop();
     if (this.onExit) {
       this.onExit();
     }

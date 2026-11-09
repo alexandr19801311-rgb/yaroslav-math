@@ -2,6 +2,7 @@ import './assets/css/global.css';
 import { ArithmeticGame } from './games/game-arithmetic/index';
 import { SmartScalesGame } from './games/game-logic-scales/index';
 import { NumberCompositionGame } from './games/game-number-composition/index';
+import { NumberHousesGame } from './games/game-number-houses/index';
 
 document.addEventListener('DOMContentLoaded', () => {
   const menuContainer = document.getElementById('menu-container');
