@@ -12,6 +12,10 @@ export abstract class BaseGame {
   protected onExit?: () => void;
   protected maxNumber: number;
 
+  // Статистика
+  protected correctAnswers: number = 0;
+  protected wrongAnswers: number = 0;
+
   constructor(
     timeLimitSeconds: number = 60,
     onExit?: () => void,
@@ -27,10 +31,12 @@ export abstract class BaseGame {
   public abstract init(): void;
   protected abstract generateTask(): void;
   protected abstract checkAnswer(answer: unknown): boolean;
-  protected abstract showGameOverScreen(isNewRecord: boolean): void;
+  protected abstract showGameOverScreen(isNewRecord: boolean, stats: { correct: number, wrong: number }): void;
 
   public start(): void {
     this.score = 0;
+    this.correctAnswers = 0;
+    this.wrongAnswers = 0;
     this.isRunning = true;
     this.onStart();
     this.timer.start((timeLeft, progress) => this.onTick(progress, timeLeft));
@@ -55,10 +61,11 @@ export abstract class BaseGame {
     if (isNewRecord) {
       this.soundManager.playWin();
     }
-    this.showGameOverScreen(isNewRecord);
+    this.showGameOverScreen(isNewRecord, {
+      correct: this.correctAnswers,
+      wrong: this.wrongAnswers
+    });
   }
-
-  // --- Хуки для переопределения в играх ---
 
   protected onStart(): void {}
   protected onCorrect(_basePoints: number, _awarded: number): void {}

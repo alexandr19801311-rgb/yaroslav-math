@@ -1,5 +1,6 @@
 import { BaseGame } from '../base/BaseGame';
 import { t } from '../../core/i18n';
+import confetti from 'canvas-confetti';
 import './style.css';
 
 interface ComboState {
@@ -122,11 +123,13 @@ export class ArithmeticGame extends BaseGame {
     }
 
     if (answer === this.currentAnswer) {
+      this.correctAnswers++;
       this.soundManager.playCorrect();
       this.handleCorrect();
       return true;
     }
 
+    this.wrongAnswers++;
     this.soundManager.playWrong();
     this.handleWrong();
     return false;
@@ -233,7 +236,7 @@ export class ArithmeticGame extends BaseGame {
     float.addEventListener('animationend', () => float.remove());
   }
 
-  protected showGameOverScreen(isNewRecord: boolean): void {
+  protected showGameOverScreen(isNewRecord: boolean, stats: { correct: number, wrong: number }): void {
     const finalScore = this.score;
     const record = this.stateManager.getHighScore(this.gameId);
 
@@ -241,16 +244,56 @@ export class ArithmeticGame extends BaseGame {
       this.overlayEl.remove();
     }
 
+    // Определяем эмодзи
+    let emoji = '😊';
+    let title = t('game.timeUp');
+    if (isNewRecord) {
+      emoji = '🏆';
+      title = 'Новый рекорд!';
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#48bb78', '#4299e1', '#ed8936', '#e53e3e']
+      });
+    } else if (finalScore > 100) {
+      emoji = '🌟';
+      title = 'Отличная работа!';
+    } else if (finalScore < 30) {
+      emoji = '💪';
+      title = 'Хорошая попытка!';
+    }
+
     const overlay = document.createElement('div');
     overlay.className = 'game-overlay';
     overlay.innerHTML = `
       <div class="game-overlay__card">
-        <h2 class="game-overlay__title">${t('game.timeUp')}</h2>
-        <p class="game-overlay__score">${t('game.score')}: <strong>${finalScore}</strong></p>
+        <div class="game-overlay__emoji">${emoji}</div>
+        <h2 class="game-overlay__title">${title}</h2>
+        
+        <div class="game-overlay__stats">
+          <div class="stat-box">
+            <div class="stat-value">${finalScore}</div>
+            <div class="stat-label">${t('game.score')}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" style="color: #38a169;">${stats.correct}</div>
+            <div class="stat-label">Верно</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" style="color: #e53e3e;">${stats.wrong}</div>
+            <div class="stat-label">Ошибки</div>
+          </div>
+        </div>
+        
         <p class="game-overlay__record">
           ${isNewRecord ? `🎉 ${t('game.newRecord')}` : `${t('game.record')}: <strong>${record}</strong>`}
         </p>
-        <button type="button" class="game-overlay__btn" id="overlay-restart">${t('game.playAgain')}</button>
+
+        <div class="game-overlay__actions">
+          <button type="button" class="game-overlay__btn game-overlay__btn--primary" id="overlay-restart">${t('game.playAgain')}</button>
+          <button type="button" class="game-overlay__btn game-overlay__btn--secondary" id="overlay-menu">В меню</button>
+        </div>
       </div>
     `;
 
@@ -267,5 +310,13 @@ export class ArithmeticGame extends BaseGame {
       this.start();
     });
     restartBtn?.focus();
+    
+    overlay.querySelector('#overlay-menu')?.addEventListener('click', () => {
+      if (this.overlayEl) {
+        this.overlayEl.remove();
+        this.overlayEl = null;
+      }
+      this.exitToMenu();
+    });
   }
 }
