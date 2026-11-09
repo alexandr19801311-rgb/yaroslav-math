@@ -1,7 +1,7 @@
 /* ===== Карточка игры ===== */
 .scales-card {
   background: #ffffff;
-  padding: 24px;
+  padding: 0; /* Убрали padding, чтобы шкала времени была вплотную к краю */
   border-radius: 20px;
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
   text-align: center;
@@ -10,6 +10,43 @@
   font-family: system-ui, -apple-system, sans-serif;
   user-select: none;
   position: relative;
+  overflow: hidden; /* Чтобы шкала не вылезала за скругления */
+}
+
+/* Внутренний контент с отступами */
+.scales-header, .scales-hint-msg, .seesaw-container, .scales-instruction, .scales-controls {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.scales-header {
+  padding-top: 24px; /* Отступ сверху после шкалы времени */
+}
+
+/* ===== Шкала времени ===== */
+.timer-bar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  position: relative;
+}
+
+.timer-bar__fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #38b2ac, #4299e1);
+  transform-origin: left center;
+  transform: scaleX(1);
+  transition: transform 0.9s linear, background-color 0.4s ease;
+  will-change: transform;
+}
+
+.timer-bar--warn .timer-bar__fill {
+  background: linear-gradient(90deg, #ecc94b, #ed8936);
+}
+
+.timer-bar--danger .timer-bar__fill {
+  background: linear-gradient(90deg, #f56565, #e53e3e);
 }
 
 /* ===== Шапка ===== */
@@ -27,7 +64,7 @@
   font-size: 1.2rem;
   color: #4a5568;
   font-weight: 600;
-  margin-left: -32px; /* Компенсация ширины кнопки для идеального центра */
+  margin-left: -32px; /* Компенсация ширины кнопки */
 }
 
 /* ===== Кнопка выхода ===== */
@@ -79,7 +116,6 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 20px;
 }
 
 .seesaw-pivot {
@@ -129,13 +165,8 @@
   transition: transform 0.2s, filter 0.2s;
 }
 
-.drop-zone:hover {
-  filter: brightness(0.95);
-}
-
-.drop-zone:active {
-  transform: scale(0.95);
-}
+.drop-zone:hover { filter: brightness(0.95); }
+.drop-zone:active { transform: scale(0.95); }
 
 .seesaw-label {
   font-size: 1.5rem;
@@ -174,7 +205,7 @@
 .scales-controls {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  padding-bottom: 24px; /* Отступ снизу для карточки */
 }
 
 .scales-btn--balance {
@@ -189,9 +220,7 @@
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   transition: transform 0.1s;
 }
-.scales-btn--balance:active {
-  transform: scale(0.95);
-}
+.scales-btn--balance:active { transform: scale(0.95); }
 
 /* ===== Кружочки подсказки ===== */
 .hint-group { display: flex; gap: 2px; padding: 2px; }

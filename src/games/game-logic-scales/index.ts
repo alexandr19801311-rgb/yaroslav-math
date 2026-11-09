@@ -21,6 +21,8 @@ export class SmartScalesGame extends BaseGame {
   private comboStreak: number = 0;
 
   // DOM-элементы
+  private timerFillEl!: HTMLElement;
+  private timerBarEl!: HTMLElement;
   private beamEl!: HTMLElement;
   private leftDropZoneEl!: HTMLElement;
   private rightDropZoneEl!: HTMLElement;
@@ -37,6 +39,11 @@ export class SmartScalesGame extends BaseGame {
 
     container.innerHTML = `
       <div class="scales-card">
+        <!-- Шкала времени -->
+        <div class="timer-bar" id="timer-bar">
+          <div class="timer-bar__fill" id="timer-fill"></div>
+        </div>
+
         <div class="scales-header">
           <button type="button" class="btn-exit" id="btn-exit" title="В меню">✖</button>
           <div class="scales-score">${t('game.score')}: <span id="scales-score">0</span></div>
@@ -45,7 +52,6 @@ export class SmartScalesGame extends BaseGame {
         <div class="scales-hint-msg" id="scales-hint-msg"></div>
 
         <div class="seesaw-container">
-          <!-- Левая чаша (кликабельная кнопка) -->
           <button class="drop-zone drop-zone--left" id="btn-left">
              <div class="seesaw-label" id="left-label">?</div>
              <div class="seesaw-pan">
@@ -53,13 +59,9 @@ export class SmartScalesGame extends BaseGame {
              </div>
           </button>
 
-          <!-- Точка опоры -->
           <div class="seesaw-pivot"></div>
-          
-          <!-- Балка -->
           <div class="seesaw-beam" id="seesaw-beam"></div>
 
-          <!-- Правая чаша (кликабельная кнопка) -->
           <button class="drop-zone drop-zone--right" id="btn-right">
              <div class="seesaw-label" id="right-label">?</div>
              <div class="seesaw-pan">
@@ -78,6 +80,9 @@ export class SmartScalesGame extends BaseGame {
       </div>
     `;
 
+    // Получение элементов
+    this.timerBarEl = document.getElementById('timer-bar')!;
+    this.timerFillEl = document.getElementById('timer-fill')!;
     this.beamEl = document.getElementById('seesaw-beam')!;
     this.leftDropZoneEl = document.getElementById('btn-left')!;
     this.rightDropZoneEl = document.getElementById('btn-right')!;
@@ -101,6 +106,20 @@ export class SmartScalesGame extends BaseGame {
     this.isHintMode = false;
     this.comboStreak = 0;
     this.updateScoreUI();
+  }
+
+  // Переопределяем хук, чтобы обновлять шкалу времени
+  protected onTick(progress: number, _timeLeft: number): void {
+    const clamped = Math.max(0, Math.min(1, progress));
+    this.timerFillEl.style.transform = `scaleX(${clamped})`;
+
+    // Меняем цвета в зависимости от оставшегося времени
+    this.timerBarEl.classList.remove('timer-bar--warn', 'timer-bar--danger');
+    if (clamped <= 0.2) {
+      this.timerBarEl.classList.add('timer-bar--danger');
+    } else if (clamped <= 0.5) {
+      this.timerBarEl.classList.add('timer-bar--warn');
+    }
   }
 
   protected generateTask(): void {
