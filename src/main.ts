@@ -1,6 +1,7 @@
 import './assets/css/global.css';
 import { ArithmeticGame } from './games/game-arithmetic/index';
 import { SmartScalesGame } from './games/game-logic-scales/index';
+import { NumberCompositionGame } from './games/game-number-composition/index';
 
 document.addEventListener('DOMContentLoaded', () => {
   const menuContainer = document.getElementById('menu-container');
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const startGame = (gameType: 'arith' | 'scales', maxNumber: number) => {
+  const startGame = (gameType: 'arith' | 'scales' | 'comp', maxNumber: number) => {
     if (!menuContainer || !gameContainer) return;
     
     menuContainer.style.display = 'none';
@@ -25,8 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (gameType === 'arith') {
       const game = new ArithmeticGame(60, returnToMenu, maxNumber);
       game.init();
-    } else {
+    } else if (gameType === 'scales') {
       const game = new SmartScalesGame(60, returnToMenu, maxNumber);
+      game.init();
+    } else {
+      const game = new NumberCompositionGame(60, returnToMenu, maxNumber);
       game.init();
     }
   };
@@ -40,4 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start-scales-easy')?.addEventListener('click', () => startGame('scales', 10));
   document.getElementById('start-scales-medium')?.addEventListener('click', () => startGame('scales', 20));
   document.getElementById('start-scales-hard')?.addEventListener('click', () => startGame('scales', 100));
+
+  // Состав числа
+  document.getElementById('start-comp-easy')?.addEventListener('click', () => startGame('comp', 10));
+  document.getElementById('start-comp-medium')?.addEventListener('click', () => startGame('comp', 20));
+  document.getElementById('start-comp-hard')?.addEventListener('click', () => startGame('comp', 30));
 });
