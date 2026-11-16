@@ -7,6 +7,7 @@ import { NumberHousesGame } from './games/game-number-houses/index';
 document.addEventListener('DOMContentLoaded', () => {
   const menuContainer = document.getElementById('menu-container');
   const gameContainer = document.getElementById('game-container');
+  const mainHeader = document.getElementById('main-header'); // <-- НОВОЕ
 
   const returnToMenu = () => {
     if (gameContainer) {
@@ -16,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuContainer) {
       menuContainer.style.display = 'flex';
     }
+    if (mainHeader) {
+      mainHeader.style.display = 'block'; // Показываем заголовок при выходе
+    }
   };
 
   const startGame = (gameType: 'arith' | 'scales' | 'comp' | 'houses', maxNumber: number) => {
@@ -23,6 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     menuContainer.style.display = 'none';
     gameContainer.style.display = 'block';
+    
+    if (mainHeader) {
+      mainHeader.style.display = 'none'; // Скрываем заголовок при запуске игры
+    }
 
     if (gameType === 'arith') {
       const game = new ArithmeticGame(60, returnToMenu, maxNumber);
@@ -54,6 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start-comp-medium')?.addEventListener('click', () => startGame('comp', 20));
   document.getElementById('start-comp-hard')?.addEventListener('click', () => startGame('comp', 30));
 
-  // Домики (ВОТ ТУТ ИСПРАВЛЕН ID)
+  // Домики
   document.getElementById('start-houses-all')?.addEventListener('click', () => startGame('houses', 10));
 });
