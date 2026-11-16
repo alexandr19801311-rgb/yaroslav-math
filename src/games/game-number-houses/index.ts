@@ -342,7 +342,7 @@ export class NumberHousesGame extends BaseGame {
     }
   }
 
-  // Улучшенная озвучка
+  // Улучшенная озвучка (универсальная)
   private speakExpression(a: number, b: number): void {
     if (!this.isSoundOn || !('speechSynthesis' in window)) return;
 
@@ -351,19 +351,20 @@ export class NumberHousesGame extends BaseGame {
     const text = `${a} плюс ${b}`;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ru-RU';
-    utterance.rate = 0.9; // Чуть медленнее для четкости
-    utterance.pitch = 1.2; // Естественный женский голос (не писклявый)
     
+    // Универсальные настройки для всех устройств
+    utterance.rate = 0.9; // Немного медленнее для четкости
+    utterance.pitch = 1.0; // Нормальный голос (без писклявости)
+    utterance.volume = 1.0;
+
     const voices = window.speechSynthesis.getVoices();
     
-    // 1. Ищем "Milena" (стандартный женский голос в Chrome/Edge)
-    // 2. Или любой голос, где в названии есть "female" или "woman"
-    // 3. Или просто первый русский голос
-    const ruVoice = voices.find(v => v.name.includes('Milena')) 
-                 || voices.find(v => v.lang.includes('ru') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('woman')))
-                 || voices.find(v => v.lang.includes('ru'));
+    // Ищем любой русский голос
+    const ruVoice = voices.find(v => v.lang.includes('ru'));
 
-    if (ruVoice) utterance.voice = ruVoice;
+    if (ruVoice) {
+      utterance.voice = ruVoice;
+    }
 
     window.speechSynthesis.speak(utterance);
   }
