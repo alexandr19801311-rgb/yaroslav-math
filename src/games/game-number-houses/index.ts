@@ -42,6 +42,7 @@ export class NumberHousesGame extends BaseGame {
   private totalCountEl!: HTMLElement;
   private progressFillEl!: HTMLElement;
   private overlayEl: HTMLElement | null = null;
+  private bgCanvasEl!: HTMLCanvasElement;
 
   public init(): void {
     const container = document.getElementById('game-container');
@@ -56,8 +57,8 @@ export class NumberHousesGame extends BaseGame {
       this.data[n] = list;
     });
 
-    // Убрали кнопку выбора голоса (btn-voice)
     container.innerHTML = `
+      <canvas id="bg-canvas" class="bg-canvas"></canvas>
       <div class="houses-game-wrapper">
         <div class="topbar">
           <button type="button" class="btn-exit" id="btn-exit" title="В меню">✖</button>
@@ -99,6 +100,7 @@ export class NumberHousesGame extends BaseGame {
     this.doneCountEl = document.getElementById('doneCount')!;
     this.totalCountEl = document.getElementById('totalCount')!;
     this.progressFillEl = document.getElementById('progressFill')!;
+    this.bgCanvasEl = document.getElementById('bg-canvas') as HTMLCanvasElement;
 
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     document.getElementById('btn-hint')?.addEventListener('click', () => this.useHint());
@@ -113,7 +115,61 @@ export class NumberHousesGame extends BaseGame {
     const savedVoice = localStorage.getItem('logikids_voice_uri');
     if (savedVoice) this.selectedVoiceURI = savedVoice;
 
+    this.initBackgroundAnimation();
     this.start();
+  }
+
+  private initBackgroundAnimation(): void {
+    const ctx = this.bgCanvasEl.getContext('2d');
+    if (!ctx) return;
+
+    let width = this.bgCanvasEl.width = window.innerWidth;
+    let height = this.bgCanvasEl.height = window.innerHeight;
+
+    const particles: {x: number, y: number, r: number, dx: number, dy: number, alpha: number, color: string}[] = [];
+    const colors = ['#e0f2fe', '#f3e8ff', '#fef3c7', '#dcfce7'];
+
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 40 + 20,
+        dx: (Math.random() - 0.5) * 0.5,
+        dy: (Math.random() - 0.5) * 0.5,
+        alpha: Math.random() * 0.5 + 0.1,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+
+    const animate = () => {
+      if (this.bgCanvasEl.width !== window.innerWidth || this.bgCanvasEl.height !== window.innerHeight) {
+        width = this.bgCanvasEl.width = window.innerWidth;
+        height = this.bgCanvasEl.height = window.innerHeight;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < -p.r) p.x = width + p.r;
+        if (p.x > width + p.r) p.x = -p.r;
+        if (p.y < -p.r) p.y = height + p.r;
+        if (p.y > height + p.r) p.y = -p.r;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+      });
+
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animate);
+    };
+
+    animate();
   }
 
   protected onStart(): void {
@@ -331,6 +387,7 @@ export class NumberHousesGame extends BaseGame {
 
     if (this.state.picked && this.state.picked.el) {
       this.state.picked.el.classList.remove('picked');
+      this.clearValidHighlights(); // Убираем подсветку домиков
     }
 
     if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
@@ -340,9 +397,42 @@ export class NumberHousesGame extends BaseGame {
       cardEl.classList.add('picked');
       
       this.speakExpression(a, b);
+      this.createParticles(cardEl);
+      this.highlightValidHouses(num); // Подсвечиваем домики
       
       this.soundManager.playClick();
     }
+  }
+
+  private createParticles(cardEl: HTMLElement): void {
+    const rect = cardEl.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+    confetti({
+      particleCount: 10,
+      spread: 30,
+      origin: { x, y },
+      colors: ['#fbbf24', '#f59e0b', '#d97706'],
+      disableForReducedMotion: true,
+      zIndex: 999
+    });
+  }
+
+  private highlightValidHouses(num: number): void {
+    const houses = this.housesContainerEl.querySelectorAll('.house');
+    houses.forEach(h => {
+      const houseEl = h as HTMLElement;
+      const houseNum = parseInt(houseEl.dataset.num || '0');
+      if (houseNum === num && !this.state.done.includes(num)) {
+        houseEl.classList.add('valid-target');
+      }
+    });
+  }
+
+  private clearValidHighlights(): void {
+    const houses = this.housesContainerEl.querySelectorAll('.valid-target');
+    houses.forEach(h => h.classList.remove('valid-target'));
   }
 
   private speakExpression(a: number, b: number): void {
@@ -439,6 +529,8 @@ export class NumberHousesGame extends BaseGame {
 
     if (!targetSlot) return;
 
+    this.clearValidHighlights(); // Убираем подсветку
+
     this.animateCardToHouse(cardEl, targetSlot, () => {
       this.state.filled[key] = { a, b };
       this.state.score++;
@@ -473,7 +565,10 @@ export class NumberHousesGame extends BaseGame {
       if (done && !this.state.done.includes(n)) {
         this.state.done.push(n);
         this.soundManager.playWin();
-        houseEl.classList.add('done');
+        
+        // Эффект завершения домика (свечение)
+        houseEl.classList.add('done', 'house-complete-anim');
+        setTimeout(() => houseEl.classList.remove('house-complete-anim'), 1000);
         
         this.fireConfetti(houseEl);
 
