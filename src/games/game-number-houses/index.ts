@@ -281,24 +281,11 @@ export class NumberHousesGame extends BaseGame {
       // Выделяем новую карточку
       this.state.picked = { num, idx, a, b };
       this.soundManager.playClick();
-      
-      // Находим карточку в DOM и добавляем класс
-      const cards = this.trayBodyEl.querySelectorAll('.card');
-      cards.forEach(card => {
-        const cardNum = parseInt(card.querySelector('.card-number')?.textContent || '0');
-        // Мы не можем точно идентифицировать карточку по DOM без data-атрибутов, 
-        // поэтому просто добавим класс по порядку, если это та самая карточка.
-        // В идеале нужно добавить data-атрибуты.
-      });
     }
     
-    // Просто перерисовываем лоток (это быстро), но чтобы не было моргания, 
-    // мы не будем делать полный renderAll.
-    // Вместо этого мы можем просто обновить классы вручную.
-    // Но для простоты оставим renderTray(), так как это не вызывает моргания всего экрана.
+    // Перерисовываем лоток (выделение применится в renderTray)
     this.renderTray();
   }
-
   private onHouseClick(n: number, houseEl: HTMLElement): void {
     if (!this.state.picked) return;
     if (this.state.done.includes(n)) return;
