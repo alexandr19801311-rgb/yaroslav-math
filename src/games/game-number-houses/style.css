@@ -10,6 +10,63 @@
   font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
   position: relative;
   z-index: 1;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+/* ===== НОЧНАЯ ТЕМА ===== */
+body.dark-theme {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-theme .bg-tag {
+  color: #94a3b8;
+  text-shadow: 0 0 15px rgba(148, 163, 184, 0.5);
+}
+
+body.dark-theme .house {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-theme .house-title {
+  background: #0f172a;
+}
+
+body.dark-theme .house-badge {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: var(--house-color);
+}
+
+body.dark-theme .house-bar {
+  background: #334155;
+}
+
+body.dark-theme .slot-row.filled {
+  border-color: #475569;
+}
+
+body.dark-theme .empty-slot {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-theme .card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-theme .tray-wrap {
+  background: rgba(30, 41, 59, 0.4);
+}
+
+body.dark-theme .btn-hint,
+body.dark-theme .btn-sound,
+body.dark-theme .btn-theme {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
 }
 
 /* ===== 3D СФЕРА НА ФОНЕ ===== */
@@ -35,6 +92,7 @@
   transform-origin: center center;
   text-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6);
   backface-visibility: hidden;
+  transition: color 0.5s, text-shadow 0.5s;
 }
 
 /* ===== Шапка ===== */
@@ -114,6 +172,29 @@
   background: #edf2f7;
 }
 .btn-sound:active {
+  transform: scale(0.9);
+}
+
+/* Кнопка темы */
+.btn-theme {
+  background: #fff;
+  border: 2px solid #a0aec0;
+  color: #4a5568;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.btn-theme:hover {
+  background: #edf2f7;
+}
+.btn-theme:active {
   transform: scale(0.9);
 }
 
@@ -312,21 +393,18 @@
   flex: 1; 
   display: flex; 
   flex-direction: column; 
-  
-  /* Прозрачный фон, чтобы видеть сферу */
   background: rgba(255, 249, 196, 0.4); 
-  
-  border: 2px dashed #f57f17; 
-  border-radius: 8px; 
-  padding: 6px; 
+  padding: 0; 
+  border: none;
   min-height: 0;
   position: relative;
   z-index: 2;
+  transition: background 0.5s;
 }
 
-.tray-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #f57f17; margin-bottom: 6px; }
+/* Убрали заголовок */
+.tray-header { display: none; }
 
-/* ВАЖНО: Возвращаем flex-wrap, чтобы карточки шли в ряд */
 .tray-body { 
   flex: 1; 
   display: flex;
@@ -334,7 +412,7 @@
   gap: 8px; 
   align-content: flex-start; 
   overflow-y: auto; 
-  padding: 4px;
+  padding: 10px;
 }
 
 /* ===== Карточки ===== */
@@ -363,7 +441,6 @@
   border-color: #d97706;
   border-width: 3px;
   box-shadow: 0 0 15px rgba(217, 119, 6, 0.6);
-  transform: translateY(-4px) scale(1.02);
   z-index: 10;
 }
 

@@ -33,6 +33,7 @@ export class NumberHousesGame extends BaseGame {
   private isSecondChance: boolean = false;
   private isSoundOn: boolean = true;
   private selectedVoiceURI: string | null = null;
+  private isDarkTheme: boolean = false;
 
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
@@ -47,6 +48,13 @@ export class NumberHousesGame extends BaseGame {
   public init(): void {
     const container = document.getElementById('game-container');
     if (!container) return;
+
+    // Проверяем сохраненную тему
+    const savedTheme = localStorage.getItem('logikids_theme');
+    if (savedTheme === 'dark') {
+      this.isDarkTheme = true;
+      document.body.classList.add('dark-theme');
+    }
 
     const allNumbers = [2, 3, 4, 5, 6, 7, 8, 9, 10];
     allNumbers.forEach(n => {
@@ -75,6 +83,9 @@ export class NumberHousesGame extends BaseGame {
             </div>
           </div>
 
+          <button type="button" class="btn-theme" id="btn-theme" title="Сменить тему">
+            ${this.isDarkTheme ? '☀️' : '🌙'}
+          </button>
           <button type="button" class="btn-sound" id="btn-sound" title="Звук">🔊</button>
           <button type="button" class="btn-hint" id="btn-hint" title="Подсказка">🔍 <span id="hint-count">3</span></button>
           <div class="score">⭐ <span id="score">0</span></div>
@@ -82,13 +93,8 @@ export class NumberHousesGame extends BaseGame {
 
         <div class="houses" id="houses"></div>
 
+        <!-- Убрали обводку и заголовок -->
         <div class="tray-wrap">
-          <div class="tray-header">
-            <div class="left">
-              <span>🗂️ ${t('houses.cards')}:</span>
-              <span class="count" id="trayCount">0 / 0</span>
-            </div>
-          </div>
           <div class="tray-body" id="trayBody"></div>
         </div>
       </div>
@@ -106,6 +112,18 @@ export class NumberHousesGame extends BaseGame {
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     document.getElementById('btn-hint')?.addEventListener('click', () => this.useHint());
     
+    // Переключатель темы
+    document.getElementById('btn-theme')?.addEventListener('click', () => {
+      this.isDarkTheme = !this.isDarkTheme;
+      document.body.classList.toggle('dark-theme', this.isDarkTheme);
+      localStorage.setItem('logikids_theme', this.isDarkTheme ? 'dark' : 'light');
+      
+      const btn = document.getElementById('btn-theme');
+      if (btn) btn.textContent = this.isDarkTheme ? '☀️' : '🌙';
+      
+      this.soundManager.playClick();
+    });
+
     const soundBtn = document.getElementById('btn-sound');
     soundBtn?.addEventListener('click', () => {
       this.isSoundOn = !this.isSoundOn;
@@ -154,7 +172,6 @@ export class NumberHousesGame extends BaseGame {
       this.bgSphereEl.appendChild(el);
     });
 
-    // Замедлили вращение (было 0.002, стало 0.0005)
     let angle = 0;
     const rotate = () => {
       angle += 0.0005; 
@@ -325,9 +342,6 @@ export class NumberHousesGame extends BaseGame {
       return !this.state.filled[`${card.num}-${card.idx}`];
     });
 
-    const totalCards = Object.keys(this.state.filled).length + availableCards.length;
-    this.trayCountEl.textContent = `${availableCards.length} / ${totalCards}`;
-
     if (availableCards.length === 0) {
       this.trayBodyEl.innerHTML = `<div class="tray-empty">${t('houses.allPlaced')} ✅</div>`;
       return;
@@ -338,8 +352,14 @@ export class NumberHousesGame extends BaseGame {
       card.className = 'card';
       card.dataset.cardId = `${num}-${idx}`;
       
+      // Случайный поворот для "рассыпанности"
+      const randomRotate = (Math.random() - 0.5) * 4; // от -2 до 2 градусов
+      const randomTranslateY = (Math.random() - 0.5) * 4; // от -2 до 2 пикселей
+      card.style.transform = `rotate(${randomRotate}deg) translateY(${randomTranslateY}px)`;
+
       if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
         card.classList.add('picked');
+        card.style.transform = 'translateY(-4px) scale(1.02)';
       }
       
       const baseUnit = 20; 
@@ -379,6 +399,9 @@ export class NumberHousesGame extends BaseGame {
 
     if (this.state.picked && this.state.picked.el) {
       this.state.picked.el.classList.remove('picked');
+      // Возвращаем случайный поворот при снятии выбора
+      const oldRotate = (Math.random() - 0.5) * 4;
+      this.state.picked.el.style.transform = `rotate(${oldRotate}deg)`;
       this.clearValidHighlights();
     }
 
@@ -387,6 +410,7 @@ export class NumberHousesGame extends BaseGame {
     } else {
       this.state.picked = { num, idx, a, b, el: cardEl };
       cardEl.classList.add('picked');
+      cardEl.style.transform = 'translateY(-4px) scale(1.02)';
       
       this.speakExpression(a, b);
       this.createParticles(cardEl);
@@ -582,6 +606,7 @@ export class NumberHousesGame extends BaseGame {
     clone.style.zIndex = '1000';
     clone.style.pointerEvents = 'none';
     clone.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+    clone.style.transform = 'rotate(0deg)'; // Выпрямляем при полете
     
     cardEl.style.opacity = '0';
     document.body.appendChild(clone);
