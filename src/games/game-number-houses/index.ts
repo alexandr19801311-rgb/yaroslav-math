@@ -152,7 +152,7 @@ export class NumberHousesGame extends BaseGame {
   private renderHouses(): void {
     this.housesContainerEl.innerHTML = '';
     const allNumbers = [2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const MAX_NUMBER = 10; // Максимум для шкалы
+    const MAX_NUMBER = 10;
 
     allNumbers.forEach(n => {
       const house = document.createElement('div');
@@ -165,7 +165,6 @@ export class NumberHousesGame extends BaseGame {
       const title = document.createElement('div');
       title.className = 'house-title';
       
-      // Рисуем 10 ячеек, закрашиваем только первые n
       let segmentsHtml = '';
       for (let i = 0; i < MAX_NUMBER; i++) {
         if (i < n) {
@@ -176,12 +175,12 @@ export class NumberHousesGame extends BaseGame {
       }
       
       title.innerHTML = `
+        <div class="house-badge">${n}</div>
         <div class="house-bar">
           <div class="house-bar-fill" style="width: ${(n / MAX_NUMBER) * 100}%; background: var(--house-color);"></div>
           <div class="house-segments-overlay">
             ${segmentsHtml}
           </div>
-          <span class="house-number-overlay">${n}</span>
         </div>
       `;
       house.appendChild(title);
