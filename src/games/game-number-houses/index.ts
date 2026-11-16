@@ -29,6 +29,8 @@ export class NumberHousesGame extends BaseGame {
     sampleOn: false
   };
 
+  private hintsLeft: number = 3; // <--- Счетчик подсказок
+
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
   private trayCountEl!: HTMLElement;
@@ -67,7 +69,7 @@ export class NumberHousesGame extends BaseGame {
             </div>
           </div>
 
-          <button type="button" class="btn-hint" id="btn-hint" title="Подсказка">🔍</button>
+          <button type="button" class="btn-hint" id="btn-hint" title="Подсказка">🔍 <span id="hint-count">3</span></button>
           <div class="score">⭐ <span id="score">0</span></div>
         </div>
 
@@ -109,6 +111,8 @@ export class NumberHousesGame extends BaseGame {
       sampleOn: false
     };
     this.wrongAnswers = 0;
+    this.hintsLeft = 3; // Сброс подсказок
+    this.updateHintUI();
 
     const initialOrder: { num: number, idx: number, a: number, b: number }[] = [];
     [2,3,4,5,6,7,8,9,10].forEach(n => {
@@ -136,6 +140,21 @@ export class NumberHousesGame extends BaseGame {
     this.renderTray();
   }
 
+  private updateHintUI(): void {
+    const countEl = document.getElementById('hint-count');
+    const btnEl = document.getElementById('btn-hint');
+    if (countEl) countEl.textContent = String(this.hintsLeft);
+    if (btnEl) {
+      if (this.hintsLeft <= 0) {
+        btnEl.setAttribute('disabled', 'true');
+        btnEl.classList.add('btn-hint--disabled');
+      } else {
+        btnEl.removeAttribute('disabled');
+        btnEl.classList.remove('btn-hint--disabled');
+      }
+    }
+  }
+
   private updateLivesUI(): void {
     const container = document.getElementById('lives-indicator');
     if (!container) return;
@@ -146,10 +165,8 @@ export class NumberHousesGame extends BaseGame {
     container.innerHTML = html;
   }
 
-  // Плавный прогресс-бар
   private updateProgressBar(): void {
     const percent = (this.state.done.length / 9) * 100;
-    // Используем requestAnimationFrame для плавности
     requestAnimationFrame(() => {
       this.progressFillEl.style.width = `${percent}%`;
     });
@@ -272,21 +289,20 @@ export class NumberHousesGame extends BaseGame {
     });
   }
 
-  // Убрано моргание: не перерисовываем весь лоток, а просто меняем классы
   private onCardClick(num: number, idx: number, a: number, b: number, cardEl: HTMLElement): void {
     if (this.state.done.includes(num)) return;
     if (this.state.filled[`${num}-${idx}`]) return;
 
-    // Убираем выделение со старой карточки
+    // Убираем предыдущую подсветку домика (если была)
+    this.clearHintHighlight();
+
     if (this.state.picked && this.state.picked.el) {
       this.state.picked.el.classList.remove('picked');
     }
 
     if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
-      // Снимаем выделение
       this.state.picked = null;
     } else {
-      // Выделяем новую
       this.state.picked = { num, idx, a, b, el: cardEl };
       cardEl.classList.add('picked');
       this.soundManager.playClick();
@@ -336,13 +352,14 @@ export class NumberHousesGame extends BaseGame {
     this.state.score++;
     this.soundManager.playCorrect();
     
-    // Убираем выделение
     if (this.state.picked && this.state.picked.el) {
       this.state.picked.el.classList.remove('picked');
     }
     this.state.picked = null;
+    
+    // Убираем подсветку с домика при успешном клике
+    this.clearHintHighlight();
 
-    // Плавное обновление
     this.renderAll();
 
     const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
@@ -363,28 +380,38 @@ export class NumberHousesGame extends BaseGame {
     }
   }
 
-  // Подсказка: находит нужный домик, скроллит и подсвечивает
+  // Подсказка
   private useHint(): void {
     if (!this.state.picked) {
+      // Если карточка не выбрана — мигаем кнопкой подсказки (или звуком)
       this.soundManager.playWrong();
       return;
     }
+
+    if (this.hintsLeft <= 0) return;
+
+    this.hintsLeft--;
+    this.updateHintUI();
 
     const targetNum = this.state.picked.num;
     const targetHouse = document.querySelector(`.house[data-num="${targetNum}"]`) as HTMLElement;
 
     if (!targetHouse) return;
 
-    // Скроллим к домику (для мобильных)
-    targetHouse.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    // Убираем старые подсветки
+    this.clearHintHighlight();
 
-    // Подсвечиваем
+    // Скроллим к домику (для мобильных)
+    targetHouse.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
+    // Подсвечиваем и оставляем гореть
     targetHouse.classList.add('hint-highlight');
     this.soundManager.playClick();
+  }
 
-    setTimeout(() => {
-      targetHouse.classList.remove('hint-highlight');
-    }, 1500);
+  private clearHintHighlight(): void {
+    const highlighted = this.housesContainerEl.querySelector('.hint-highlight');
+    if (highlighted) highlighted.classList.remove('hint-highlight');
   }
 
   private winGame(): void {
