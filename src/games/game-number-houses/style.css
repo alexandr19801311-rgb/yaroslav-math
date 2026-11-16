@@ -20,15 +20,15 @@ body.dark-theme {
 }
 
 body.dark-theme .bg-tag {
-  color: #64748b; /* Более приглушенный цвет для ночи */
-  text-shadow: 0 0 20px rgba(100, 116, 139, 0.3);
+  color: #475569;
+  text-shadow: 0 0 20px rgba(71, 85, 105, 0.3);
 }
 
-/* Домики в ночной теме */
+/* Домики в ночной теме (максимальная прозрачность) */
 body.dark-theme .house {
-  background: rgba(30, 41, 59, 0.5); /* Полупрозрачный фон */
-  border-color: rgba(51, 65, 85, 0.8);
-  backdrop-filter: blur(4px);
+  background: rgba(30, 41, 59, 0.15); /* Почти прозрачный */
+  border-color: rgba(51, 65, 85, 0.4);
+  backdrop-filter: blur(2px); /* Легкое размытие */
 }
 
 body.dark-theme .house-title {
@@ -36,40 +36,43 @@ body.dark-theme .house-title {
 }
 
 body.dark-theme .house-badge {
-  background: #1e293b;
+  background: rgba(30, 41, 59, 0.8);
   color: #e2e8f0;
   border-color: var(--house-color);
+  backdrop-filter: blur(4px);
 }
 
 body.dark-theme .house-bar {
-  background: #334155;
+  background: rgba(51, 65, 85, 0.5);
 }
 
 body.dark-theme .slot-row.filled {
-  border-color: #475569;
+  border-color: rgba(71, 85, 105, 0.5);
 }
 
 body.dark-theme .empty-slot {
-  background: rgba(30, 41, 59, 0.3);
-  border-color: #334155;
+  background: rgba(30, 41, 59, 0.1);
+  border-color: rgba(51, 65, 85, 0.4);
 }
 
 body.dark-theme .ruler-bg {
   background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
 }
 
-/* Карточки в ночной теме (более контрастные) */
+/* Карточки в ночной теме (мягкие, не бьющие по глазам цвета) */
 body.dark-theme .card {
-  background: rgba(30, 41, 59, 0.9);
-  border-color: #475569;
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(71, 85, 105, 0.6);
 }
 
 body.dark-theme .card .block-a {
-  background: #3b82f6; /* Яркий синий */
+  background: #475569; /* Приглушенный серо-синий */
+  color: #e2e8f0;
 }
 
 body.dark-theme .card .block-b {
-  background: #f97316; /* Яркий оранжевый */
+  background: #78350f; /* Темно-оранжевый (не яркий) */
+  color: #fbd38d;
 }
 
 body.dark-theme .card-number {
@@ -85,7 +88,7 @@ body.dark-theme .tray-wrap {
 body.dark-theme .btn-hint,
 body.dark-theme .btn-sound,
 body.dark-theme .btn-theme {
-  background: #1e293b;
+  background: rgba(30, 41, 59, 0.8);
   border-color: #334155;
   color: #e2e8f0;
 }
@@ -199,10 +202,10 @@ body.dark-theme .btn-theme {
 .houses {
   display: grid; 
   grid-template-columns: repeat(9, 1fr);
-  gap: 6px; /* Увеличили зазор */
+  gap: 6px; 
   flex-shrink: 0; 
-  margin-bottom: 20px; /* Добавили отступ снизу */
-  height: 42vh; /* Чуть уменьшили высоту, чтобы дать место карточкам */
+  margin-bottom: 20px; 
+  height: 42vh; 
   width: 100%;
 }
 
@@ -382,7 +385,7 @@ body.dark-theme .btn-theme {
   position: relative;
   z-index: 2;
   transition: background 0.5s;
-  padding-top: 10px; /* Отступ от домиков */
+  padding-top: 10px;
 }
 
 .tray-header { display: none; }
@@ -391,7 +394,7 @@ body.dark-theme .btn-theme {
   flex: 1; 
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; /* Увеличили зазор между карточками */
+  gap: 10px;
   align-content: flex-start; 
   overflow-y: auto; 
   padding: 10px;
