@@ -74,7 +74,6 @@
   gap: 4px;
 }
 
-/* Белый бейдж с цифрой */
 .house-badge {
   background: #fff;
   color: #333;
@@ -87,7 +86,6 @@
   z-index: 5;
 }
 
-/* Полоска-индикатор объема */
 .house-bar {
   width: 100%;
   height: 12px;
@@ -163,14 +161,17 @@
   opacity: 0.6;
 }
 
+/* Внутри слотов домиков (используем те же цвета, что и на карточках) */
 .block-a {
-  background: #64b5f6; color: #fff;
+  background: #a9d6e5; /* Мягкий голубой */
+  color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: bold; height: 100%;
   transition: width 0.3s ease;
 }
 .block-b {
-  background: #ffb74d; color: #333;
+  background: #f4a261; /* Спокойный персиковый */
+  color: #333;
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: bold; height: 100%;
   transition: width 0.3s ease;
@@ -183,7 +184,6 @@
 }
 .tray-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #f57f17; margin-bottom: 6px; }
 
-/* Лоток — flex-контейнер */
 .tray-body { 
   flex: 1; 
   display: flex;
@@ -217,20 +217,20 @@
   border-color: #0d47a1;
 }
 
-/* Блоки внутри карточки */
+/* Блоки внутри карточки (НОВЫЕ ЦВЕТА) */
 .block-a, .block-b {
   height: 100%;
   display: flex;
   position: relative;
 }
 
-.block-a { background: #38bdf8; }
-.block-b { background: #f97316; }
+.block-a { background: #a9d6e5; } /* Мягкий голубой */
+.block-b { background: #f4a261; } /* Спокойный персиковый */
 
 /* Сегменты (разделители) */
 .card-segment {
   height: 100%;
-  border-right: 1px solid rgba(0,0,0,0.15);
+  border-right: 1px solid rgba(0,0,0,0.1); /* Сделали линии чуть мягче */
   box-sizing: border-box;
   flex-shrink: 0;
 }
