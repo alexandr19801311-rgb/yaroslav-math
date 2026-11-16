@@ -189,28 +189,67 @@
   padding: 4px;
 }
 
+/* ===== Карточки (Улучшенный дизайн) ===== */
 .card {
-  height: 38px;
+  height: 40px;
   width: 100%;
   padding: 0;
-  border: 1px solid rgba(0,0,0,0.1); 
+  border: none; 
   background: #fff;
-  border-radius: 6px; 
+  border-radius: 8px; /* Более круглые углы */
   cursor: pointer; 
   display: flex;
   overflow: hidden;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.1s, box-shadow 0.2s;
+  
+  /* Основная тень для объема */
+  box-shadow: 0 3px 0 rgba(0,0,0,0.15), 0 4px 6px rgba(0,0,0,0.1);
   align-items: center;
+  position: relative;
 }
+
+/* Эффект нажатия/выбора */
 .card.picked { 
-  border-color: #0d47a1; 
-  box-shadow: 0 4px 12px rgba(13,71,161,0.4); 
-  transform: translateY(-2px) scale(1.02); 
+  transform: translateY(2px); /* Карточка "вдавливается" */
+  box-shadow: 0 1px 0 rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
   z-index: 10;
 }
 
-.card .block-a { font-size: 14px; border-radius: 5px 0 0 5px; }
-.card .block-b { font-size: 14px; border-radius: 0 5px 5px 0; }
-.card .block-a:only-child { border-radius: 5px; }
-.card .block-b:only-child { border-radius: 5px; }
+/* Обертка для блоков, чтобы сохранить пропорции */
+.card .block-a,
+.card .block-b {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
+  position: relative;
+}
+
+/* Синий блок */
+.card .block-a {
+  background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 100%); /* Градиент */
+  color: #fff;
+  border-radius: 8px 0 0 8px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Тень для текста */
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.3); /* Внутренний блик */
+}
+
+/* Оранжевый блок */
+.card .block-b {
+  background: linear-gradient(180deg, #fdba74 0%, #f97316 100%);
+  color: #fff; /* Белый текст лучше читается на градиенте */
+  border-radius: 0 8px 8px 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.3);
+}
+
+/* Если карточка состоит только из одного блока (например, 0+5 или 5+0) */
+.card .block-a:only-child { border-radius: 8px; }
+.card .block-b:only-child { border-radius: 8px; }
+
+/* Разделитель между блоками (если оба присутствуют) */
+.card .block-a + .block-b {
+  border-left: 1px solid rgba(0,0,0,0.15);
+}
