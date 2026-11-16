@@ -31,6 +31,7 @@ export class NumberHousesGame extends BaseGame {
 
   private hintsLeft: number = 3;
   private isSecondChance: boolean = false;
+  private isSoundOn: boolean = true; // Флаг звука
 
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
@@ -54,6 +55,7 @@ export class NumberHousesGame extends BaseGame {
       this.data[n] = list;
     });
 
+    // Добавлена кнопка звука в шапку
     container.innerHTML = `
       <div class="houses-game-wrapper">
         <div class="topbar">
@@ -70,6 +72,7 @@ export class NumberHousesGame extends BaseGame {
             </div>
           </div>
 
+          <button type="button" class="btn-sound" id="btn-sound" title="Звук">🔊</button>
           <button type="button" class="btn-hint" id="btn-hint" title="Подсказка">🔍 <span id="hint-count">3</span></button>
           <div class="score">⭐ <span id="score">0</span></div>
         </div>
@@ -98,6 +101,16 @@ export class NumberHousesGame extends BaseGame {
 
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     document.getElementById('btn-hint')?.addEventListener('click', () => this.useHint());
+    
+    // Обработчик кнопки звука
+    const soundBtn = document.getElementById('btn-sound');
+    soundBtn?.addEventListener('click', () => {
+      this.isSoundOn = !this.isSoundOn;
+      soundBtn.textContent = this.isSoundOn ? '🔊' : '🔇';
+      if (!this.isSoundOn) {
+        window.speechSynthesis.cancel();
+      }
+    });
 
     this.start();
   }
@@ -325,31 +338,30 @@ export class NumberHousesGame extends BaseGame {
       this.state.picked = { num, idx, a, b, el: cardEl };
       cardEl.classList.add('picked');
       
-      // НОВОЕ: Озвучиваем число (если поддерживается)
-      this.speakNumber(num);
+      // Озвучиваем "Пять плюс пять"
+      this.speakExpression(a, b);
       
       this.soundManager.playClick();
     }
   }
 
-  // Метод озвучки
-  private speakNumber(num: number): void {
-    if ('speechSynthesis' in window) {
-      // Отменяем предыдущую речь, чтобы не наслаивалась
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(String(num));
-      utterance.lang = 'ru-RU';
-      utterance.rate = 1.2; // Чуть быстрее
-      utterance.pitch = 1.5; // Детский голос
-      
-      // Ищем русский голос (если доступен)
-      const voices = window.speechSynthesis.getVoices();
-      const ruVoice = voices.find(v => v.lang.includes('ru'));
-      if (ruVoice) utterance.voice = ruVoice;
+  // Новая озвучка
+  private speakExpression(a: number, b: number): void {
+    if (!this.isSoundOn || !('speechSynthesis' in window)) return;
 
-      window.speechSynthesis.speak(utterance);
-    }
+    window.speechSynthesis.cancel(); // Отменяем предыдущую
+
+    const text = `${a} плюс ${b}`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ru-RU';
+    utterance.rate = 1.1;
+    utterance.pitch = 1.2;
+    
+    const voices = window.speechSynthesis.getVoices();
+    const ruVoice = voices.find(v => v.lang.includes('ru'));
+    if (ruVoice) utterance.voice = ruVoice;
+
+    window.speechSynthesis.speak(utterance);
   }
 
   private onHouseClick(n: number, houseEl: HTMLElement): void {
@@ -358,7 +370,6 @@ export class NumberHousesGame extends BaseGame {
 
     const { a, b, num, el: cardEl } = this.state.picked;
 
-    // Проверка на ошибку
     if (num !== n || a + b !== n) {
       this.soundManager.playWrong();
       houseEl.classList.add('flash-bad');
@@ -402,22 +413,16 @@ export class NumberHousesGame extends BaseGame {
       return;
     }
 
-    // Успех!
     const key = `${n}-${targetIdx}`;
     const targetSlot = this.housesContainerEl.querySelector(`[data-slot-id="${key}"]`) as HTMLElement;
 
     if (!targetSlot) return;
 
-    // 1. Запускаем анимацию полета
     this.animateCardToHouse(cardEl, targetSlot, () => {
-      // Колбэк, который сработает после завершения анимации
-      
-      // Обновляем состояние
       this.state.filled[key] = { a, b };
       this.state.score++;
       this.soundManager.playCorrect();
 
-      // Убираем карточку из лотка
       if (this.state.picked && this.state.picked.el) {
         this.state.picked.el.remove();
       }
@@ -425,7 +430,6 @@ export class NumberHousesGame extends BaseGame {
       
       this.clearHintHighlight();
 
-      // Обновляем слот в домике
       targetSlot.classList.add('filled', 'pop-anim');
       const percentA = (a / n) * 100;
       const percentB = (b / n) * 100;
@@ -435,7 +439,6 @@ export class NumberHousesGame extends BaseGame {
       `;
       setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
 
-      // Обновляем счетчики
       this.scoreEl.textContent = String(this.state.score);
       const totalCards = 63;
       const filledCards = Object.keys(this.state.filled).length;
@@ -445,14 +448,12 @@ export class NumberHousesGame extends BaseGame {
       const availableCount = this.trayBodyEl.querySelectorAll('.card').length;
       this.trayCountEl.textContent = `${availableCount} / ${totalCards}`;
 
-      // Проверяем, собран ли домик
       const done = this.data[n].every((_, i) => this.state.filled[`${n}-${i}`]);
       if (done && !this.state.done.includes(n)) {
         this.state.done.push(n);
         this.soundManager.playWin();
         houseEl.classList.add('done');
         
-        // Салют над домиком!
         this.fireConfetti(houseEl);
 
         if (this.state.done.length === 9) {
@@ -466,7 +467,6 @@ export class NumberHousesGame extends BaseGame {
     const startRect = cardEl.getBoundingClientRect();
     const endRect = targetSlot.getBoundingClientRect();
 
-    // Создаем клон карточки
     const clone = cardEl.cloneNode(true) as HTMLElement;
     clone.style.position = 'fixed';
     clone.style.left = `${startRect.left}px`;
@@ -477,12 +477,9 @@ export class NumberHousesGame extends BaseGame {
     clone.style.pointerEvents = 'none';
     clone.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
     
-    // Скрываем оригинал
     cardEl.style.opacity = '0';
-
     document.body.appendChild(clone);
 
-    // Запускаем анимацию
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         clone.style.left = `${endRect.left}px`;
@@ -494,7 +491,6 @@ export class NumberHousesGame extends BaseGame {
       });
     });
 
-    // Ждем завершения и удаляем клон
     setTimeout(() => {
       clone.remove();
       onComplete();
@@ -553,6 +549,7 @@ export class NumberHousesGame extends BaseGame {
     }, 800);
   }
 
+  // Исправленная верстка финала
   protected showGameOverScreen(isWin: boolean, stats: { correct: number, wrong: number }): void {
     if (this.overlayEl) this.overlayEl.remove();
 
@@ -580,26 +577,27 @@ export class NumberHousesGame extends BaseGame {
 
     const overlay = document.createElement('div');
     overlay.className = 'game-overlay';
+    // Используем flex-column для маленьких экранов
     overlay.innerHTML = `
-      <div class="game-overlay__card">
+      <div class="game-overlay__card" style="max-width: 90vw; padding: 20px;">
         <div class="game-overlay__emoji">${emoji}</div>
         <h2 class="game-overlay__title">${title}</h2>
         <p class="game-overlay__score">${isWin ? t('houses.winDesc') : (this.isSecondChance ? 'Ты использовал последний шанс.' : 'Ты допустил 3 ошибки.')}</p>
         
-        <div class="game-overlay__stats">
-          <div class="stat-box">
+        <div class="game-overlay__stats" style="flex-wrap: wrap; gap: 8px;">
+          <div class="stat-box" style="min-width: 70px; padding: 8px;">
             <div class="stat-value">${stats.correct}</div>
             <div class="stat-label">${t('game.score')}</div>
           </div>
-          <div class="stat-box">
+          <div class="stat-box" style="min-width: 70px; padding: 8px;">
             <div class="stat-value" style="color: #3182ce;">${filledCards} / ${totalCards}</div>
             <div class="stat-label">Карточек</div>
           </div>
-          <div class="stat-box">
+          <div class="stat-box" style="min-width: 70px; padding: 8px;">
             <div class="stat-value" style="color: #38a169;">${doneHouses} / 9</div>
             <div class="stat-label">Домиков</div>
           </div>
-          <div class="stat-box">
+          <div class="stat-box" style="min-width: 70px; padding: 8px;">
             <div class="stat-value" style="color: #e53e3e;">${stats.wrong}</div>
             <div class="stat-label">Ошибки</div>
           </div>

@@ -368,3 +368,92 @@
     height: 34px;
   }
 }
+/* ... (все стили до адаптива без изменений) ... */
+
+/* ===== Кнопка звука ===== */
+.btn-sound {
+  background: #fff;
+  border: 2px solid #a0aec0;
+  color: #4a5568;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.btn-sound:hover {
+  background: #edf2f7;
+}
+.btn-sound:active {
+  transform: scale(0.9);
+}
+
+/* ===== ДОМИКИ ===== */
+.houses {
+  display: grid; 
+  grid-template-columns: repeat(9, 1fr);
+  gap: 4px;
+  flex-shrink: 0; 
+  margin-bottom: 8px; 
+  height: 45vh;
+  width: 100%;
+}
+
+/* ========================================= */
+/* ===== АДАПТИВ ДЛЯ ПЛАНШЕТОВ И ТЕЛЕФОНОВ ===== */
+/* ========================================= */
+@media (max-width: 1100px) {
+  .houses {
+    display: flex; 
+    overflow-x: auto;
+    scroll-snap-type: x mandatory; 
+    height: 40vh;
+    padding-bottom: 8px;
+    gap: 6px; /* Чуть уменьшили отступ между домиками */
+    
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+  }
+  
+  .houses::-webkit-scrollbar {
+    display: none; 
+  }
+
+  .house {
+    /* Уменьшили ширину домиков для планшета */
+    min-width: 85px; 
+    scroll-snap-align: start;
+  }
+
+  .card {
+    height: 32px;
+    border-radius: 6px;
+    border-width: 1.5px;
+  }
+  
+  .card-number {
+    font-size: 14px;
+  }
+  
+  .tray-body {
+    gap: 6px;
+  }
+  
+  /* Специально для планшетов */
+  @media (min-width: 768px) and (max-width: 1100px) {
+    .houses {
+      height: 45vh;
+    }
+    .house {
+      min-width: 95px; /* Еще чуть меньше */
+    }
+    .card {
+      height: 34px;
+    }
+  }
+}
