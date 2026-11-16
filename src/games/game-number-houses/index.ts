@@ -56,6 +56,7 @@ export class NumberHousesGame extends BaseGame {
       this.data[n] = list;
     });
 
+    // Убрали кнопку выбора голоса (btn-voice)
     container.innerHTML = `
       <div class="houses-game-wrapper">
         <div class="topbar">
@@ -73,7 +74,6 @@ export class NumberHousesGame extends BaseGame {
           </div>
 
           <button type="button" class="btn-sound" id="btn-sound" title="Звук">🔊</button>
-          <button type="button" class="btn-voice" id="btn-voice" title="Выбрать голос">🎤</button>
           <button type="button" class="btn-hint" id="btn-hint" title="Подсказка">🔍 <span id="hint-count">3</span></button>
           <div class="score">⭐ <span id="score">0</span></div>
         </div>
@@ -109,8 +109,6 @@ export class NumberHousesGame extends BaseGame {
       soundBtn.textContent = this.isSoundOn ? '🔊' : '🔇';
       if (!this.isSoundOn) window.speechSynthesis.cancel();
     });
-
-    document.getElementById('btn-voice')?.addEventListener('click', () => this.showVoicePicker());
 
     const savedVoice = localStorage.getItem('logikids_voice_uri');
     if (savedVoice) this.selectedVoiceURI = savedVoice;
@@ -385,48 +383,6 @@ export class NumberHousesGame extends BaseGame {
     }
 
     window.speechSynthesis.speak(utterance);
-  }
-
-  private showVoicePicker(): void {
-    if (!('speechSynthesis' in window)) return;
-
-    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.includes('ru'));
-    if (voices.length === 0) {
-      alert('Русские голоса не найдены в вашей системе. Попробуйте установить их в настройках.');
-      return;
-    }
-
-    const overlay = document.createElement('div');
-    overlay.className = 'game-overlay';
-    overlay.innerHTML = `
-      <div class="game-overlay__card" style="max-width: 400px; padding: 20px;">
-        <h2 class="game-overlay__title" style="font-size: 1.4rem; margin-bottom: 16px;">Выберите голос</h2>
-        <div class="voice-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; max-height: 300px; overflow-y: auto;">
-          ${voices.map(v => `
-            <button class="voice-btn" data-uri="${v.voiceURI}" style="padding: 12px; border-radius: 8px; border: 1px solid #ccc; background: ${v.voiceURI === this.selectedVoiceURI ? '#e3f2fd' : '#fff'}; cursor: pointer; text-align: left; font-size: 1rem;">
-              ${v.name}
-            </button>
-          `).join('')}
-        </div>
-        <button class="game-overlay__btn game-overlay__btn--secondary" id="close-voice-picker">Закрыть</button>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    overlay.querySelectorAll('.voice-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const target = e.target as HTMLButtonElement;
-        this.selectedVoiceURI = target.dataset.uri || null;
-        if (this.selectedVoiceURI) {
-          localStorage.setItem('logikids_voice_uri', this.selectedVoiceURI);
-        }
-        overlay.remove();
-        this.soundManager.playClick();
-      });
-    });
-
-    overlay.querySelector('#close-voice-picker')?.addEventListener('click', () => overlay.remove());
   }
 
   private onHouseClick(n: number, houseEl: HTMLElement): void {
