@@ -178,8 +178,8 @@ export class NumberHousesGame extends BaseGame {
     container.innerHTML = html;
   }
 
-  private updateProgressBar(): void {
-    const percent = (this.state.done.length / 9) * 100;
+  private updateProgressBar(current: number, total: number): void {
+    const percent = (current / total) * 100;
     requestAnimationFrame(() => {
       this.progressFillEl.style.width = `${percent}%`;
     });
