@@ -128,7 +128,8 @@ export class NumberHousesGame extends BaseGame {
       }
     }
 
-    const shuffled = examples.sort(() => Math.random() - 0.5).slice(0, 40);
+    // Берем больше элементов для плотности сферы
+    const shuffled = examples.sort(() => Math.random() - 0.5).slice(0, 60);
 
     this.bgSphereEl.innerHTML = '';
     
@@ -137,25 +138,30 @@ export class NumberHousesGame extends BaseGame {
       el.className = 'bg-tag';
       el.textContent = text;
       
-      // Спираль Фибоначчи
+      // Спираль Фибоначчи для равномерного распределения
       const phi = Math.acos(-1 + (2 * i) / shuffled.length);
       const theta = Math.sqrt(shuffled.length * Math.PI) * phi;
-      const radius = 350;
+      const radius = 450; // Увеличили радиус для ПК
       
       const x = radius * Math.cos(theta) * Math.sin(phi);
       const y = radius * Math.sin(theta) * Math.sin(phi);
       const z = radius * Math.cos(phi);
       
-      el.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
-      el.style.opacity = `${0.15 + (z + radius) / (2 * radius) * 0.25}`;
+      // Вычисляем угол поворота, чтобы тег смотрел на камеру
+      const rotY = Math.atan2(x, z);
+      const rotX = -Math.atan2(y, Math.sqrt(x * x + z * z));
+      
+      el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotY}rad) rotateX(${rotX}rad)`;
+      // Задние элементы делаем прозрачнее
+      el.style.opacity = `${0.1 + (z + radius) / (2 * radius) * 0.3}`;
       
       this.bgSphereEl.appendChild(el);
     });
 
-    // Вращение
+    // Вращение сферы
     let angle = 0;
     const rotate = () => {
-      angle += 0.003;
+      angle += 0.002;
       this.bgSphereEl.style.transform = `rotateX(${angle * 0.3}rad) rotateY(${angle}rad)`;
       requestAnimationFrame(rotate);
     };

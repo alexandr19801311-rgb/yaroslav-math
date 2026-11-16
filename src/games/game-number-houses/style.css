@@ -18,7 +18,7 @@
   top: 50%;
   left: 50%;
   transform-style: preserve-3d;
-  perspective: 1000px;
+  perspective: 1200px; /* Чуть больше перспектива */
   width: 0;
   height: 0;
   z-index: 0;
@@ -28,12 +28,21 @@
 .bg-tag {
   position: absolute;
   font-family: 'Courier New', monospace;
-  font-size: 24px;
+  font-size: 32px; /* Увеличили размер */
   font-weight: bold;
-  color: #2d3748;
+  color: #4a5568;
   white-space: nowrap;
   transform-origin: center center;
-  text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.5);
+  /* Свечение для объема */
+  text-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6);
+  backface-visibility: hidden; /* Скрываем обратную сторону для четкости */
+}
+
+/* На мобильных уменьшаем размер */
+@media (max-width: 767px) {
+  .bg-tag {
+    font-size: 20px;
+  }
 }
 
 /* ===== Шапка ===== */
