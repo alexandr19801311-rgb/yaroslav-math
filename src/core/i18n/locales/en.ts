@@ -1,25 +1,14 @@
 import type { Dictionary } from '../types';
 
 export const en: Dictionary = {
-  'app.title': 'LogiKids: Learning Games',
-
-  'game.time': 'Time',
+  'app.title': 'LogiKids: Number Houses',
   'game.score': 'Score',
-  'game.record': 'Record',
-  'game.level': 'Level',
-  'game.answer': 'Correct answer',
-  'game.placeholder': '?',
   'game.playAgain': 'Play again',
+  'game.menu': 'Menu',
   'game.timeUp': "Time's up!",
   'game.newRecord': 'New record!',
-  'game.combo': 'Combo ×{streak} (×{multiplier} points)',
-  'game.comboShort': 'Combo ×{streak}',
-  'game.menu': 'Menu',
   
-  'scales.hintMsg': 'Look at the scales and try again!',
-  'scales.balance': 'Equal',
-  
-  'houses.title': 'Number Composition',
+  'houses.title': 'Number Houses',
   'houses.collected': 'Collected',
   'houses.cards': 'Cards',
   'houses.number': 'NUMBER',
