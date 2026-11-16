@@ -170,7 +170,6 @@ export class NumberHousesGame extends BaseGame {
     if (!container) return;
     
     if (this.isSecondChance) {
-      // В режиме "последнего шанса" показываем одну жизнь (сердечко)
       container.innerHTML = '❤️';
       container.style.display = 'flex';
       return;
@@ -333,15 +332,15 @@ export class NumberHousesGame extends BaseGame {
     if (!this.state.picked) return;
     if (this.state.done.includes(n)) return;
 
-    const { a, b, num } = this.state.picked;
+    const { a, b, num, el: cardEl } = this.state.picked;
 
+    // Проверка на ошибку
     if (num !== n || a + b !== n) {
       this.soundManager.playWrong();
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
       
       if (this.isSecondChance) {
-        // В режиме последнего шанса любая ошибка = конец
         setTimeout(() => this.endGameWithLoss(), 500);
         return;
       } else {
@@ -379,20 +378,30 @@ export class NumberHousesGame extends BaseGame {
       return;
     }
 
+    // Успех!
     const key = `${n}-${targetIdx}`;
-    this.state.filled[key] = { a, b };
-    this.state.score++;
-    this.soundManager.playCorrect();
-
-    if (this.state.picked && this.state.picked.el) {
-      this.state.picked.el.remove();
-    }
-    this.state.picked = null;
-    
-    this.clearHintHighlight();
-
     const targetSlot = this.housesContainerEl.querySelector(`[data-slot-id="${key}"]`) as HTMLElement;
-    if (targetSlot) {
+
+    if (!targetSlot) return;
+
+    // 1. Запускаем анимацию полета
+    this.animateCardToHouse(cardEl, targetSlot, () => {
+      // Колбэк, который сработает после завершения анимации
+      
+      // Обновляем состояние
+      this.state.filled[key] = { a, b };
+      this.state.score++;
+      this.soundManager.playCorrect();
+
+      // Убираем карточку из лотка
+      if (this.state.picked && this.state.picked.el) {
+        this.state.picked.el.remove();
+      }
+      this.state.picked = null;
+      
+      this.clearHintHighlight();
+
+      // Обновляем слот в домике
       targetSlot.classList.add('filled', 'pop-anim');
       const percentA = (a / n) * 100;
       const percentB = (b / n) * 100;
@@ -401,27 +410,85 @@ export class NumberHousesGame extends BaseGame {
         <div class="block-b" style="width: ${percentB}%">${b}</div>
       `;
       setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
-    }
 
-    this.scoreEl.textContent = String(this.state.score);
-    const totalCards = 63;
-    const filledCards = Object.keys(this.state.filled).length;
-    this.doneCountEl.textContent = String(filledCards);
-    this.updateProgressBar(filledCards, totalCards);
+      // Обновляем счетчики
+      this.scoreEl.textContent = String(this.state.score);
+      const totalCards = 63;
+      const filledCards = Object.keys(this.state.filled).length;
+      this.doneCountEl.textContent = String(filledCards);
+      this.updateProgressBar(filledCards, totalCards);
 
-    const availableCount = this.trayBodyEl.querySelectorAll('.card').length;
-    this.trayCountEl.textContent = `${availableCount} / ${totalCards}`;
+      const availableCount = this.trayBodyEl.querySelectorAll('.card').length;
+      this.trayCountEl.textContent = `${availableCount} / ${totalCards}`;
 
-    const done = this.data[n].every((_, i) => this.state.filled[`${n}-${i}`]);
-    if (done && !this.state.done.includes(n)) {
-      this.state.done.push(n);
-      this.soundManager.playWin();
-      houseEl.classList.add('done');
-      
-      if (this.state.done.length === 9) {
-        setTimeout(() => this.winGame(), 600);
+      // Проверяем, собран ли домик
+      const done = this.data[n].every((_, i) => this.state.filled[`${n}-${i}`]);
+      if (done && !this.state.done.includes(n)) {
+        this.state.done.push(n);
+        this.soundManager.playWin();
+        houseEl.classList.add('done');
+        
+        // Салют над домиком!
+        this.fireConfetti(houseEl);
+
+        if (this.state.done.length === 9) {
+          setTimeout(() => this.winGame(), 1000);
+        }
       }
-    }
+    });
+  }
+
+  private animateCardToHouse(cardEl: HTMLElement, targetSlot: HTMLElement, onComplete: () => void): void {
+    const startRect = cardEl.getBoundingClientRect();
+    const endRect = targetSlot.getBoundingClientRect();
+
+    // Создаем клон карточки
+    const clone = cardEl.cloneNode(true) as HTMLElement;
+    clone.style.position = 'fixed';
+    clone.style.left = `${startRect.left}px`;
+    clone.style.top = `${startRect.top}px`;
+    clone.style.width = `${startRect.width}px`;
+    clone.style.height = `${startRect.height}px`;
+    clone.style.zIndex = '1000';
+    clone.style.pointerEvents = 'none';
+    clone.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+    
+    // Скрываем оригинал
+    cardEl.style.opacity = '0';
+
+    document.body.appendChild(clone);
+
+    // Запускаем анимацию
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        clone.style.left = `${endRect.left}px`;
+        clone.style.top = `${endRect.top}px`;
+        clone.style.width = `${endRect.width}px`;
+        clone.style.height = `${endRect.height}px`;
+        clone.style.opacity = '0.5';
+        clone.style.transform = 'scale(0.9)';
+      });
+    });
+
+    // Ждем завершения и удаляем клон
+    setTimeout(() => {
+      clone.remove();
+      onComplete();
+    }, 400);
+  }
+
+  private fireConfetti(houseEl: HTMLElement): void {
+    const rect = houseEl.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+    confetti({
+      particleCount: 40,
+      spread: 60,
+      origin: { x, y },
+      colors: ['#48bb78', '#4299e1', '#ed8936'],
+      disableForReducedMotion: true
+    });
   }
 
   private useHint(): void {
