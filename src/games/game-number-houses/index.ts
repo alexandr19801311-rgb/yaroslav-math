@@ -220,6 +220,7 @@ export class NumberHousesGame extends BaseGame {
         const filled = this.state.filled[key];
         const slot = document.createElement('div');
         slot.className = 'slot-row';
+        slot.dataset.slotId = key; // Для быстрого поиска
 
         if (filled) {
           slot.classList.add('filled');
@@ -259,6 +260,7 @@ export class NumberHousesGame extends BaseGame {
     availableCards.forEach(({ num, idx, a, b }) => {
       const card = document.createElement('button');
       card.className = 'card';
+      card.dataset.cardId = `${num}-${idx}`; // Для быстрого удаления
       
       if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
         card.classList.add('picked');
@@ -351,34 +353,54 @@ export class NumberHousesGame extends BaseGame {
       return;
     }
 
-    this.state.filled[`${n}-${targetIdx}`] = { a, b };
+    // 1. Сохраняем данные
+    const key = `${n}-${targetIdx}`;
+    this.state.filled[key] = { a, b };
     this.state.score++;
     this.soundManager.playCorrect();
-    
+
+    // 2. Удаляем карточку из лотка (без перерисовки всего)
     if (this.state.picked && this.state.picked.el) {
-      this.state.picked.el.classList.remove('picked');
+      this.state.picked.el.remove();
     }
     this.state.picked = null;
     
     this.clearHintHighlight();
 
-    this.renderAll();
-
-    const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
+    // 3. Обновляем только нужный слот в домике
+    const targetSlot = this.housesContainerEl.querySelector(`[data-slot-id="${key}"]`) as HTMLElement;
     if (targetSlot) {
-      targetSlot.classList.add('pop-anim');
+      targetSlot.classList.add('filled', 'pop-anim');
+      const percentA = (a / n) * 100;
+      const percentB = (b / n) * 100;
+      targetSlot.innerHTML = `
+        <div class="block-a" style="width: ${percentA}%">${a}</div>
+        <div class="block-b" style="width: ${percentB}%">${b}</div>
+      `;
       setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
     }
 
+    // 4. Обновляем счетчики и прогресс-бар
+    this.scoreEl.textContent = String(this.state.score);
+    const totalCards = 63;
+    const filledCards = Object.keys(this.state.filled).length;
+    this.doneCountEl.textContent = String(filledCards);
+    this.updateProgressBar(filledCards, totalCards);
+
+    // Обновляем счетчик оставшихся карточек
+    const availableCount = this.trayBodyEl.querySelectorAll('.card').length;
+    this.trayCountEl.textContent = `${availableCount} / ${totalCards}`;
+
+    // 5. Проверяем, собран ли домик
     const done = this.data[n].every((_, i) => this.state.filled[`${n}-${i}`]);
     if (done && !this.state.done.includes(n)) {
       this.state.done.push(n);
       this.soundManager.playWin();
+      houseEl.classList.add('done');
       
-      setTimeout(() => {
-        if (this.state.done.length === 9) this.winGame();
-        else this.renderAll();
-      }, 600);
+      if (this.state.done.length === 9) {
+        setTimeout(() => this.winGame(), 600);
+      }
     }
   }
 
@@ -399,9 +421,7 @@ export class NumberHousesGame extends BaseGame {
     if (!targetHouse) return;
 
     this.clearHintHighlight();
-
     targetHouse.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-
     targetHouse.classList.add('hint-highlight');
     this.soundManager.playClick();
   }
