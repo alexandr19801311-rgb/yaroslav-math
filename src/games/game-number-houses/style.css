@@ -18,7 +18,7 @@
   top: 50%;
   left: 50%;
   transform-style: preserve-3d;
-  perspective: 1200px; 
+  perspective: 1200px;
   width: 0;
   height: 0;
   z-index: 0;
@@ -35,13 +35,6 @@
   transform-origin: center center;
   text-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6);
   backface-visibility: hidden;
-}
-
-/* На мобильных уменьшаем размер */
-@media (max-width: 767px) {
-  .bg-tag {
-    font-size: 20px;
-  }
 }
 
 /* ===== Шапка ===== */
@@ -179,7 +172,7 @@
 
 /* Подсветка домика, в который можно положить карточку (зеленая) */
 .house.valid-target {
-  animation: valid-pulse 1.2s ease-in-out 2; /* Пульсирует 2 раза и останавливается */
+  animation: valid-pulse 1.2s ease-in-out 2;
   border-color: #38a169;
   z-index: 15;
 }
@@ -316,12 +309,12 @@
 
 /* ===== Лоток ===== */
 .tray-wrap {
-  flex: 1; display: flex; flex-direction: column; 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
   
-  /* Сделали матовую полупрозрачную подложку */
-  background: rgba(255, 249, 196, 0.75); 
-  backdrop-filter: blur(8px); /* Эффект размытия (матовости) */
-  -webkit-backdrop-filter: blur(8px); /* Для Safari */
+  /* Прозрачный фон, чтобы видеть сферу */
+  background: rgba(255, 249, 196, 0.4); 
   
   border: 2px dashed #f57f17; 
   border-radius: 8px; 
@@ -329,6 +322,19 @@
   min-height: 0;
   position: relative;
   z-index: 2;
+}
+
+.tray-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #f57f17; margin-bottom: 6px; }
+
+/* ВАЖНО: Возвращаем flex-wrap, чтобы карточки шли в ряд */
+.tray-body { 
+  flex: 1; 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; 
+  align-content: flex-start; 
+  overflow-y: auto; 
+  padding: 4px;
 }
 
 /* ===== Карточки ===== */
@@ -400,7 +406,7 @@
   inset: 0;
   background: rgba(15, 23, 42, 0.55);
   display: flex;
-  align-items: flex-end; /* Прижимаем к низу */
+  align-items: flex-end;
   justify-content: center;
   z-index: 1000;
   animation: overlay-in 0.2s ease-out;
@@ -408,15 +414,13 @@
 
 .game-overlay__card {
   background: #fff;
-  border-radius: 24px 24px 0 0; /* Скругления только сверху */
+  border-radius: 24px 24px 0 0;
   padding: 32px 24px;
   text-align: center;
   max-width: 480px;
   width: 100%;
   box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.2);
   font-family: system-ui, -apple-system, sans-serif;
-  
-  /* Анимация выезда снизу */
   animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -425,7 +429,6 @@
   to { transform: translateY(0); }
 }
 
-/* На десктопе оверлей по центру */
 @media (min-width: 768px) {
   .game-overlay {
     align-items: center;
@@ -440,24 +443,22 @@
 /* ===== АДАПТИВ ДЛЯ ПЛАНШЕТОВ И ТЕЛЕФОНОВ ===== */
 /* ========================================= */
 
-/* Планшеты: 9 колонок без сжатия */
 @media (min-width: 768px) and (max-width: 1100px) {
   .houses {
     display: grid; 
-    grid-template-columns: repeat(9, 1fr); /* Всегда 9 колонок */
+    grid-template-columns: repeat(9, 1fr);
     height: 45vh;
     gap: 4px;
-    overflow-x: hidden; /* Убираем скролл */
+    overflow-x: hidden;
   }
   .house {
-    min-width: 0; /* Сбрасываем минимальную ширину */
+    min-width: 0;
   }
   .card {
     height: 34px;
   }
 }
 
-/* Телефоны: горизонтальный скролл */
 @media (max-width: 767px) {
   .houses {
     display: flex; 
@@ -466,7 +467,6 @@
     height: 40vh;
     padding-bottom: 8px;
     gap: 6px;
-    
     scrollbar-width: none; 
     -ms-overflow-style: none; 
   }
@@ -489,5 +489,9 @@
   
   .tray-body {
     gap: 6px;
+  }
+  
+  .bg-tag {
+    font-size: 20px;
   }
 }
