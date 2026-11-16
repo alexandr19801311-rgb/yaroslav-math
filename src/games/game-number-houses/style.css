@@ -189,67 +189,79 @@
   padding: 4px;
 }
 
-/* ===== Карточки (Улучшенный дизайн) ===== */
+/* ===== Карточки ===== */
 .card {
   height: 40px;
   width: 100%;
   padding: 0;
   border: none; 
   background: #fff;
-  border-radius: 8px; /* Более круглые углы */
+  border-radius: 8px;
   cursor: pointer; 
   display: flex;
   overflow: hidden;
   transition: transform 0.1s, box-shadow 0.2s;
-  
-  /* Основная тень для объема */
   box-shadow: 0 3px 0 rgba(0,0,0,0.15), 0 4px 6px rgba(0,0,0,0.1);
-  align-items: center;
+  align-items: stretch; /* Растягиваем блоки на всю высоту */
   position: relative;
 }
 
-/* Эффект нажатия/выбора */
 .card.picked { 
-  transform: translateY(2px); /* Карточка "вдавливается" */
+  transform: translateY(2px);
   box-shadow: 0 1px 0 rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
   z-index: 10;
 }
 
-/* Обертка для блоков, чтобы сохранить пропорции */
+/* Общие стили для блоков */
 .card .block-a,
 .card .block-b {
-  height: 100%;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: width 0.3s ease;
+}
+
+/* Цвета блоков */
+.card .block-a { background: #38bdf8; }
+.card .block-b { background: #f97316; }
+
+/* Контейнер для сегментов */
+.segments-wrapper {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+/* Сам сегмент (разделитель) */
+.card-segment {
+  flex: 1;
+  border-right: 1px solid rgba(0,0,0,0.15); /* Темный разделитель */
+}
+
+.card-segment:last-child {
+  border-right: none;
+}
+
+/* Цифра поверх сегментов */
+.card .block-a span,
+.card .block-b span {
+  position: relative;
+  z-index: 2;
+  color: #fff;
   font-size: 16px;
   font-weight: 900;
-  position: relative;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Тень для читаемости */
 }
 
-/* Синий блок */
-.card .block-a {
-  background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 100%); /* Градиент */
-  color: #fff;
-  border-radius: 8px 0 0 8px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Тень для текста */
-  box-shadow: inset 0 2px 0 rgba(255,255,255,0.3); /* Внутренний блик */
-}
-
-/* Оранжевый блок */
-.card .block-b {
-  background: linear-gradient(180deg, #fdba74 0%, #f97316 100%);
-  color: #fff; /* Белый текст лучше читается на градиенте */
-  border-radius: 0 8px 8px 0;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-  box-shadow: inset 0 2px 0 rgba(255,255,255,0.3);
-}
-
-/* Если карточка состоит только из одного блока (например, 0+5 или 5+0) */
+/* Скругления */
+.card .block-a { border-radius: 8px 0 0 8px; }
+.card .block-b { border-radius: 0 8px 8px 0; }
 .card .block-a:only-child { border-radius: 8px; }
 .card .block-b:only-child { border-radius: 8px; }
 
-/* Разделитель между блоками (если оба присутствуют) */
+/* Разделитель между блоками */
 .card .block-a + .block-b {
-  border-left: 1px solid rgba(0,0,0,0.15);
+  border-left: 1px solid rgba(0,0,0,0.2);
 }

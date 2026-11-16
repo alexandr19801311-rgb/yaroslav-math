@@ -239,10 +239,22 @@ export class NumberHousesGame extends BaseGame {
       const percentA = (a / num) * 100;
       const percentB = (b / num) * 100;
 
-      card.innerHTML = `
-        <div class="block-a" style="width: ${percentA}%">${a}</div>
-        <div class="block-b" style="width: ${percentB}%">${b}</div>
-      `;
+      // Генерируем HTML для блоков с сегментами
+      let blockAHtml = '';
+      if (a > 0) {
+        let segsA = '';
+        for (let i = 0; i < a; i++) segsA += '<div class="card-segment"></div>';
+        blockAHtml = `<div class="block-a" style="width: ${percentA}%"><div class="segments-wrapper">${segsA}</div><span>${a}</span></div>`;
+      }
+
+      let blockBHtml = '';
+      if (b > 0) {
+        let segsB = '';
+        for (let i = 0; i < b; i++) segsB += '<div class="card-segment"></div>';
+        blockBHtml = `<div class="block-b" style="width: ${percentB}%"><div class="segments-wrapper">${segsB}</div><span>${b}</span></div>`;
+      }
+
+      card.innerHTML = blockAHtml + blockBHtml;
       
       card.addEventListener('click', () => this.onCardClick(num, idx, a, b));
       this.trayBodyEl.appendChild(card);
