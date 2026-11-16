@@ -8,7 +8,7 @@ export class SoundManager {
   private audioCtx: AudioContext | null = null;
 
   private constructor() {
-    // Инициализация контекста произойдет при первом клике, чтобы обойти блокировки браузера
+    // Инициализация контекста произойдет при первом клике
   }
 
   public static getInstance(): SoundManager {
@@ -18,15 +18,24 @@ export class SoundManager {
     return SoundManager.instance;
   }
 
+  /**
+   * Инициализирует или возобновляет аудио-контекст.
+   * Браузеры часто ставят контекст на паузу после смены экранов или кликов.
+   */
   private initContext(): AudioContext {
     if (!this.audioCtx) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       this.audioCtx = new AudioCtx();
     }
+    
+    // Возобновляем контекст, если он на паузе
     if (this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume();
+      this.audioCtx.resume().catch(() => {
+        // Тихо игнорируем ошибку, если браузер блокирует звук
+      });
     }
+    
     return this.audioCtx;
   }
 
