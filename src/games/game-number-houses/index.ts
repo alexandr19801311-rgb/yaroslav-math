@@ -31,7 +31,7 @@ export class NumberHousesGame extends BaseGame {
 
   private hintsLeft: number = 3;
   private isSecondChance: boolean = false;
-  private isSoundOn: boolean = true; // Флаг звука
+  private isSoundOn: boolean = true;
 
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
@@ -55,7 +55,6 @@ export class NumberHousesGame extends BaseGame {
       this.data[n] = list;
     });
 
-    // Добавлена кнопка звука в шапку
     container.innerHTML = `
       <div class="houses-game-wrapper">
         <div class="topbar">
@@ -102,7 +101,6 @@ export class NumberHousesGame extends BaseGame {
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     document.getElementById('btn-hint')?.addEventListener('click', () => this.useHint());
     
-    // Обработчик кнопки звука
     const soundBtn = document.getElementById('btn-sound');
     soundBtn?.addEventListener('click', () => {
       this.isSoundOn = !this.isSoundOn;
@@ -338,27 +336,30 @@ export class NumberHousesGame extends BaseGame {
       this.state.picked = { num, idx, a, b, el: cardEl };
       cardEl.classList.add('picked');
       
-      // Озвучиваем "Пять плюс пять"
       this.speakExpression(a, b);
       
       this.soundManager.playClick();
     }
   }
 
-  // Новая озвучка
+  // Улучшенная озвучка (женский голос)
   private speakExpression(a: number, b: number): void {
     if (!this.isSoundOn || !('speechSynthesis' in window)) return;
 
-    window.speechSynthesis.cancel(); // Отменяем предыдущую
+    window.speechSynthesis.cancel();
 
     const text = `${a} плюс ${b}`;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ru-RU';
-    utterance.rate = 1.1;
-    utterance.pitch = 1.2;
+    utterance.rate = 1.0; // Нормальная скорость
+    utterance.pitch = 1.8; // Высокий питч для "женского" голоса (имитация)
     
     const voices = window.speechSynthesis.getVoices();
-    const ruVoice = voices.find(v => v.lang.includes('ru'));
+    
+    // Ищем женский русский голос (например, "Milena" или любой с "female")
+    const ruVoice = voices.find(v => v.lang.includes('ru') && (v.name.includes('Milena') || v.name.includes('Female') || v.name.includes('Google'))) 
+                 || voices.find(v => v.lang.includes('ru')); 
+                 
     if (ruVoice) utterance.voice = ruVoice;
 
     window.speechSynthesis.speak(utterance);
@@ -549,7 +550,6 @@ export class NumberHousesGame extends BaseGame {
     }, 800);
   }
 
-  // Исправленная верстка финала
   protected showGameOverScreen(isWin: boolean, stats: { correct: number, wrong: number }): void {
     if (this.overlayEl) this.overlayEl.remove();
 
@@ -577,27 +577,26 @@ export class NumberHousesGame extends BaseGame {
 
     const overlay = document.createElement('div');
     overlay.className = 'game-overlay';
-    // Используем flex-column для маленьких экранов
     overlay.innerHTML = `
-      <div class="game-overlay__card" style="max-width: 90vw; padding: 20px;">
+      <div class="game-overlay__card">
         <div class="game-overlay__emoji">${emoji}</div>
         <h2 class="game-overlay__title">${title}</h2>
         <p class="game-overlay__score">${isWin ? t('houses.winDesc') : (this.isSecondChance ? 'Ты использовал последний шанс.' : 'Ты допустил 3 ошибки.')}</p>
         
-        <div class="game-overlay__stats" style="flex-wrap: wrap; gap: 8px;">
-          <div class="stat-box" style="min-width: 70px; padding: 8px;">
+        <div class="game-overlay__stats">
+          <div class="stat-box">
             <div class="stat-value">${stats.correct}</div>
             <div class="stat-label">${t('game.score')}</div>
           </div>
-          <div class="stat-box" style="min-width: 70px; padding: 8px;">
-            <div class="stat-value" style="color: #3182ce;">${filledCards} / ${totalCards}</div>
+          <div class="stat-box">
+            <div class="stat-value" style="color: #3182ce;">${filledCards}/${totalCards}</div>
             <div class="stat-label">Карточек</div>
           </div>
-          <div class="stat-box" style="min-width: 70px; padding: 8px;">
-            <div class="stat-value" style="color: #38a169;">${doneHouses} / 9</div>
+          <div class="stat-box">
+            <div class="stat-value" style="color: #38a169;">${doneHouses}/9</div>
             <div class="stat-label">Домиков</div>
           </div>
-          <div class="stat-box" style="min-width: 70px; padding: 8px;">
+          <div class="stat-box">
             <div class="stat-value" style="color: #e53e3e;">${stats.wrong}</div>
             <div class="stat-label">Ошибки</div>
           </div>

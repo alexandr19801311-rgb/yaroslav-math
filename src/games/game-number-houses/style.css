@@ -67,6 +67,29 @@
   color: #a0aec0;
 }
 
+/* Кнопка звука */
+.btn-sound {
+  background: #fff;
+  border: 2px solid #a0aec0;
+  color: #4a5568;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.btn-sound:hover {
+  background: #edf2f7;
+}
+.btn-sound:active {
+  transform: scale(0.9);
+}
+
 /* ===== Прогресс ===== */
 .progress-container { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; max-width: 500px; margin: 0 10px; }
 .progress-wrapper { flex: 1; height: 16px; background: #e0e0e0; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid #1976d2; }
@@ -313,119 +336,85 @@
   z-index: 5;
 }
 
-/* ========================================= */
-/* ===== АДАПТИВ ДЛЯ ПЛАНШЕТОВ И ТЕЛЕФОНОВ ===== */
-/* ========================================= */
-@media (max-width: 1100px) {
-  .houses {
-    display: flex; 
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    height: 40vh;
-    padding-bottom: 8px;
-    gap: 8px;
-    
-    /* Скрываем скроллбар */
-    scrollbar-width: none; 
-    -ms-overflow-style: none; 
-  }
-  
-  .houses::-webkit-scrollbar {
-    display: none; 
-  }
+/* ===== АНИМАЦИЯ ОВЕРЛЕЯ (выезд снизу) ===== */
+.game-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: flex-end; /* Прижимаем к низу */
+  justify-content: center;
+  z-index: 1000;
+  animation: overlay-in 0.2s ease-out;
+}
 
-  .house {
-    /* Уменьшили минимальную ширину, чтобы домики не были слишком большими */
-    min-width: 95px; 
-    scroll-snap-align: start;
-  }
+.game-overlay__card {
+  background: #fff;
+  border-radius: 24px 24px 0 0; /* Скругления только сверху */
+  padding: 32px 24px;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.2);
+  font-family: system-ui, -apple-system, sans-serif;
+  
+  /* Анимация выезда снизу */
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
-  .card {
-    height: 32px;
-    border-radius: 6px;
-    border-width: 1.5px;
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* На десктопе оверлей по центру */
+@media (min-width: 768px) {
+  .game-overlay {
+    align-items: center;
   }
-  
-  .card-number {
-    font-size: 14px;
-  }
-  
-  .tray-body {
-    gap: 6px;
+  .game-overlay__card {
+    border-radius: 24px;
+    animation: overlay-card-in 0.3s ease-out;
   }
 }
 
-/* Специально для планшетов (шире 768px, но уже 1100px) */
+/* ========================================= */
+/* ===== АДАПТИВ ДЛЯ ПЛАНШЕТОВ И ТЕЛЕФОНОВ ===== */
+/* ========================================= */
+
+/* Планшеты: 9 колонок без сжатия */
 @media (min-width: 768px) and (max-width: 1100px) {
   .houses {
+    display: grid; 
+    grid-template-columns: repeat(9, 1fr); /* Всегда 9 колонок */
     height: 45vh;
+    gap: 4px;
+    overflow-x: hidden; /* Убираем скролл */
   }
   .house {
-    /* Уменьшили ширину на планшетах, чтобы влезало больше домиков */
-    min-width: 110px; 
+    min-width: 0; /* Сбрасываем минимальную ширину */
   }
   .card {
     height: 34px;
   }
 }
-/* ... (все стили до адаптива без изменений) ... */
 
-/* ===== Кнопка звука ===== */
-.btn-sound {
-  background: #fff;
-  border: 2px solid #a0aec0;
-  color: #4a5568;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.btn-sound:hover {
-  background: #edf2f7;
-}
-.btn-sound:active {
-  transform: scale(0.9);
-}
-
-/* ===== ДОМИКИ ===== */
-.houses {
-  display: grid; 
-  grid-template-columns: repeat(9, 1fr);
-  gap: 4px;
-  flex-shrink: 0; 
-  margin-bottom: 8px; 
-  height: 45vh;
-  width: 100%;
-}
-
-/* ========================================= */
-/* ===== АДАПТИВ ДЛЯ ПЛАНШЕТОВ И ТЕЛЕФОНОВ ===== */
-/* ========================================= */
-@media (max-width: 1100px) {
+/* Телефоны: горизонтальный скролл */
+@media (max-width: 767px) {
   .houses {
     display: flex; 
     overflow-x: auto;
     scroll-snap-type: x mandatory; 
     height: 40vh;
     padding-bottom: 8px;
-    gap: 6px; /* Чуть уменьшили отступ между домиками */
+    gap: 6px;
     
     scrollbar-width: none; 
     -ms-overflow-style: none; 
   }
+  .houses::-webkit-scrollbar { display: none; }
   
-  .houses::-webkit-scrollbar {
-    display: none; 
-  }
-
   .house {
-    /* Уменьшили ширину домиков для планшета */
     min-width: 85px; 
     scroll-snap-align: start;
   }
@@ -442,18 +431,5 @@
   
   .tray-body {
     gap: 6px;
-  }
-  
-  /* Специально для планшетов */
-  @media (min-width: 768px) and (max-width: 1100px) {
-    .houses {
-      height: 45vh;
-    }
-    .house {
-      min-width: 95px; /* Еще чуть меньше */
-    }
-    .card {
-      height: 34px;
-    }
   }
 }
