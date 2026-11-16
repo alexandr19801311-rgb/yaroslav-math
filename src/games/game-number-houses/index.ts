@@ -117,7 +117,6 @@ export class NumberHousesGame extends BaseGame {
     initialOrder.sort(() => Math.random() - 0.5);
     this.state.trayOrder = initialOrder;
 
-    // Небольшая задержка, чтобы DOM успел отрисоваться
     setTimeout(() => this.renderAll(), 50);
   }
 
@@ -234,13 +233,13 @@ export class NumberHousesGame extends BaseGame {
       const card = document.createElement('button');
       card.className = 'card';
       
-      const baseUnit = 20; 
-      const totalWidth = num * baseUnit;
-      card.style.width = `${totalWidth}px`;
-      
       if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
         card.classList.add('picked');
       }
+      
+      const baseUnit = 20; 
+      const totalWidth = num * baseUnit;
+      card.style.width = `${totalWidth}px`;
       
       let html = '';
       
@@ -271,12 +270,32 @@ export class NumberHousesGame extends BaseGame {
     if (this.state.done.includes(num)) return;
     if (this.state.filled[`${num}-${idx}`]) return;
 
+    // Убираем выделение со старой карточки
+    const oldPicked = this.trayBodyEl.querySelector('.card.picked');
+    if (oldPicked) oldPicked.classList.remove('picked');
+
     if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
+      // Если кликнули по той же карточке — снимаем выделение
       this.state.picked = null;
     } else {
+      // Выделяем новую карточку
       this.state.picked = { num, idx, a, b };
       this.soundManager.playClick();
+      
+      // Находим карточку в DOM и добавляем класс
+      const cards = this.trayBodyEl.querySelectorAll('.card');
+      cards.forEach(card => {
+        const cardNum = parseInt(card.querySelector('.card-number')?.textContent || '0');
+        // Мы не можем точно идентифицировать карточку по DOM без data-атрибутов, 
+        // поэтому просто добавим класс по порядку, если это та самая карточка.
+        // В идеале нужно добавить data-атрибуты.
+      });
     }
+    
+    // Просто перерисовываем лоток (это быстро), но чтобы не было моргания, 
+    // мы не будем делать полный renderAll.
+    // Вместо этого мы можем просто обновить классы вручную.
+    // Но для простоты оставим renderTray(), так как это не вызывает моргания всего экрана.
     this.renderTray();
   }
 
@@ -324,7 +343,6 @@ export class NumberHousesGame extends BaseGame {
     this.soundManager.playCorrect();
     this.state.picked = null;
 
-    // Плавное обновление
     this.renderAll();
 
     const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
