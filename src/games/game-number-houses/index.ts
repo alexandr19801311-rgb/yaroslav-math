@@ -29,7 +29,7 @@ export class NumberHousesGame extends BaseGame {
     sampleOn: false
   };
 
-  private hintsLeft: number = 3; // <--- Счетчик подсказок
+  private hintsLeft: number = 3;
 
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
@@ -65,7 +65,7 @@ export class NumberHousesGame extends BaseGame {
               <div class="progress-fill" id="progressFill"></div>
             </div>
             <div class="progress-text">
-              ${t('houses.collected')}: <span id="doneCount">0</span> / <span id="totalCount">9</span>
+              ${t('houses.collected')}: <span id="doneCount">0</span> / <span id="totalCount">63</span>
             </div>
           </div>
 
@@ -111,7 +111,7 @@ export class NumberHousesGame extends BaseGame {
       sampleOn: false
     };
     this.wrongAnswers = 0;
-    this.hintsLeft = 3; // Сброс подсказок
+    this.hintsLeft = 3;
     this.updateHintUI();
 
     const initialOrder: { num: number, idx: number, a: number, b: number }[] = [];
@@ -132,13 +132,11 @@ export class NumberHousesGame extends BaseGame {
   protected renderAll(): void {
     this.scoreEl.textContent = String(this.score);
     
-    // Считаем прогресс по карточкам, а не по домикам
     const totalCards = 63;
     const filledCards = Object.keys(this.state.filled).length;
     
-    // Обновляем счетчик "Собрано: X / 63"
-    if (this.doneCountEl) this.doneCountEl.textContent = String(filledCards);
-    if (this.totalCountEl) this.totalCountEl.textContent = String(totalCards);
+    this.doneCountEl.textContent = String(filledCards);
+    this.totalCountEl.textContent = String(totalCards);
     
     this.updateLivesUI();
     this.updateProgressBar(filledCards, totalCards);
@@ -146,13 +144,6 @@ export class NumberHousesGame extends BaseGame {
     this.renderTray();
   }
 
-  // Обновленный прогресс-бар (принимает текущее и общее количество)
-  private updateProgressBar(current: number, total: number): void {
-    const percent = (current / total) * 100;
-    requestAnimationFrame(() => {
-      this.progressFillEl.style.width = `${percent}%`;
-    });
-  }
   private updateHintUI(): void {
     const countEl = document.getElementById('hint-count');
     const btnEl = document.getElementById('btn-hint');
@@ -306,7 +297,6 @@ export class NumberHousesGame extends BaseGame {
     if (this.state.done.includes(num)) return;
     if (this.state.filled[`${num}-${idx}`]) return;
 
-    // Убираем предыдущую подсветку домика (если была)
     this.clearHintHighlight();
 
     if (this.state.picked && this.state.picked.el) {
@@ -370,7 +360,6 @@ export class NumberHousesGame extends BaseGame {
     }
     this.state.picked = null;
     
-    // Убираем подсветку с домика при успешном клике
     this.clearHintHighlight();
 
     this.renderAll();
@@ -393,10 +382,8 @@ export class NumberHousesGame extends BaseGame {
     }
   }
 
-  // Подсказка
   private useHint(): void {
     if (!this.state.picked) {
-      // Если карточка не выбрана — мигаем кнопкой подсказки (или звуком)
       this.soundManager.playWrong();
       return;
     }
@@ -411,13 +398,10 @@ export class NumberHousesGame extends BaseGame {
 
     if (!targetHouse) return;
 
-    // Убираем старые подсветки
     this.clearHintHighlight();
 
-    // Скроллим к домику (для мобильных)
     targetHouse.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
 
-    // Подсвечиваем и оставляем гореть
     targetHouse.classList.add('hint-highlight');
     this.soundManager.playClick();
   }
