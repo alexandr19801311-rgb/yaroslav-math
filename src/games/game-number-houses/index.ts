@@ -11,7 +11,7 @@ interface HouseState {
   score: number;
   done: number[];
   filled: { [key: string]: { a: number, b: number } };
-  picked: { num: number, idx: number, a: number, b: number } | null;
+  picked: { num: number, idx: number, a: number, b: number, el: HTMLElement } | null;
   trayOrder: { num: number, idx: number, a: number, b: number }[];
   sampleOn: boolean;
 }
@@ -67,6 +67,7 @@ export class NumberHousesGame extends BaseGame {
             </div>
           </div>
 
+          <button type="button" class="btn-hint" id="btn-hint" title="Подсказка">🔍</button>
           <div class="score">⭐ <span id="score">0</span></div>
         </div>
 
@@ -93,6 +94,7 @@ export class NumberHousesGame extends BaseGame {
     this.progressFillEl = document.getElementById('progressFill')!;
 
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
+    document.getElementById('btn-hint')?.addEventListener('click', () => this.useHint());
 
     this.start();
   }
@@ -117,7 +119,7 @@ export class NumberHousesGame extends BaseGame {
     initialOrder.sort(() => Math.random() - 0.5);
     this.state.trayOrder = initialOrder;
 
-    setTimeout(() => this.renderAll(), 50);
+    this.renderAll();
   }
 
   protected generateTask(): void {}
@@ -144,9 +146,13 @@ export class NumberHousesGame extends BaseGame {
     container.innerHTML = html;
   }
 
+  // Плавный прогресс-бар
   private updateProgressBar(): void {
     const percent = (this.state.done.length / 9) * 100;
-    this.progressFillEl.style.width = `${percent}%`;
+    // Используем requestAnimationFrame для плавности
+    requestAnimationFrame(() => {
+      this.progressFillEl.style.width = `${percent}%`;
+    });
   }
 
   private renderHouses(): void {
@@ -261,31 +267,32 @@ export class NumberHousesGame extends BaseGame {
 
       card.innerHTML = html;
       
-      card.addEventListener('click', () => this.onCardClick(num, idx, a, b));
+      card.addEventListener('click', () => this.onCardClick(num, idx, a, b, card));
       this.trayBodyEl.appendChild(card);
     });
   }
 
-  private onCardClick(num: number, idx: number, a: number, b: number): void {
+  // Убрано моргание: не перерисовываем весь лоток, а просто меняем классы
+  private onCardClick(num: number, idx: number, a: number, b: number, cardEl: HTMLElement): void {
     if (this.state.done.includes(num)) return;
     if (this.state.filled[`${num}-${idx}`]) return;
 
     // Убираем выделение со старой карточки
-    const oldPicked = this.trayBodyEl.querySelector('.card.picked');
-    if (oldPicked) oldPicked.classList.remove('picked');
+    if (this.state.picked && this.state.picked.el) {
+      this.state.picked.el.classList.remove('picked');
+    }
 
     if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
-      // Если кликнули по той же карточке — снимаем выделение
+      // Снимаем выделение
       this.state.picked = null;
     } else {
-      // Выделяем новую карточку
-      this.state.picked = { num, idx, a, b };
+      // Выделяем новую
+      this.state.picked = { num, idx, a, b, el: cardEl };
+      cardEl.classList.add('picked');
       this.soundManager.playClick();
     }
-    
-    // Перерисовываем лоток (выделение применится в renderTray)
-    this.renderTray();
   }
+
   private onHouseClick(n: number, houseEl: HTMLElement): void {
     if (!this.state.picked) return;
     if (this.state.done.includes(n)) return;
@@ -328,8 +335,14 @@ export class NumberHousesGame extends BaseGame {
     this.state.filled[`${n}-${targetIdx}`] = { a, b };
     this.state.score++;
     this.soundManager.playCorrect();
+    
+    // Убираем выделение
+    if (this.state.picked && this.state.picked.el) {
+      this.state.picked.el.classList.remove('picked');
+    }
     this.state.picked = null;
 
+    // Плавное обновление
     this.renderAll();
 
     const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
@@ -348,6 +361,30 @@ export class NumberHousesGame extends BaseGame {
         else this.renderAll();
       }, 600);
     }
+  }
+
+  // Подсказка: находит нужный домик, скроллит и подсвечивает
+  private useHint(): void {
+    if (!this.state.picked) {
+      this.soundManager.playWrong();
+      return;
+    }
+
+    const targetNum = this.state.picked.num;
+    const targetHouse = document.querySelector(`.house[data-num="${targetNum}"]`) as HTMLElement;
+
+    if (!targetHouse) return;
+
+    // Скроллим к домику (для мобильных)
+    targetHouse.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+    // Подсвечиваем
+    targetHouse.classList.add('hint-highlight');
+    this.soundManager.playClick();
+
+    setTimeout(() => {
+      targetHouse.classList.remove('hint-highlight');
+    }, 1500);
   }
 
   private winGame(): void {
