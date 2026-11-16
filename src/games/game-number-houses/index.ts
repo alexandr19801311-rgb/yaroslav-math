@@ -159,7 +159,7 @@ export class NumberHousesGame extends BaseGame {
       const slotsContainer = document.createElement('div');
       slotsContainer.className = 'slots-container';
 
-      this.data[n].forEach(([a, b], idx) => {
+      this.data[n].forEach((_, idx) => {
         const key = `${n}-${idx}`;
         const filled = this.state.filled[key];
         const slot = document.createElement('div');
