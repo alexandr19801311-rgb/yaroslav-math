@@ -29,6 +29,7 @@ export class NumberHousesGame extends BaseGame {
     sampleOn: false
   };
 
+  // DOM-элементы
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
   private trayCountEl!: HTMLElement;
@@ -51,12 +52,16 @@ export class NumberHousesGame extends BaseGame {
       this.data[n] = list;
     });
 
+    // Обновленный HTML с иконками жизней (сердечки)
     container.innerHTML = `
       <div class="houses-game-wrapper">
-        <!-- Компактная шапка без заголовка -->
         <div class="topbar">
           <button type="button" class="btn-exit" id="btn-exit" title="В меню">✖</button>
           
+          <div class="lives-indicator" id="lives-indicator">
+            <!-- Здесь будут отображаться жизни -->
+          </div>
+
           <div class="progress-container">
             <div class="progress-wrapper">
               <div class="progress-fill" id="progressFill"></div>
@@ -105,6 +110,7 @@ export class NumberHousesGame extends BaseGame {
       trayOrder: [],
       sampleOn: false
     };
+    this.wrongAnswers = 0; // Сбрасываем счетчик ошибок
 
     const initialOrder: { num: number, idx: number, a: number, b: number }[] = [];
     [2,3,4,5,6,7,8,9,10].forEach(n => {
@@ -126,9 +132,26 @@ export class NumberHousesGame extends BaseGame {
     this.doneCountEl.textContent = String(this.state.done.length);
     this.totalCountEl.textContent = '9';
     
+    this.updateLivesUI();
     this.updateProgressBar();
     this.renderHouses();
     this.renderTray();
+  }
+
+  private updateLivesUI(): void {
+    const container = document.getElementById('lives-indicator');
+    if (!container) return;
+    
+    // Рисуем 3 сердечка, разбитые (пустые) в зависимости от wrongAnswers
+    let html = '';
+    for (let i = 0; i < 3; i++) {
+      if (i < 3 - this.wrongAnswers) {
+        html += '❤️';
+      } else {
+        html += '🖤';
+      }
+    }
+    container.innerHTML = html;
   }
 
   private updateProgressBar(): void {
@@ -146,7 +169,6 @@ export class NumberHousesGame extends BaseGame {
       house.dataset.num = String(n);
       if (this.state.done.includes(n)) house.classList.add('done');
 
-      // Убрали подсказку при клике на заголовок, теперь заголовок просто часть домика
       house.addEventListener('click', () => {
         this.onHouseClick(n, house);
       });
@@ -235,10 +257,18 @@ export class NumberHousesGame extends BaseGame {
 
     const { a, b, num } = this.state.picked;
 
+    // Если неправильно
     if (num !== n || a + b !== n) {
       this.soundManager.playWrong();
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
+      
+      this.wrongAnswers++;
+      this.updateLivesUI();
+
+      if (this.wrongAnswers >= 3) {
+        this.endGameWithLoss();
+      }
       return;
     }
 
@@ -251,6 +281,13 @@ export class NumberHousesGame extends BaseGame {
       this.soundManager.playWrong();
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
+      
+      this.wrongAnswers++;
+      this.updateLivesUI();
+
+      if (this.wrongAnswers >= 3) {
+        this.endGameWithLoss();
+      }
       return;
     }
 
@@ -293,24 +330,38 @@ export class NumberHousesGame extends BaseGame {
 
   private winGame(): void {
     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-    this.showGameOverScreen(true, { correct: this.state.score, wrong: 0 });
+    this.showGameOverScreen(true, { correct: this.state.score, wrong: this.wrongAnswers });
   }
 
-  protected showGameOverScreen(_isNewRecord: boolean, _stats: { correct: number, wrong: number }): void {
+  private endGameWithLoss(): void {
+    // Можно добавить звук поражения
+    setTimeout(() => {
+      this.showGameOverScreen(false, { correct: this.state.score, wrong: this.wrongAnswers });
+    }, 800);
+  }
+
+  protected showGameOverScreen(isWin: boolean, stats: { correct: number, wrong: number }): void {
     if (this.overlayEl) this.overlayEl.remove();
+
+    const title = isWin ? t('houses.winTitle') : 'Игра окончена!';
+    const emoji = isWin ? '🏆' : '💔';
 
     const overlay = document.createElement('div');
     overlay.className = 'game-overlay';
     overlay.innerHTML = `
       <div class="game-overlay__card">
-        <div class="game-overlay__emoji">🏆</div>
-        <h2 class="game-overlay__title">${t('houses.winTitle')}</h2>
-        <p class="game-overlay__score">${t('houses.winDesc')}</p>
+        <div class="game-overlay__emoji">${emoji}</div>
+        <h2 class="game-overlay__title">${title}</h2>
+        <p class="game-overlay__score">${isWin ? t('houses.winDesc') : 'Ты допустил 3 ошибки.'}</p>
         
         <div class="game-overlay__stats">
           <div class="stat-box">
-            <div class="stat-value">${this.state.score}</div>
+            <div class="stat-value">${stats.correct}</div>
             <div class="stat-label">${t('game.score')}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" style="color: #e53e3e;">${stats.wrong}</div>
+            <div class="stat-label">Ошибки</div>
           </div>
         </div>
 
