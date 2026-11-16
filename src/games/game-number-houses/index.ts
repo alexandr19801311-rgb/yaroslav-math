@@ -117,7 +117,8 @@ export class NumberHousesGame extends BaseGame {
     initialOrder.sort(() => Math.random() - 0.5);
     this.state.trayOrder = initialOrder;
 
-    this.renderAll();
+    // Небольшая задержка, чтобы DOM успел отрисоваться
+    setTimeout(() => this.renderAll(), 50);
   }
 
   protected generateTask(): void {}
@@ -233,7 +234,6 @@ export class NumberHousesGame extends BaseGame {
       const card = document.createElement('button');
       card.className = 'card';
       
-      // Базовый размер: 10 = 200px, значит 1 = 20px
       const baseUnit = 20; 
       const totalWidth = num * baseUnit;
       card.style.width = `${totalWidth}px`;
@@ -242,7 +242,6 @@ export class NumberHousesGame extends BaseGame {
         card.classList.add('picked');
       }
       
-      // Создаем блоки с точной шириной в пикселях
       let html = '';
       
       if (a > 0) {
@@ -325,6 +324,7 @@ export class NumberHousesGame extends BaseGame {
     this.soundManager.playCorrect();
     this.state.picked = null;
 
+    // Плавное обновление
     this.renderAll();
 
     const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
