@@ -46,6 +46,7 @@
   height: 45vh;
   width: 100%;
 }
+
 .house {
   border: 1px solid #1976d2; 
   border-radius: 8px; 
@@ -73,6 +74,7 @@
   gap: 4px;
 }
 
+/* Белый бейдж с цифрой */
 .house-badge {
   background: #fff;
   color: #333;
@@ -85,6 +87,7 @@
   z-index: 5;
 }
 
+/* Полоска-индикатор объема */
 .house-bar {
   width: 100%;
   height: 12px;
@@ -111,6 +114,7 @@
 }
 .house-segment:last-child { border-right: none; }
 
+/* Цвета для чисел */
 .house[data-num="2"]  { --house-color: #e53935; }
 .house[data-num="3"]  { --house-color: #fb8c00; }
 .house[data-num="4"]  { --house-color: #fdd835; }
@@ -179,11 +183,11 @@
 }
 .tray-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #f57f17; margin-bottom: 6px; }
 
-/* Лоток теперь flex-контейнер */
+/* Лоток — flex-контейнер */
 .tray-body { 
   flex: 1; 
   display: flex;
-  flex-wrap: wrap; /* Позволяем переносить карточки */
+  flex-wrap: wrap;
   gap: 8px; 
   align-content: flex-start; 
   overflow-y: auto; 
@@ -193,9 +197,8 @@
 /* ===== Карточки ===== */
 .card {
   height: 40px;
-  /* width задается динамически через JS */
   padding: 0;
-  border: none; 
+  border: 2px solid #1976d2;
   background: #fff;
   border-radius: 8px;
   cursor: pointer; 
@@ -203,15 +206,50 @@
   overflow: hidden;
   transition: transform 0.1s, box-shadow 0.2s;
   box-shadow: 0 3px 0 rgba(0,0,0,0.15), 0 4px 6px rgba(0,0,0,0.1);
-  align-items: stretch;
   position: relative;
-  flex-shrink: 0; /* Запрещаем сжиматься меньше заданной ширины */
+  flex-shrink: 0;
 }
 
 .card.picked { 
   transform: translateY(2px);
   box-shadow: 0 1px 0 rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
   z-index: 10;
+  border-color: #0d47a1;
 }
 
-/* ... (остальные стили для блоков и сегментов без изменений) ... */
+/* Блоки внутри карточки */
+.block-a, .block-b {
+  height: 100%;
+  display: flex;
+  position: relative;
+}
+
+.block-a { background: #38bdf8; }
+.block-b { background: #f97316; }
+
+/* Сегменты (разделители) */
+.card-segment {
+  height: 100%;
+  border-right: 1px solid rgba(0,0,0,0.15);
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.block-a .card-segment:last-child,
+.block-b .card-segment:last-child {
+  border-right: none;
+}
+
+/* Цифра поверх сегментов */
+.card-number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  pointer-events: none;
+  z-index: 5;
+}

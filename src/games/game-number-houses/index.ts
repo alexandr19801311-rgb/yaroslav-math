@@ -233,37 +233,35 @@ export class NumberHousesGame extends BaseGame {
       const card = document.createElement('button');
       card.className = 'card';
       
-      // Задаем ширину карточки пропорционально числу (максимум 10)
-      // Базовая ширина пусть будет 10% от 100% (условно), 
-      // значит карточка с num=10 займет всю ширину, а num=2 — 20%
-      // Чтобы было красиво, используем calc или фиксированную базу.
-      // Допустим, базовая ширина для 10 = 200px. Тогда для n = (n/10)*200px
-      const baseWidth = 200; // Можно вынести в константу
-      const cardWidth = (num / 10) * baseWidth;
-      card.style.width = `${cardWidth}px`;
+      // Базовый размер: 10 = 200px, значит 1 = 20px
+      const baseUnit = 20; 
+      const totalWidth = num * baseUnit;
+      card.style.width = `${totalWidth}px`;
       
       if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
         card.classList.add('picked');
       }
       
-      const percentA = (a / num) * 100;
-      const percentB = (b / num) * 100;
-
-      let blockAHtml = '';
+      // Создаем блоки с точной шириной в пикселях
+      let html = '';
+      
       if (a > 0) {
-        let segsA = '';
-        for (let i = 0; i < a; i++) segsA += '<div class="card-segment"></div>';
-        blockAHtml = `<div class="block-a" style="width: ${percentA}%"><div class="segments-wrapper">${segsA}</div><span>${a}</span></div>`;
+        let segs = '';
+        for (let i = 0; i < a; i++) {
+          segs += '<div class="card-segment" style="width: ' + baseUnit + 'px;"></div>';
+        }
+        html += `<div class="block-a" style="width: ${a * baseUnit}px;">${segs}<span class="card-number">${a}</span></div>`;
       }
-
-      let blockBHtml = '';
+      
       if (b > 0) {
-        let segsB = '';
-        for (let i = 0; i < b; i++) segsB += '<div class="card-segment"></div>';
-        blockBHtml = `<div class="block-b" style="width: ${percentB}%"><div class="segments-wrapper">${segsB}</div><span>${b}</span></div>`;
+        let segs = '';
+        for (let i = 0; i < b; i++) {
+          segs += '<div class="card-segment" style="width: ' + baseUnit + 'px;"></div>';
+        }
+        html += `<div class="block-b" style="width: ${b * baseUnit}px;">${segs}<span class="card-number">${b}</span></div>`;
       }
 
-      card.innerHTML = blockAHtml + blockBHtml;
+      card.innerHTML = html;
       
       card.addEventListener('click', () => this.onCardClick(num, idx, a, b));
       this.trayBodyEl.appendChild(card);
