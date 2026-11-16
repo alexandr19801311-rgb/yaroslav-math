@@ -131,15 +131,28 @@ export class NumberHousesGame extends BaseGame {
 
   protected renderAll(): void {
     this.scoreEl.textContent = String(this.score);
-    this.doneCountEl.textContent = String(this.state.done.length);
-    this.totalCountEl.textContent = '9';
+    
+    // Считаем прогресс по карточкам, а не по домикам
+    const totalCards = 63;
+    const filledCards = Object.keys(this.state.filled).length;
+    
+    // Обновляем счетчик "Собрано: X / 63"
+    if (this.doneCountEl) this.doneCountEl.textContent = String(filledCards);
+    if (this.totalCountEl) this.totalCountEl.textContent = String(totalCards);
     
     this.updateLivesUI();
-    this.updateProgressBar();
+    this.updateProgressBar(filledCards, totalCards);
     this.renderHouses();
     this.renderTray();
   }
 
+  // Обновленный прогресс-бар (принимает текущее и общее количество)
+  private updateProgressBar(current: number, total: number): void {
+    const percent = (current / total) * 100;
+    requestAnimationFrame(() => {
+      this.progressFillEl.style.width = `${percent}%`;
+    });
+  }
   private updateHintUI(): void {
     const countEl = document.getElementById('hint-count');
     const btnEl = document.getElementById('btn-hint');
