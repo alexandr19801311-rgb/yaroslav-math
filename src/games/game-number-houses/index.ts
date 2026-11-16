@@ -152,6 +152,7 @@ export class NumberHousesGame extends BaseGame {
   private renderHouses(): void {
     this.housesContainerEl.innerHTML = '';
     const allNumbers = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const MAX_NUMBER = 10; // Максимум для шкалы
 
     allNumbers.forEach(n => {
       const house = document.createElement('div');
@@ -164,15 +165,22 @@ export class NumberHousesGame extends BaseGame {
       const title = document.createElement('div');
       title.className = 'house-title';
       
-      // Генерируем сегменты для визуализации числа
+      // Рисуем 10 ячеек, закрашиваем только первые n
       let segmentsHtml = '';
-      for (let i = 0; i < n; i++) {
-        segmentsHtml += '<div class="house-segment"></div>';
+      for (let i = 0; i < MAX_NUMBER; i++) {
+        if (i < n) {
+          segmentsHtml += '<div class="house-segment house-segment--filled"></div>';
+        } else {
+          segmentsHtml += '<div class="house-segment"></div>';
+        }
       }
       
       title.innerHTML = `
-        <div class="house-bar" style="background: var(--house-color);">
-          ${segmentsHtml}
+        <div class="house-bar">
+          <div class="house-bar-fill" style="width: ${(n / MAX_NUMBER) * 100}%; background: var(--house-color);"></div>
+          <div class="house-segments-overlay">
+            ${segmentsHtml}
+          </div>
           <span class="house-number-overlay">${n}</span>
         </div>
       `;

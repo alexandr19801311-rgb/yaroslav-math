@@ -79,51 +79,61 @@
   width: 100%;
   height: 28px;
   border-radius: 6px;
-  display: flex;
-  align-items: stretch;
-  color: white;
-  font-weight: bold;
-  background: var(--house-color);
-  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2);
   position: relative;
+  background: #e0e0e0; /* Серый фон для пустых ячеек */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
   overflow: hidden;
 }
 
-/* Сегменты внутри полоски */
-.house-segment {
-  flex: 1;
-  border-right: 1px solid rgba(255, 255, 255, 0.4); /* Разделитель */
-  box-sizing: border-box;
+/* Заливка (цветная часть) */
+.house-bar-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  transition: width 0.3s ease;
 }
 
-/* Убираем разделитель у последнего сегмента */
+/* Оверлей с 10 разделителями */
+.house-segments-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+}
+
+.house-segment {
+  flex: 1;
+  border-right: 1px solid rgba(0,0,0,0.1); /* Тонкий разделитель */
+}
+
 .house-segment:last-child {
   border-right: none;
 }
 
-/* Цифра поверх сегментов */
+/* Цифра поверх полоски */
 .house-number-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
-  font-size: 18px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  z-index: 2;
+  color: #333; /* Темный текст, чтобы читалось на светлом и цветном */
+  font-size: 16px;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+  z-index: 5;
 }
 
-/* Цвета для чисел */
+/* Цвета для чисел (меняют только .house-bar-fill) */
 .house[data-num="2"]  { --house-color: #e53935; }
 .house[data-num="3"]  { --house-color: #fb8c00; }
 .house[data-num="4"]  { --house-color: #fdd835; }
-.house[data-num="4"] .house-number-overlay { color: #333; text-shadow: none; }
 .house[data-num="5"]  { --house-color: #7cb342; }
 .house[data-num="6"]  { --house-color: #00897b; }
 .house[data-num="7"]  { --house-color: #1e88e5; }
 .house[data-num="8"]  { --house-color: #5e35b1; }
 .house[data-num="9"]  { --house-color: #d81b60; }
 .house[data-num="10"] { --house-color: #6d4c41; }
+
+/* ... (остальные стили слотов, лотка и карточек без изменений) ... */
 
 /* ===== Слоты ===== */
 .slots-container { 
