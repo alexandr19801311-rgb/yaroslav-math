@@ -142,7 +142,7 @@
 .house.flash-bad { animation: flashBad 0.5s; }
 @keyframes flashBad { 0%, 100% { background: #fff; } 50% { background: #ffcdd2; border-color: #d32f2f; } }
 
-/* Подсветка при подсказке */
+/* Подсветка при подсказке (оранжевая) */
 .house.hint-highlight {
   animation: pulse-highlight 1.5s infinite;
   z-index: 20;
@@ -156,16 +156,17 @@
   100% { box-shadow: 0 0 0 0 rgba(237, 137, 54, 0); }
 }
 
-/* Пульсация домика, в который можно положить карточку */
+/* Подсветка домика, в который можно положить карточку (зеленая) */
 .house.valid-target {
-  animation: valid-pulse 1s infinite alternate;
+  animation: valid-pulse 1.2s ease-in-out 2; /* Пульсирует 2 раза и останавливается */
   border-color: #38a169;
   z-index: 15;
 }
 
 @keyframes valid-pulse {
   0% { box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.4); }
-  100% { box-shadow: 0 0 20px 5px rgba(56, 161, 105, 0.8); }
+  50% { box-shadow: 0 0 20px 5px rgba(56, 161, 105, 0.8); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.4); }
 }
 
 /* Анимация завершения домика */

@@ -387,7 +387,7 @@ export class NumberHousesGame extends BaseGame {
 
     if (this.state.picked && this.state.picked.el) {
       this.state.picked.el.classList.remove('picked');
-      this.clearValidHighlights(); // Убираем подсветку домиков
+      this.clearValidHighlights();
     }
 
     if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
@@ -398,7 +398,7 @@ export class NumberHousesGame extends BaseGame {
       
       this.speakExpression(a, b);
       this.createParticles(cardEl);
-      this.highlightValidHouses(num); // Подсвечиваем домики
+      // Убрали подсветку домиков при выборе
       
       this.soundManager.playClick();
     }
@@ -529,7 +529,7 @@ export class NumberHousesGame extends BaseGame {
 
     if (!targetSlot) return;
 
-    this.clearValidHighlights(); // Убираем подсветку
+    this.clearValidHighlights();
 
     this.animateCardToHouse(cardEl, targetSlot, () => {
       this.state.filled[key] = { a, b };
@@ -566,7 +566,6 @@ export class NumberHousesGame extends BaseGame {
         this.state.done.push(n);
         this.soundManager.playWin();
         
-        // Эффект завершения домика (свечение)
         houseEl.classList.add('done', 'house-complete-anim');
         setTimeout(() => houseEl.classList.remove('house-complete-anim'), 1000);
         
@@ -647,6 +646,9 @@ export class NumberHousesGame extends BaseGame {
     targetHouse.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     targetHouse.classList.add('hint-highlight');
     this.soundManager.playClick();
+    
+    // Вызываем подсветку по кнопке
+    this.highlightValidHouses(targetNum);
   }
 
   private clearHintHighlight(): void {
