@@ -29,7 +29,6 @@ export class NumberHousesGame extends BaseGame {
     sampleOn: false
   };
 
-  // DOM-элементы
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
   private trayCountEl!: HTMLElement;
@@ -52,15 +51,12 @@ export class NumberHousesGame extends BaseGame {
       this.data[n] = list;
     });
 
-    // Обновленный HTML с иконками жизней (сердечки)
     container.innerHTML = `
       <div class="houses-game-wrapper">
         <div class="topbar">
           <button type="button" class="btn-exit" id="btn-exit" title="В меню">✖</button>
           
-          <div class="lives-indicator" id="lives-indicator">
-            <!-- Здесь будут отображаться жизни -->
-          </div>
+          <div class="lives-indicator" id="lives-indicator"></div>
 
           <div class="progress-container">
             <div class="progress-wrapper">
@@ -110,7 +106,7 @@ export class NumberHousesGame extends BaseGame {
       trayOrder: [],
       sampleOn: false
     };
-    this.wrongAnswers = 0; // Сбрасываем счетчик ошибок
+    this.wrongAnswers = 0;
 
     const initialOrder: { num: number, idx: number, a: number, b: number }[] = [];
     [2,3,4,5,6,7,8,9,10].forEach(n => {
@@ -141,15 +137,9 @@ export class NumberHousesGame extends BaseGame {
   private updateLivesUI(): void {
     const container = document.getElementById('lives-indicator');
     if (!container) return;
-    
-    // Рисуем 3 сердечка, разбитые (пустые) в зависимости от wrongAnswers
     let html = '';
     for (let i = 0; i < 3; i++) {
-      if (i < 3 - this.wrongAnswers) {
-        html += '❤️';
-      } else {
-        html += '🖤';
-      }
+      html += i < 3 - this.wrongAnswers ? '❤️' : '🖤';
     }
     container.innerHTML = html;
   }
@@ -169,37 +159,37 @@ export class NumberHousesGame extends BaseGame {
       house.dataset.num = String(n);
       if (this.state.done.includes(n)) house.classList.add('done');
 
-      house.addEventListener('click', () => {
-        this.onHouseClick(n, house);
-      });
+      house.addEventListener('click', () => this.onHouseClick(n, house));
 
       const title = document.createElement('div');
       title.className = 'house-title';
-      title.textContent = t('houses.number') + ' ' + n;
+      // Показываем число-целое сверху
+      title.textContent = String(n);
       house.appendChild(title);
 
       const slotsContainer = document.createElement('div');
       slotsContainer.className = 'slots-container';
 
-      this.data[n].forEach((_, idx) => {
+      this.data[n].forEach(([a, b], idx) => {
         const key = `${n}-${idx}`;
         const filled = this.state.filled[key];
         const slot = document.createElement('div');
         slot.className = 'slot-row';
 
-        let formula = '';
-        let bar = '';
-
         if (filled) {
           slot.classList.add('filled');
-          formula = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
-          bar = this.renderVisualBar(filled.a, filled.b, n);
+          // Рисуем заполненные блоки
+          const percentA = (filled.a / n) * 100;
+          const percentB = (filled.b / n) * 100;
+          slot.innerHTML = `
+            <div class="block-a" style="width: ${percentA}%">${filled.a}</div>
+            <div class="block-b" style="width: ${percentB}%">${filled.b}</div>
+          `;
         } else {
-          formula = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
-          bar = this.renderVisualBar(0, 0, n);
+          // Пустой слот (пунктирная рамка)
+          slot.innerHTML = `<div class="empty-slot"></div>`;
         }
 
-        slot.innerHTML = `<div class="formula">${formula}</div>${bar}`;
         slotsContainer.appendChild(slot);
       });
 
@@ -230,8 +220,13 @@ export class NumberHousesGame extends BaseGame {
         card.classList.add('picked');
       }
       
-      const bar = this.renderVisualBar(a, b, num);
-      card.innerHTML = `<div><span>${a}</span><span class="op">+</span><span>${b}</span></div>${bar}`;
+      const percentA = (a / num) * 100;
+      const percentB = (b / num) * 100;
+
+      card.innerHTML = `
+        <div class="block-a" style="width: ${percentA}%">${a}</div>
+        <div class="block-b" style="width: ${percentB}%">${b}</div>
+      `;
       
       card.addEventListener('click', () => this.onCardClick(num, idx, a, b));
       this.trayBodyEl.appendChild(card);
@@ -257,7 +252,6 @@ export class NumberHousesGame extends BaseGame {
 
     const { a, b, num } = this.state.picked;
 
-    // Если неправильно
     if (num !== n || a + b !== n) {
       this.soundManager.playWrong();
       houseEl.classList.add('flash-bad');
@@ -316,25 +310,12 @@ export class NumberHousesGame extends BaseGame {
     }
   }
 
-  private renderVisualBar(a: number, b: number, total: number): string {
-    if (total === 0) return '';
-    const percentA = (a / total) * 100;
-    const percentB = (b / total) * 100;
-    return `
-      <div class="visual-bar-container">
-        <div class="visual-bar-a" style="width: ${percentA}%;"></div>
-        <div class="visual-bar-b" style="width: ${percentB}%;"></div>
-      </div>
-    `;
-  }
-
   private winGame(): void {
     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     this.showGameOverScreen(true, { correct: this.state.score, wrong: this.wrongAnswers });
   }
 
   private endGameWithLoss(): void {
-    // Можно добавить звук поражения
     setTimeout(() => {
       this.showGameOverScreen(false, { correct: this.state.score, wrong: this.wrongAnswers });
     }, 800);
