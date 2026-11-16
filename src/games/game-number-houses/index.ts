@@ -163,14 +163,13 @@ export class NumberHousesGame extends BaseGame {
 
       const title = document.createElement('div');
       title.className = 'house-title';
-      // Показываем число-целое сверху
       title.textContent = String(n);
       house.appendChild(title);
 
       const slotsContainer = document.createElement('div');
       slotsContainer.className = 'slots-container';
 
-        this.data[n].forEach((_, idx) => {
+      this.data[n].forEach((_, idx) => {
         const key = `${n}-${idx}`;
         const filled = this.state.filled[key];
         const slot = document.createElement('div');
@@ -178,7 +177,6 @@ export class NumberHousesGame extends BaseGame {
 
         if (filled) {
           slot.classList.add('filled');
-          // Рисуем заполненные блоки
           const percentA = (filled.a / n) * 100;
           const percentB = (filled.b / n) * 100;
           slot.innerHTML = `
@@ -186,8 +184,8 @@ export class NumberHousesGame extends BaseGame {
             <div class="block-b" style="width: ${percentB}%">${filled.b}</div>
           `;
         } else {
-          // Пустой слот (пунктирная рамка)
-          slot.innerHTML = `<div class="empty-slot"></div>`;
+          // Пустой слот с "линейкой" внутри
+          slot.innerHTML = `<div class="empty-slot"><div class="ruler-bg"></div></div>`;
         }
 
         slotsContainer.appendChild(slot);
