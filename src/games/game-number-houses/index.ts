@@ -42,7 +42,7 @@ export class NumberHousesGame extends BaseGame {
   private totalCountEl!: HTMLElement;
   private progressFillEl!: HTMLElement;
   private overlayEl: HTMLElement | null = null;
-  private bgCanvasEl!: HTMLCanvasElement;
+  private bgSphereEl!: HTMLElement;
 
   public init(): void {
     const container = document.getElementById('game-container');
@@ -58,7 +58,8 @@ export class NumberHousesGame extends BaseGame {
     });
 
     container.innerHTML = `
-      <canvas id="bg-canvas" class="bg-canvas"></canvas>
+      <div class="bg-sphere-container" id="bg-sphere"></div>
+      
       <div class="houses-game-wrapper">
         <div class="topbar">
           <button type="button" class="btn-exit" id="btn-exit" title="В меню">✖</button>
@@ -100,7 +101,7 @@ export class NumberHousesGame extends BaseGame {
     this.doneCountEl = document.getElementById('doneCount')!;
     this.totalCountEl = document.getElementById('totalCount')!;
     this.progressFillEl = document.getElementById('progressFill')!;
-    this.bgCanvasEl = document.getElementById('bg-canvas') as HTMLCanvasElement;
+    this.bgSphereEl = document.getElementById('bg-sphere')!;
 
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     document.getElementById('btn-hint')?.addEventListener('click', () => this.useHint());
@@ -115,61 +116,50 @@ export class NumberHousesGame extends BaseGame {
     const savedVoice = localStorage.getItem('logikids_voice_uri');
     if (savedVoice) this.selectedVoiceURI = savedVoice;
 
-    this.initBackgroundAnimation();
+    this.createBackgroundSphere();
     this.start();
   }
 
-  private initBackgroundAnimation(): void {
-    const ctx = this.bgCanvasEl.getContext('2d');
-    if (!ctx) return;
-
-    let width = this.bgCanvasEl.width = window.innerWidth;
-    let height = this.bgCanvasEl.height = window.innerHeight;
-
-    const particles: {x: number, y: number, r: number, dx: number, dy: number, alpha: number, color: string}[] = [];
-    const colors = ['#e0f2fe', '#f3e8ff', '#fef3c7', '#dcfce7'];
-
-    for (let i = 0; i < 30; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        r: Math.random() * 40 + 20,
-        dx: (Math.random() - 0.5) * 0.5,
-        dy: (Math.random() - 0.5) * 0.5,
-        alpha: Math.random() * 0.5 + 0.1,
-        color: colors[Math.floor(Math.random() * colors.length)]
-      });
+  private createBackgroundSphere(): void {
+    const examples: string[] = [];
+    for (let n = 2; n <= 10; n++) {
+      for (let a = 1; a < n; a++) {
+        examples.push(`${a}+${n - a}=${n}`);
+      }
     }
 
-    const animate = () => {
-      if (this.bgCanvasEl.width !== window.innerWidth || this.bgCanvasEl.height !== window.innerHeight) {
-        width = this.bgCanvasEl.width = window.innerWidth;
-        height = this.bgCanvasEl.height = window.innerHeight;
-      }
+    const shuffled = examples.sort(() => Math.random() - 0.5).slice(0, 40);
 
-      ctx.clearRect(0, 0, width, height);
+    this.bgSphereEl.innerHTML = '';
+    
+    shuffled.forEach((text, i) => {
+      const el = document.createElement('div');
+      el.className = 'bg-tag';
+      el.textContent = text;
+      
+      // Спираль Фибоначчи
+      const phi = Math.acos(-1 + (2 * i) / shuffled.length);
+      const theta = Math.sqrt(shuffled.length * Math.PI) * phi;
+      const radius = 350;
+      
+      const x = radius * Math.cos(theta) * Math.sin(phi);
+      const y = radius * Math.sin(theta) * Math.sin(phi);
+      const z = radius * Math.cos(phi);
+      
+      el.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+      el.style.opacity = `${0.15 + (z + radius) / (2 * radius) * 0.25}`;
+      
+      this.bgSphereEl.appendChild(el);
+    });
 
-      particles.forEach(p => {
-        p.x += p.dx;
-        p.y += p.dy;
-
-        if (p.x < -p.r) p.x = width + p.r;
-        if (p.x > width + p.r) p.x = -p.r;
-        if (p.y < -p.r) p.y = height + p.r;
-        if (p.y > height + p.r) p.y = -p.r;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.alpha;
-        ctx.fill();
-      });
-
-      ctx.globalAlpha = 1;
-      requestAnimationFrame(animate);
+    // Вращение
+    let angle = 0;
+    const rotate = () => {
+      angle += 0.003;
+      this.bgSphereEl.style.transform = `rotateX(${angle * 0.3}rad) rotateY(${angle}rad)`;
+      requestAnimationFrame(rotate);
     };
-
-    animate();
+    rotate();
   }
 
   protected onStart(): void {
@@ -398,7 +388,6 @@ export class NumberHousesGame extends BaseGame {
       
       this.speakExpression(a, b);
       this.createParticles(cardEl);
-      // Убрали подсветку домиков при выборе
       
       this.soundManager.playClick();
     }
@@ -646,7 +635,7 @@ export class NumberHousesGame extends BaseGame {
     targetHouse.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     targetHouse.classList.add('hint-highlight');
     this.soundManager.playClick();
-    
+
     // Вызываем подсветку по кнопке
     this.highlightValidHouses(targetNum);
   }
