@@ -30,6 +30,7 @@ export class NumberHousesGame extends BaseGame {
   };
 
   private hintsLeft: number = 3;
+  private isSecondChance: boolean = false; // Флаг "Второго шанса"
 
   private housesContainerEl!: HTMLElement;
   private trayBodyEl!: HTMLElement;
@@ -112,7 +113,10 @@ export class NumberHousesGame extends BaseGame {
     };
     this.wrongAnswers = 0;
     this.hintsLeft = 3;
+    this.isSecondChance = false;
+    
     this.updateHintUI();
+    this.updateLivesUI();
 
     const initialOrder: { num: number, idx: number, a: number, b: number }[] = [];
     [2,3,4,5,6,7,8,9,10].forEach(n => {
@@ -147,21 +151,32 @@ export class NumberHousesGame extends BaseGame {
   private updateHintUI(): void {
     const countEl = document.getElementById('hint-count');
     const btnEl = document.getElementById('btn-hint');
-    if (countEl) countEl.textContent = String(this.hintsLeft);
-    if (btnEl) {
-      if (this.hintsLeft <= 0) {
-        btnEl.setAttribute('disabled', 'true');
-        btnEl.classList.add('btn-hint--disabled');
-      } else {
-        btnEl.removeAttribute('disabled');
-        btnEl.classList.remove('btn-hint--disabled');
-      }
+    if (!countEl || !btnEl) return;
+
+    if (this.isSecondChance || this.hintsLeft <= 0) {
+      btnEl.setAttribute('disabled', 'true');
+      btnEl.classList.add('btn-hint--disabled');
+      btnEl.style.display = 'none'; // Скрываем кнопку
+    } else {
+      btnEl.removeAttribute('disabled');
+      btnEl.classList.remove('btn-hint--disabled');
+      btnEl.style.display = 'flex';
+      countEl.textContent = String(this.hintsLeft);
     }
   }
 
   private updateLivesUI(): void {
     const container = document.getElementById('lives-indicator');
     if (!container) return;
+    
+    // Если "второй шанс" — скрываем сердечки
+    if (this.isSecondChance) {
+      container.style.display = 'none';
+      return;
+    } else {
+      container.style.display = 'flex';
+    }
+
     let html = '';
     for (let i = 0; i < 3; i++) {
       html += i < 3 - this.wrongAnswers ? '❤️' : '🖤';
@@ -220,7 +235,7 @@ export class NumberHousesGame extends BaseGame {
         const filled = this.state.filled[key];
         const slot = document.createElement('div');
         slot.className = 'slot-row';
-        slot.dataset.slotId = key; // Для быстрого поиска
+        slot.dataset.slotId = key;
 
         if (filled) {
           slot.classList.add('filled');
@@ -260,7 +275,7 @@ export class NumberHousesGame extends BaseGame {
     availableCards.forEach(({ num, idx, a, b }) => {
       const card = document.createElement('button');
       card.className = 'card';
-      card.dataset.cardId = `${num}-${idx}`; // Для быстрого удаления
+      card.dataset.cardId = `${num}-${idx}`;
       
       if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
         card.classList.add('picked');
@@ -325,11 +340,14 @@ export class NumberHousesGame extends BaseGame {
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
       
-      this.wrongAnswers++;
-      this.updateLivesUI();
+      // Если это "второй шанс", ошибки не считаются
+      if (!this.isSecondChance) {
+        this.wrongAnswers++;
+        this.updateLivesUI();
 
-      if (this.wrongAnswers >= 3) {
-        this.endGameWithLoss();
+        if (this.wrongAnswers >= 3) {
+          this.endGameWithLoss();
+        }
       }
       return;
     }
@@ -344,22 +362,22 @@ export class NumberHousesGame extends BaseGame {
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
       
-      this.wrongAnswers++;
-      this.updateLivesUI();
+      if (!this.isSecondChance) {
+        this.wrongAnswers++;
+        this.updateLivesUI();
 
-      if (this.wrongAnswers >= 3) {
-        this.endGameWithLoss();
+        if (this.wrongAnswers >= 3) {
+          this.endGameWithLoss();
+        }
       }
       return;
     }
 
-    // 1. Сохраняем данные
     const key = `${n}-${targetIdx}`;
     this.state.filled[key] = { a, b };
     this.state.score++;
     this.soundManager.playCorrect();
 
-    // 2. Удаляем карточку из лотка (без перерисовки всего)
     if (this.state.picked && this.state.picked.el) {
       this.state.picked.el.remove();
     }
@@ -367,7 +385,6 @@ export class NumberHousesGame extends BaseGame {
     
     this.clearHintHighlight();
 
-    // 3. Обновляем только нужный слот в домике
     const targetSlot = this.housesContainerEl.querySelector(`[data-slot-id="${key}"]`) as HTMLElement;
     if (targetSlot) {
       targetSlot.classList.add('filled', 'pop-anim');
@@ -380,18 +397,15 @@ export class NumberHousesGame extends BaseGame {
       setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
     }
 
-    // 4. Обновляем счетчики и прогресс-бар
     this.scoreEl.textContent = String(this.state.score);
     const totalCards = 63;
     const filledCards = Object.keys(this.state.filled).length;
     this.doneCountEl.textContent = String(filledCards);
     this.updateProgressBar(filledCards, totalCards);
 
-    // Обновляем счетчик оставшихся карточек
     const availableCount = this.trayBodyEl.querySelectorAll('.card').length;
     this.trayCountEl.textContent = `${availableCount} / ${totalCards}`;
 
-    // 5. Проверяем, собран ли домик
     const done = this.data[n].every((_, i) => this.state.filled[`${n}-${i}`]);
     if (done && !this.state.done.includes(n)) {
       this.state.done.push(n);
@@ -410,7 +424,7 @@ export class NumberHousesGame extends BaseGame {
       return;
     }
 
-    if (this.hintsLeft <= 0) return;
+    if (this.hintsLeft <= 0 || this.isSecondChance) return;
 
     this.hintsLeft--;
     this.updateHintUI();
@@ -448,6 +462,32 @@ export class NumberHousesGame extends BaseGame {
     const title = isWin ? t('houses.winTitle') : 'Игра окончена!';
     const emoji = isWin ? '🏆' : '💔';
 
+    // Считаем статистику для вывода
+    const totalCards = 63;
+    const filledCards = Object.keys(this.state.filled).length;
+    const doneHouses = this.state.done.length;
+
+    // Собираем кнопки
+    let actionsHtml = '';
+    
+    if (!isWin && !this.isSecondChance) {
+      actionsHtml = `
+        <button type="button" class="game-overlay__btn game-overlay__btn--primary" id="second-chance-btn">Ещё один шанс</button>
+        <button type="button" class="game-overlay__btn game-overlay__btn--secondary" id="restart-btn">${t('game.playAgain')}</button>
+        <button type="button" class="game-overlay__btn game-overlay__btn--text" id="menu-btn">${t('game.menu')}</button>
+      `;
+    } else if (!isWin && this.isSecondChance) {
+      actionsHtml = `
+        <button type="button" class="game-overlay__btn game-overlay__btn--primary" id="restart-btn">${t('game.playAgain')}</button>
+        <button type="button" class="game-overlay__btn game-overlay__btn--secondary" id="menu-btn">${t('game.menu')}</button>
+      `;
+    } else {
+      actionsHtml = `
+        <button type="button" class="game-overlay__btn game-overlay__btn--primary" id="restart-btn">${t('game.playAgain')}</button>
+        <button type="button" class="game-overlay__btn game-overlay__btn--secondary" id="menu-btn">${t('game.menu')}</button>
+      `;
+    }
+
     const overlay = document.createElement('div');
     overlay.className = 'game-overlay';
     overlay.innerHTML = `
@@ -462,19 +502,35 @@ export class NumberHousesGame extends BaseGame {
             <div class="stat-label">${t('game.score')}</div>
           </div>
           <div class="stat-box">
+            <div class="stat-value" style="color: #3182ce;">${filledCards} / ${totalCards}</div>
+            <div class="stat-label">Карточек</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" style="color: #38a169;">${doneHouses} / 9</div>
+            <div class="stat-label">Домиков</div>
+          </div>
+          <div class="stat-box">
             <div class="stat-value" style="color: #e53e3e;">${stats.wrong}</div>
             <div class="stat-label">Ошибки</div>
           </div>
         </div>
 
         <div class="game-overlay__actions">
-          <button type="button" class="game-overlay__btn game-overlay__btn--primary" id="restart-btn">${t('game.playAgain')}</button>
-          <button type="button" class="game-overlay__btn game-overlay__btn--secondary" id="menu-btn">${t('game.menu')}</button>
+          ${actionsHtml}
         </div>
       </div>
     `;
     document.body.appendChild(overlay);
     this.overlayEl = overlay;
+
+    // Обработчики кнопок
+    overlay.querySelector('#second-chance-btn')?.addEventListener('click', () => {
+      overlay.remove();
+      this.isSecondChance = true;
+      this.updateHintUI();
+      this.updateLivesUI();
+      this.soundManager.playClick();
+    });
 
     overlay.querySelector('#restart-btn')?.addEventListener('click', () => {
       overlay.remove();
