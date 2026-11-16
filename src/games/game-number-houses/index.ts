@@ -161,12 +161,13 @@ export class NumberHousesGame extends BaseGame {
 
       house.addEventListener('click', () => this.onHouseClick(n, house));
 
-      // Обновленный заголовок-домик
+      // Заголовок-полоска с числом
       const title = document.createElement('div');
       title.className = 'house-title';
       title.innerHTML = `
-        <div class="house-roof"></div>
-        <div class="house-number">${n}</div>
+        <div class="house-bar">
+          <span>${n}</span>
+        </div>
       `;
       house.appendChild(title);
 

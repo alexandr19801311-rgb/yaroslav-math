@@ -36,14 +36,14 @@
 .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #4caf50, #8bc34a); border-radius: 8px; transition: width 0.5s; }
 .progress-text { font-size: 13px; opacity: 0.8; white-space: nowrap; }
 
-/* ===== ДОМИКИ (Сетка 9 колонок) ===== */
+/* ===== ДОМИКИ ===== */
 .houses {
   display: grid; 
-  grid-template-columns: repeat(9, 1fr); /* Строго 9 колонок */
+  grid-template-columns: repeat(9, 1fr);
   gap: 4px;
   flex-shrink: 0; 
   margin-bottom: 8px; 
-  height: 45vh; /* Чуть уменьшили высоту */
+  height: 45vh;
   width: 100%;
 }
 
@@ -56,56 +56,50 @@
   display: flex; 
   flex-direction: column; 
   transition: all .2s;
-  overflow: hidden; /* Чтобы блоки не вылезали */
+  overflow: hidden;
 }
 .house.done { border-color: #388e3c; background: #f1f8e9; cursor: default; }
 .house.done::after { content: '✅'; position: absolute; top: 2px; right: 2px; font-size: 12px; z-index: 10; }
 .house.flash-bad { animation: flashBad 0.5s; }
 @keyframes flashBad { 0%, 100% { background: #fff; } 50% { background: #ffcdd2; border-color: #d32f2f; } }
 
-/* ===== Заголовок домика (Крыша + Цифра) ===== */
+/* ===== ЗАГОЛОВОК-ПОЛОСКА (Число домика) ===== */
 .house-title {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-end;
-  height: 50px;
-  margin-bottom: 4px;
+  height: 40px;
+  margin-bottom: 6px;
   position: relative;
   flex-shrink: 0;
+  padding: 0 4px;
 }
 
-.house-roof {
-  width: 0;
-  height: 0;
-  border-left: 24px solid transparent;
-  border-right: 24px solid transparent;
-  border-bottom: 16px solid var(--house-color, #1976d2);
-  position: absolute;
-  top: 0;
-  z-index: 1;
-}
-
-.house-number {
-  background: var(--house-color, #1976d2);
-  color: #fff;
-  font-size: 18px;
-  font-weight: bold;
-  width: 44px;
-  height: 30px;
+.house-bar {
+  width: 100%;
+  height: 28px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0 0 6px 6px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  background: var(--house-color);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.house-bar span {
+  position: relative;
   z-index: 2;
-  margin-top: 16px;
 }
 
 /* Цвета для чисел */
 .house[data-num="2"]  { --house-color: #e53935; }
 .house[data-num="3"]  { --house-color: #fb8c00; }
 .house[data-num="4"]  { --house-color: #fdd835; }
-.house[data-num="4"] .house-number { color: #333; }
+.house[data-num="4"] .house-bar { color: #333; }
 .house[data-num="5"]  { --house-color: #7cb342; }
 .house[data-num="6"]  { --house-color: #00897b; }
 .house[data-num="7"]  { --house-color: #1e88e5; }
@@ -113,19 +107,19 @@
 .house[data-num="9"]  { --house-color: #d81b60; }
 .house[data-num="10"] { --house-color: #6d4c41; }
 
-/* ===== Слоты внутри домика ===== */
+/* ===== Слоты ===== */
 .slots-container { 
   display: flex; 
   flex-direction: column; 
-  gap: 2px; 
-  padding: 0 3px 3px 3px; 
+  gap: 3px; 
+  padding: 0 4px 4px 4px; 
   flex: 1; 
   overflow-y: auto; 
 }
 
 .slot-row {
   width: 100%;
-  height: 20px;
+  height: 24px;
   display: flex;
   border-radius: 4px;
   overflow: hidden;
@@ -136,11 +130,10 @@
 .slot-row.pop-anim { animation: slot-pop 0.4s; }
 @keyframes slot-pop { 0% { transform: scale(1); } 40% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-/* Пустой слот */
 .empty-slot {
   width: 100%;
   height: 100%;
-  border: 1px dashed #ccc;
+  border: 1px dashed #bbb;
   border-radius: 4px;
   box-sizing: border-box;
   position: relative;
@@ -148,22 +141,21 @@
 }
 .ruler-bg {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background-image: linear-gradient(to right, #eaeaea 1px, transparent 1px);
+  background-image: linear-gradient(to right, #eee 1px, transparent 1px);
   background-size: 10% 100%;
   opacity: 0.6;
 }
 
-/* ===== Блоки внутри слотов и карточек ===== */
 .block-a {
   background: #64b5f6; color: #fff;
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: bold; height: 100%;
+  font-size: 12px; font-weight: bold; height: 100%;
   transition: width 0.3s ease;
 }
 .block-b {
   background: #ffb74d; color: #333;
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: bold; height: 100%;
+  font-size: 12px; font-weight: bold; height: 100%;
   transition: width 0.3s ease;
 }
 
@@ -207,7 +199,6 @@
   z-index: 10;
 }
 
-/* Блоки в карточке */
 .card .block-a { font-size: 14px; border-radius: 5px 0 0 5px; }
 .card .block-b { font-size: 14px; border-radius: 0 5px 5px 0; }
 .card .block-a:only-child { border-radius: 5px; }
