@@ -161,9 +161,13 @@ export class NumberHousesGame extends BaseGame {
 
       house.addEventListener('click', () => this.onHouseClick(n, house));
 
+      // Обновленный заголовок-домик
       const title = document.createElement('div');
       title.className = 'house-title';
-      title.textContent = String(n);
+      title.innerHTML = `
+        <div class="house-roof"></div>
+        <div class="house-number">${n}</div>
+      `;
       house.appendChild(title);
 
       const slotsContainer = document.createElement('div');
@@ -184,7 +188,6 @@ export class NumberHousesGame extends BaseGame {
             <div class="block-b" style="width: ${percentB}%">${filled.b}</div>
           `;
         } else {
-          // Пустой слот с "линейкой" внутри
           slot.innerHTML = `<div class="empty-slot"><div class="ruler-bg"></div></div>`;
         }
 
