@@ -210,28 +210,27 @@
   animation: card-appear 0.3s ease-out;
 }
 
-/* Эффект выделения */
+@keyframes card-appear {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 .card.picked { 
-  border-color: #d97706; /* Яркая оранжевая обводка */
+  border-color: #d97706;
   border-width: 3px;
-  box-shadow: 0 0 15px rgba(217, 119, 6, 0.6); /* Оранжевое свечение */
-  transform: translateY(-4px) scale(1.02); /* Приподнимаем */
+  box-shadow: 0 0 15px rgba(217, 119, 6, 0.6);
+  transform: translateY(-4px) scale(1.02);
   z-index: 10;
 }
 
-/* ... (остальные стили блоков и сегментов без изменений) ... */
-
-/* Блоки внутри карточки */
-.block-a, .block-b {
+.card .block-a, .card .block-b {
   height: 100%;
   display: flex;
   position: relative;
 }
+.card .block-a { background: #a9d6e5; }
+.card .block-b { background: #f4a261; }
 
-.block-a { background: #a9d6e5; }
-.block-b { background: #f4a261; }
-
-/* Сегменты (разделители) */
 .card-segment {
   height: 100%;
   border-right: 1px solid rgba(0,0,0,0.1);
@@ -239,12 +238,11 @@
   flex-shrink: 0;
 }
 
-.block-a .card-segment:last-child,
-.block-b .card-segment:last-child {
+.card .block-a .card-segment:last-child,
+.card .block-b .card-segment:last-child {
   border-right: none;
 }
 
-/* Цифра поверх сегментов */
 .card-number {
   position: absolute;
   top: 50%;
@@ -256,4 +254,38 @@
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   pointer-events: none;
   z-index: 5;
+}
+
+/* ========================================= */
+/* ===== АДАПТИВ ДЛЯ ПЛАНШЕТОВ И ТЕЛЕФОНОВ ===== */
+/* ========================================= */
+@media (max-width: 1100px) {
+  .houses {
+    display: flex; /* Переводим в flex для скролла */
+    overflow-x: auto;
+    scroll-snap-type: x mandatory; /* Магнитный скролл */
+    height: 40vh;
+    padding-bottom: 8px;
+    gap: 8px;
+  }
+  
+  .house {
+    min-width: 110px; /* Фиксированная ширина домика */
+    scroll-snap-align: start;
+  }
+
+  /* Уменьшаем размер карточек в лотке */
+  .card {
+    height: 32px;
+    border-radius: 6px;
+    border-width: 1.5px;
+  }
+  
+  .card-number {
+    font-size: 14px;
+  }
+  
+  .tray-body {
+    gap: 6px;
+  }
 }
