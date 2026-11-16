@@ -16,7 +16,6 @@
   padding: 2px 0 6px; font-size: 14px; font-weight: bold; flex-shrink: 0;
   gap: 10px;
 }
-.topbar .title { color: #1976d2; font-size: 16px; white-space: nowrap; }
 .topbar .score { color: #fb8c00; white-space: nowrap; }
 
 .btn-exit {

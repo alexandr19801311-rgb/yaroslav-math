@@ -42,7 +42,6 @@ export class NumberHousesGame extends BaseGame {
     const container = document.getElementById('game-container');
     if (!container) return;
 
-    // 1. Инициализация данных
     const allNumbers = [2, 3, 4, 5, 6, 7, 8, 9, 10];
     allNumbers.forEach(n => {
       const list: [number, number][] = [];
@@ -52,12 +51,11 @@ export class NumberHousesGame extends BaseGame {
       this.data[n] = list;
     });
 
-    // 2. Отрисовка каркаса
     container.innerHTML = `
       <div class="houses-game-wrapper">
+        <!-- Компактная шапка без заголовка -->
         <div class="topbar">
           <button type="button" class="btn-exit" id="btn-exit" title="В меню">✖</button>
-          <div class="title">🏠 ${t('houses.title')}</div>
           
           <div class="progress-container">
             <div class="progress-wrapper">
@@ -85,7 +83,6 @@ export class NumberHousesGame extends BaseGame {
       </div>
     `;
 
-    // 3. Получение ссылок на DOM
     this.housesContainerEl = document.getElementById('houses')!;
     this.trayBodyEl = document.getElementById('trayBody')!;
     this.trayCountEl = document.getElementById('trayCount')!;
@@ -100,7 +97,6 @@ export class NumberHousesGame extends BaseGame {
   }
 
   protected onStart(): void {
-    // Сбрасываем состояние
     this.state = {
       score: 0,
       done: [],
@@ -110,18 +106,15 @@ export class NumberHousesGame extends BaseGame {
       sampleOn: false
     };
 
-    // Формируем стартовый порядок карточек ОДИН РАЗ и перемешиваем
     const initialOrder: { num: number, idx: number, a: number, b: number }[] = [];
     [2,3,4,5,6,7,8,9,10].forEach(n => {
       this.data[n].forEach(([a, b], idx) => {
         initialOrder.push({ num: n, idx, a, b });
       });
     });
-    // Перемешиваем один раз
     initialOrder.sort(() => Math.random() - 0.5);
     this.state.trayOrder = initialOrder;
 
-    // Отрисовываем
     this.renderAll();
   }
 
@@ -153,13 +146,9 @@ export class NumberHousesGame extends BaseGame {
       house.dataset.num = String(n);
       if (this.state.done.includes(n)) house.classList.add('done');
 
-      house.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        if (target.classList.contains('house-title')) {
-          this.highlightCardsForNumber(n);
-        } else {
-          this.onHouseClick(n, house);
-        }
+      // Убрали подсказку при клике на заголовок, теперь заголовок просто часть домика
+      house.addEventListener('click', () => {
+        this.onHouseClick(n, house);
       });
 
       const title = document.createElement('div');
@@ -183,10 +172,6 @@ export class NumberHousesGame extends BaseGame {
           slot.classList.add('filled');
           formula = `<span class="num-blue">${filled.a}</span><span class="op-red">+</span><span class="num-blue">${filled.b}</span><span class="eq">=</span><span class="result">${n}</span>`;
           bar = this.renderVisualBar(filled.a, filled.b, n);
-        } else if (this.state.sampleOn) {
-          slot.classList.add('ghost');
-          formula = `<span class="num-blue">${a}</span><span class="op-red">+</span><span class="num-blue">${b}</span><span class="eq">=</span><span class="result">${n}</span>`;
-          bar = this.renderVisualBar(a, b, n);
         } else {
           formula = `<span class="num-blue">_</span><span class="op-red">+</span><span class="num-blue">_</span><span class="eq">=</span><span class="result">${n}</span>`;
           bar = this.renderVisualBar(0, 0, n);
@@ -204,7 +189,6 @@ export class NumberHousesGame extends BaseGame {
   private renderTray(): void {
     this.trayBodyEl.innerHTML = '';
     
-    // Фильтруем исходный trayOrder, оставляя только незаполненные карточки
     const availableCards = this.state.trayOrder.filter(card => {
       return !this.state.filled[`${card.num}-${card.idx}`];
     });
@@ -242,7 +226,6 @@ export class NumberHousesGame extends BaseGame {
       this.state.picked = { num, idx, a, b };
       this.soundManager.playClick();
     }
-    // Перерисовываем только лоток, чтобы обновить подсветку
     this.renderTray();
   }
 
@@ -271,23 +254,19 @@ export class NumberHousesGame extends BaseGame {
       return;
     }
 
-    // Записываем заполнение и добавляем очки
     this.state.filled[`${n}-${targetIdx}`] = { a, b };
     this.state.score++;
     this.soundManager.playCorrect();
     this.state.picked = null;
 
-    // Перерисовываем всё (карточка исчезнет из лотка)
     this.renderAll();
 
-    // Анимация слота
     const targetSlot = document.querySelector(`.house[data-num="${n}"] .slot-row:nth-child(${targetIdx + 1})`);
     if (targetSlot) {
       targetSlot.classList.add('pop-anim');
       setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
     }
 
-    // Проверка на завершение домика
     const done = this.data[n].every((_, i) => this.state.filled[`${n}-${i}`]);
     if (done && !this.state.done.includes(n)) {
       this.state.done.push(n);
@@ -298,27 +277,6 @@ export class NumberHousesGame extends BaseGame {
         else this.renderAll();
       }, 600);
     }
-  }
-
-  private highlightCardsForNumber(n: number): void {
-    if (this.state.done.includes(n)) return;
-    this.soundManager.playClick();
-    
-    const cards = this.trayBodyEl.querySelectorAll('.card');
-    cards.forEach(card => {
-      const text = card.textContent || '';
-      if (text.includes('+')) {
-        const parts = text.split('+');
-        if (parts.length === 2) {
-          const sum = parseInt(parts[0]) + parseInt(parts[1].replace(/[^0-9]/g, ''));
-          if (sum === n) card.classList.add('hint-highlight');
-        }
-      }
-    });
-    
-    setTimeout(() => {
-      cards.forEach(c => c.classList.remove('hint-highlight'));
-    }, 2000);
   }
 
   private renderVisualBar(a: number, b: number, total: number): string {
@@ -367,7 +325,7 @@ export class NumberHousesGame extends BaseGame {
 
     overlay.querySelector('#restart-btn')?.addEventListener('click', () => {
       overlay.remove();
-      this.start(); // Просто перезапускаем игру, onStart все сбросит
+      this.start();
     });
 
     overlay.querySelector('#menu-btn')?.addEventListener('click', () => {
