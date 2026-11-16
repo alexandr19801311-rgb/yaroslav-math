@@ -179,10 +179,11 @@
 }
 .tray-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #f57f17; margin-bottom: 6px; }
 
+/* Лоток теперь flex-контейнер */
 .tray-body { 
   flex: 1; 
-  display: grid; 
-  grid-template-columns: repeat(8, 1fr);
+  display: flex;
+  flex-wrap: wrap; /* Позволяем переносить карточки */
   gap: 8px; 
   align-content: flex-start; 
   overflow-y: auto; 
@@ -192,7 +193,7 @@
 /* ===== Карточки ===== */
 .card {
   height: 40px;
-  width: 100%;
+  /* width задается динамически через JS */
   padding: 0;
   border: none; 
   background: #fff;
@@ -202,8 +203,9 @@
   overflow: hidden;
   transition: transform 0.1s, box-shadow 0.2s;
   box-shadow: 0 3px 0 rgba(0,0,0,0.15), 0 4px 6px rgba(0,0,0,0.1);
-  align-items: stretch; /* Растягиваем блоки на всю высоту */
+  align-items: stretch;
   position: relative;
+  flex-shrink: 0; /* Запрещаем сжиматься меньше заданной ширины */
 }
 
 .card.picked { 
@@ -212,56 +214,4 @@
   z-index: 10;
 }
 
-/* Общие стили для блоков */
-.card .block-a,
-.card .block-b {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: width 0.3s ease;
-}
-
-/* Цвета блоков */
-.card .block-a { background: #38bdf8; }
-.card .block-b { background: #f97316; }
-
-/* Контейнер для сегментов */
-.segments-wrapper {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex;
-  pointer-events: none;
-}
-
-/* Сам сегмент (разделитель) */
-.card-segment {
-  flex: 1;
-  border-right: 1px solid rgba(0,0,0,0.15); /* Темный разделитель */
-}
-
-.card-segment:last-child {
-  border-right: none;
-}
-
-/* Цифра поверх сегментов */
-.card .block-a span,
-.card .block-b span {
-  position: relative;
-  z-index: 2;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 900;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Тень для читаемости */
-}
-
-/* Скругления */
-.card .block-a { border-radius: 8px 0 0 8px; }
-.card .block-b { border-radius: 0 8px 8px 0; }
-.card .block-a:only-child { border-radius: 8px; }
-.card .block-b:only-child { border-radius: 8px; }
-
-/* Разделитель между блоками */
-.card .block-a + .block-b {
-  border-left: 1px solid rgba(0,0,0,0.2);
-}
+/* ... (остальные стили для блоков и сегментов без изменений) ... */

@@ -232,6 +232,16 @@ export class NumberHousesGame extends BaseGame {
     availableCards.forEach(({ num, idx, a, b }) => {
       const card = document.createElement('button');
       card.className = 'card';
+      
+      // Задаем ширину карточки пропорционально числу (максимум 10)
+      // Базовая ширина пусть будет 10% от 100% (условно), 
+      // значит карточка с num=10 займет всю ширину, а num=2 — 20%
+      // Чтобы было красиво, используем calc или фиксированную базу.
+      // Допустим, базовая ширина для 10 = 200px. Тогда для n = (n/10)*200px
+      const baseWidth = 200; // Можно вынести в константу
+      const cardWidth = (num / 10) * baseWidth;
+      card.style.width = `${cardWidth}px`;
+      
       if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
         card.classList.add('picked');
       }
@@ -239,7 +249,6 @@ export class NumberHousesGame extends BaseGame {
       const percentA = (a / num) * 100;
       const percentB = (b / num) * 100;
 
-      // Генерируем HTML для блоков с сегментами
       let blockAHtml = '';
       if (a > 0) {
         let segsA = '';
