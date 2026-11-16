@@ -324,7 +324,31 @@ export class NumberHousesGame extends BaseGame {
     } else {
       this.state.picked = { num, idx, a, b, el: cardEl };
       cardEl.classList.add('picked');
+      
+      // НОВОЕ: Озвучиваем число (если поддерживается)
+      this.speakNumber(num);
+      
       this.soundManager.playClick();
+    }
+  }
+
+  // Метод озвучки
+  private speakNumber(num: number): void {
+    if ('speechSynthesis' in window) {
+      // Отменяем предыдущую речь, чтобы не наслаивалась
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(String(num));
+      utterance.lang = 'ru-RU';
+      utterance.rate = 1.2; // Чуть быстрее
+      utterance.pitch = 1.5; // Детский голос
+      
+      // Ищем русский голос (если доступен)
+      const voices = window.speechSynthesis.getVoices();
+      const ruVoice = voices.find(v => v.lang.includes('ru'));
+      if (ruVoice) utterance.voice = ruVoice;
+
+      window.speechSynthesis.speak(utterance);
     }
   }
 

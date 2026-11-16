@@ -30,14 +30,12 @@
 }
 .btn-exit:hover { background: #edf2f7; color: #e53e3e; }
 
-/* ... (стили без изменений) ... */
-
 /* Кнопка подсказки */
 .btn-hint {
   background: #fff;
   border: 2px solid #ed8936;
   color: #ed8936;
-  border-radius: 24px; /* Овальная для счетчика */
+  border-radius: 24px;
   padding: 4px 10px;
   height: 32px;
   display: flex;
@@ -69,22 +67,6 @@
   color: #a0aec0;
 }
 
-/* Подсветка домика при подсказке (остается гореть) */
-.house.hint-highlight {
-  animation: pulse-highlight 1.5s infinite;
-  z-index: 20;
-  border-color: #ed8936 !important;
-  box-shadow: 0 0 20px rgba(237, 137, 54, 0.5);
-}
-
-@keyframes pulse-highlight {
-  0% { box-shadow: 0 0 0 0 rgba(237, 137, 54, 0.7); }
-  70% { box-shadow: 0 0 0 15px rgba(237, 137, 54, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(237, 137, 54, 0); }
-}
-
-/* ... (остальные стили без изменений) ... */
-
 /* ===== Прогресс ===== */
 .progress-container { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; max-width: 500px; margin: 0 10px; }
 .progress-wrapper { flex: 1; height: 16px; background: #e0e0e0; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid #1976d2; }
@@ -93,7 +75,7 @@
   width: 0%; 
   background: linear-gradient(90deg, #4caf50, #8bc34a); 
   border-radius: 8px; 
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Плавный прогресс */
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .progress-text { font-size: 13px; opacity: 0.8; white-space: nowrap; }
 
@@ -126,12 +108,15 @@
 
 /* Подсветка при подсказке */
 .house.hint-highlight {
-  animation: hint-glow 1s ease-out;
+  animation: pulse-highlight 1.5s infinite;
   z-index: 20;
+  border-color: #ed8936 !important;
+  box-shadow: 0 0 20px rgba(237, 137, 54, 0.5);
 }
-@keyframes hint-glow {
-  0% { box-shadow: 0 0 0 0 rgba(237, 137, 54, 0.8); }
-  50% { box-shadow: 0 0 0 10px rgba(237, 137, 54, 0); }
+
+@keyframes pulse-highlight {
+  0% { box-shadow: 0 0 0 0 rgba(237, 137, 54, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(237, 137, 54, 0); }
   100% { box-shadow: 0 0 0 0 rgba(237, 137, 54, 0); }
 }
 
@@ -333,34 +318,28 @@
 /* ========================================= */
 @media (max-width: 1100px) {
   .houses {
-    display: flex; /* Переводим в flex для скролла */
+    display: flex; 
     overflow-x: auto;
-    scroll-snap-type: x mandatory; /* Магнитный скролл */
+    scroll-snap-type: x mandatory;
     height: 40vh;
     padding-bottom: 8px;
     gap: 8px;
-    scrollbar-width: thin; /* Для Firefox */
+    
+    /* Скрываем скроллбар */
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
   }
   
-  /* Стили для скроллбара в Webkit */
   .houses::-webkit-scrollbar {
-    height: 6px;
-  }
-  .houses::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-  }
-  .houses::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 3px;
+    display: none; 
   }
 
   .house {
-    min-width: 110px; /* Фиксированная ширина домика */
+    /* Уменьшили минимальную ширину, чтобы домики не были слишком большими */
+    min-width: 95px; 
     scroll-snap-align: start;
   }
 
-  /* Уменьшаем размер карточек в лотке */
   .card {
     height: 32px;
     border-radius: 6px;
@@ -375,109 +354,17 @@
     gap: 6px;
   }
 }
-/* ... (все стили выше без изменений) ... */
 
-/* ===== Экран Триумфа (Оверлей) ===== */
-/* (Если у тебя глобальный CSS, добавь эти стили туда, но лучше сюда для локальности) */
-
-.game-overlay__card {
-  background: #fff;
-  border-radius: 24px;
-  padding: 32px;
-  text-align: center;
-  max-width: 480px;
-  width: calc(100% - 40px);
-  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.4);
-  font-family: system-ui, -apple-system, sans-serif;
+/* Специально для планшетов (шире 768px, но уже 1100px) */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .houses {
+    height: 45vh;
+  }
+  .house {
+    /* Уменьшили ширину на планшетах, чтобы влезало больше домиков */
+    min-width: 110px; 
+  }
+  .card {
+    height: 34px;
+  }
 }
-
-.game-overlay__emoji {
-  font-size: 4rem;
-  margin-bottom: 10px;
-}
-
-.game-overlay__title {
-  margin: 0 0 16px;
-  font-size: 1.8rem;
-  color: #2d3748;
-  font-weight: 800;
-}
-
-.game-overlay__score {
-  font-size: 1.1rem;
-  color: #4a5568;
-  margin-bottom: 20px;
-  font-weight: 600;
-}
-
-.game-overlay__stats {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.stat-box {
-  background: #f7fafc;
-  padding: 12px 20px;
-  border-radius: 16px;
-  border: 2px solid #edf2f7;
-  min-width: 100px;
-}
-
-.stat-value {
-  font-size: 1.6rem;
-  font-weight: 900;
-  color: #2d3748;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  color: #718096;
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.game-overlay__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.game-overlay__btn {
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.1s, filter 0.2s;
-  font-family: inherit;
-}
-
-.game-overlay__btn--primary {
-  background: #4299e1;
-  color: white;
-  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
-}
-
-.game-overlay__btn--secondary {
-  background: #edf2f7;
-  color: #4a5568;
-}
-
-.game-overlay__btn--text {
-  background: transparent;
-  color: #a0aec0;
-  box-shadow: none;
-  padding: 8px;
-  font-size: 0.95rem;
-}
-
-.game-overlay__btn:hover { filter: brightness(1.05); }
-.game-overlay__btn:active { transform: scale(0.97); }
