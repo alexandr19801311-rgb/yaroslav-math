@@ -161,12 +161,19 @@ export class NumberHousesGame extends BaseGame {
 
       house.addEventListener('click', () => this.onHouseClick(n, house));
 
-      // Заголовок-полоска с числом
       const title = document.createElement('div');
       title.className = 'house-title';
+      
+      // Генерируем сегменты для визуализации числа
+      let segmentsHtml = '';
+      for (let i = 0; i < n; i++) {
+        segmentsHtml += '<div class="house-segment"></div>';
+      }
+      
       title.innerHTML = `
-        <div class="house-bar">
-          <span>${n}</span>
+        <div class="house-bar" style="background: var(--house-color);">
+          ${segmentsHtml}
+          <span class="house-number-overlay">${n}</span>
         </div>
       `;
       house.appendChild(title);
