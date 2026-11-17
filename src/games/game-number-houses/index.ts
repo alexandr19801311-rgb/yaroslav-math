@@ -705,8 +705,14 @@ export class NumberHousesGame extends BaseGame {
 
     const overlay = document.createElement('div');
     overlay.className = 'game-overlay';
-    // Убеждаемся, что z-index высокий
-    overlay.style.zIndex = '9999';
+    // Устанавливаем максимальный z-index прямо в инлайн-стиле
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.zIndex = '99999';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'flex-end';
+    overlay.style.justifyContent = 'center';
+    
     overlay.innerHTML = `
       <div class="game-overlay__card">
         <div class="game-overlay__emoji">${emoji}</div>
