@@ -42,7 +42,6 @@ export class NumberHousesGame extends BaseGame {
   private doneCountEl!: HTMLElement;
   private totalCountEl!: HTMLElement;
   private progressFillEl!: HTMLElement;
-  private overlayEl: HTMLElement | null = null;
   private bgSphereEl!: HTMLElement;
 
   public init(): void {
