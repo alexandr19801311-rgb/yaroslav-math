@@ -680,7 +680,6 @@ export class NumberHousesGame extends BaseGame {
     // Принудительно убираем старый оверлей
     const oldOverlay = document.querySelector('.game-overlay');
     if (oldOverlay) oldOverlay.remove();
-    this.overlayEl = null;
 
     const title = isWin ? t('houses.winTitle') : 'Игра окончена!';
     const emoji = isWin ? '🏆' : '💔';
@@ -739,7 +738,6 @@ export class NumberHousesGame extends BaseGame {
       </div>
     `;
     document.body.appendChild(overlay);
-    this.overlayEl = overlay;
 
     overlay.querySelector('#second-chance-btn')?.addEventListener('click', () => {
       overlay.remove();
