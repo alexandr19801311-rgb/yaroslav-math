@@ -24,11 +24,10 @@ body.dark-theme .bg-tag {
   text-shadow: 0 0 20px rgba(71, 85, 105, 0.3);
 }
 
-/* Домики в ночной теме (максимальная прозрачность) */
 body.dark-theme .house {
-  background: rgba(30, 41, 59, 0.15); /* Почти прозрачный */
+  background: rgba(30, 41, 59, 0.15);
   border-color: rgba(51, 65, 85, 0.4);
-  backdrop-filter: blur(2px); /* Легкое размытие */
+  backdrop-filter: blur(2px);
 }
 
 body.dark-theme .house-title {
@@ -59,32 +58,31 @@ body.dark-theme .ruler-bg {
   background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
 }
 
-/* Карточки в ночной теме (мягкие, не бьющие по глазам цвета) */
+/* КАРТОЧКИ В НОЧНОЙ ТЕМЕ — ДНЕВНЫЕ ЦВЕТА */
 body.dark-theme .card {
   background: rgba(30, 41, 59, 0.8);
   border-color: rgba(71, 85, 105, 0.6);
 }
 
 body.dark-theme .card .block-a {
-  background: #475569; /* Приглушенный серо-синий */
-  color: #e2e8f0;
+  background: #a9d6e5; /* Дневной голубой */
+  color: #fff;
 }
 
 body.dark-theme .card .block-b {
-  background: #78350f; /* Темно-оранжевый (не яркий) */
-  color: #fbd38d;
+  background: #f4a261; /* Дневной оранжевый */
+  color: #333;
 }
 
 body.dark-theme .card-number {
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 body.dark-theme .tray-wrap {
   background: transparent;
 }
 
-/* Кнопки в ночной теме */
 body.dark-theme .btn-hint,
 body.dark-theme .btn-sound,
 body.dark-theme .btn-theme {
@@ -117,6 +115,20 @@ body.dark-theme .btn-theme {
   text-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6);
   backface-visibility: hidden;
   transition: color 0.5s, text-shadow 0.5s;
+}
+
+/* ===== ДОМИКИ (ДНЕВНАЯ ТЕМА — ПОЛУПРОЗРАЧНЫЕ) ===== */
+.house {
+  border: 1px solid #1976d2; 
+  border-radius: 8px; 
+  background: rgba(255, 255, 255, 0.7); /* Полупрозрачный фон */
+  backdrop-filter: blur(4px);
+  position: relative; 
+  cursor: pointer; 
+  display: flex; 
+  flex-direction: column; 
+  transition: all .2s;
+  overflow: hidden;
 }
 
 /* ===== Шапка ===== */

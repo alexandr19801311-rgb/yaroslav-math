@@ -49,7 +49,6 @@ export class NumberHousesGame extends BaseGame {
     const container = document.getElementById('game-container');
     if (!container) return;
 
-    // Проверяем сохраненную тему
     const savedTheme = localStorage.getItem('logikids_theme');
     if (savedTheme === 'dark') {
       this.isDarkTheme = true;
@@ -93,7 +92,6 @@ export class NumberHousesGame extends BaseGame {
 
         <div class="houses" id="houses"></div>
 
-        <!-- Убрали обводку и заголовок -->
         <div class="tray-wrap">
           <div class="tray-body" id="trayBody"></div>
         </div>
@@ -112,7 +110,6 @@ export class NumberHousesGame extends BaseGame {
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     document.getElementById('btn-hint')?.addEventListener('click', () => this.useHint());
     
-    // Переключатель темы
     document.getElementById('btn-theme')?.addEventListener('click', () => {
       this.isDarkTheme = !this.isDarkTheme;
       document.body.classList.toggle('dark-theme', this.isDarkTheme);
@@ -352,9 +349,8 @@ export class NumberHousesGame extends BaseGame {
       card.className = 'card';
       card.dataset.cardId = `${num}-${idx}`;
       
-      // Случайный поворот для "рассыпанности"
-      const randomRotate = (Math.random() - 0.5) * 4; // от -2 до 2 градусов
-      const randomTranslateY = (Math.random() - 0.5) * 4; // от -2 до 2 пикселей
+      const randomRotate = (Math.random() - 0.5) * 4;
+      const randomTranslateY = (Math.random() - 0.5) * 4;
       card.style.transform = `rotate(${randomRotate}deg) translateY(${randomTranslateY}px)`;
 
       if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
@@ -399,7 +395,6 @@ export class NumberHousesGame extends BaseGame {
 
     if (this.state.picked && this.state.picked.el) {
       this.state.picked.el.classList.remove('picked');
-      // Возвращаем случайный поворот при снятии выбора
       const oldRotate = (Math.random() - 0.5) * 4;
       this.state.picked.el.style.transform = `rotate(${oldRotate}deg)`;
       this.clearValidHighlights();
@@ -606,7 +601,7 @@ export class NumberHousesGame extends BaseGame {
     clone.style.zIndex = '1000';
     clone.style.pointerEvents = 'none';
     clone.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-    clone.style.transform = 'rotate(0deg)'; // Выпрямляем при полете
+    clone.style.transform = 'rotate(0deg)';
     
     cardEl.style.opacity = '0';
     document.body.appendChild(clone);
@@ -663,7 +658,6 @@ export class NumberHousesGame extends BaseGame {
     targetHouse.classList.add('hint-highlight');
     this.soundManager.playClick();
 
-    // Вызываем подсветку по кнопке
     this.highlightValidHouses(targetNum);
   }
 
@@ -684,7 +678,10 @@ export class NumberHousesGame extends BaseGame {
   }
 
   protected showGameOverScreen(isWin: boolean, stats: { correct: number, wrong: number }): void {
-    if (this.overlayEl) this.overlayEl.remove();
+    // Принудительно убираем старый оверлей
+    const oldOverlay = document.querySelector('.game-overlay');
+    if (oldOverlay) oldOverlay.remove();
+    this.overlayEl = null;
 
     const title = isWin ? t('houses.winTitle') : 'Игра окончена!';
     const emoji = isWin ? '🏆' : '💔';
@@ -710,6 +707,8 @@ export class NumberHousesGame extends BaseGame {
 
     const overlay = document.createElement('div');
     overlay.className = 'game-overlay';
+    // Убеждаемся, что z-index высокий
+    overlay.style.zIndex = '9999';
     overlay.innerHTML = `
       <div class="game-overlay__card">
         <div class="game-overlay__emoji">${emoji}</div>
