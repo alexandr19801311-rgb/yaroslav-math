@@ -65,12 +65,12 @@ body.dark-theme .card {
 }
 
 body.dark-theme .card .block-a {
-  background: #a9d6e5; /* Дневной голубой */
+  background: #a9d6e5;
   color: #fff;
 }
 
 body.dark-theme .card .block-b {
-  background: #f4a261; /* Дневной оранжевый */
+  background: #f4a261;
   color: #333;
 }
 
@@ -116,34 +116,6 @@ body.dark-theme .btn-theme {
   backface-visibility: hidden;
   transition: color 0.5s, text-shadow 0.5s;
 }
-
-/* ===== ДОМИКИ (ДНЕВНАЯ ТЕМА — ПОЛУПРОЗРАЧНЫЕ) ===== */
-.houses {
-  display: grid; 
-  grid-template-columns: repeat(9, 1fr);
-  gap: 6px; 
-  flex-shrink: 0; 
-  margin-bottom: 20px; 
-  height: 42vh; 
-  width: 100%;
-}
-
-.house {
-  border: 1px solid #1976d2; 
-  border-radius: 8px; 
-  background: rgba(255, 255, 255, 0.7); /* Полупрозрачный фон */
-  backdrop-filter: blur(4px);
-  position: relative; 
-  cursor: pointer; 
-  display: flex; 
-  flex-direction: column; 
-  transition: all .2s;
-  overflow: hidden;
-}
-.house.done { border-color: #388e3c; background: rgba(241, 248, 233, 0.8); cursor: default; }
-.house.done::after { content: '✅'; position: absolute; top: 2px; right: 2px; font-size: 12px; z-index: 10; }
-.house.flash-bad { animation: flashBad 0.5s; }
-@keyframes flashBad { 0%, 100% { background: rgba(255, 255, 255, 0.7); } 50% { background: #ffcdd2; border-color: #d32f2f; } }
 
 /* ===== Шапка ===== */
 .topbar {
@@ -224,7 +196,7 @@ body.dark-theme .btn-theme {
 }
 .progress-text { font-size: 13px; opacity: 0.8; white-space: nowrap; }
 
-/* ===== ДОМИКИ ===== */
+/* ===== ДОМИКИ (ДНЕВНАЯ ТЕМА — ПОЛУПРОЗРАЧНЫЕ) ===== */
 .houses {
   display: grid; 
   grid-template-columns: repeat(9, 1fr);
@@ -238,7 +210,8 @@ body.dark-theme .btn-theme {
 .house {
   border: 1px solid #1976d2; 
   border-radius: 8px; 
-  background: #fff;
+  background: rgba(255, 255, 255, 0.7); /* Полупрозрачный фон */
+  backdrop-filter: blur(4px);
   position: relative; 
   cursor: pointer; 
   display: flex; 
@@ -246,10 +219,10 @@ body.dark-theme .btn-theme {
   transition: all .2s;
   overflow: hidden;
 }
-.house.done { border-color: #388e3c; background: #f1f8e9; cursor: default; }
+.house.done { border-color: #388e3c; background: rgba(241, 248, 233, 0.8); cursor: default; }
 .house.done::after { content: '✅'; position: absolute; top: 2px; right: 2px; font-size: 12px; z-index: 10; }
 .house.flash-bad { animation: flashBad 0.5s; }
-@keyframes flashBad { 0%, 100% { background: #fff; } 50% { background: #ffcdd2; border-color: #d32f2f; } }
+@keyframes flashBad { 0%, 100% { background: rgba(255, 255, 255, 0.7); } 50% { background: #ffcdd2; border-color: #d32f2f; } }
 
 /* Подсветка при подсказке */
 .house.hint-highlight {
