@@ -397,6 +397,7 @@ export class NumberHousesGame extends BaseGame {
       const oldRotate = (Math.random() - 0.5) * 4;
       this.state.picked.el.style.transform = `rotate(${oldRotate}deg)`;
       this.clearValidHighlights();
+      this.clearMagnetSlots();
     }
 
     if (this.state.picked && this.state.picked.num === num && this.state.picked.idx === idx) {
@@ -408,9 +409,31 @@ export class NumberHousesGame extends BaseGame {
       
       this.speakExpression(a, b);
       this.createParticles(cardEl);
+      this.highlightMagnetSlots(num);
       
       this.soundManager.playClick();
     }
+  }
+
+  private highlightMagnetSlots(num: number): void {
+    this.clearMagnetSlots();
+    const house = this.housesContainerEl.querySelector(
+      `.house[data-num="${num}"]`
+    ) as HTMLElement | null;
+    if (!house || this.state.done.includes(num)) return;
+
+    house.querySelectorAll('.slot-row').forEach((slot) => {
+      const id = (slot as HTMLElement).dataset.slotId;
+      if (id && !this.state.filled[id]) {
+        slot.classList.add('magnet-target');
+      }
+    });
+  }
+
+  private clearMagnetSlots(): void {
+    this.housesContainerEl
+      .querySelectorAll('.magnet-target')
+      .forEach((el) => el.classList.remove('magnet-target'));
   }
 
   private createParticles(cardEl: HTMLElement): void {
@@ -539,11 +562,16 @@ export class NumberHousesGame extends BaseGame {
     if (!targetSlot) return;
 
     this.clearValidHighlights();
+    this.clearMagnetSlots();
 
     this.animateCardToHouse(cardEl, targetSlot, () => {
       this.state.filled[key] = { a, b };
       this.state.score++;
       this.soundManager.playCorrect();
+
+      // Реакция 3D-фона на правильный ответ
+      this.bgSphereEl.classList.add('boost');
+      setTimeout(() => this.bgSphereEl.classList.remove('boost'), 1000);
 
       if (this.state.picked && this.state.picked.el) {
         this.state.picked.el.remove();
@@ -555,9 +583,12 @@ export class NumberHousesGame extends BaseGame {
       targetSlot.classList.add('filled', 'pop-anim');
       const percentA = (a / n) * 100;
       const percentB = (b / n) * 100;
+      const residents = ['🐱', '🦉', '🐸', '🐰', '🦊', '🐼', '🐨', '🐧', '🐢'];
+      const resident = residents[Math.floor(Math.random() * residents.length)];
       targetSlot.innerHTML = `
         <div class="block-a" style="width: ${percentA}%">${a}</div>
         <div class="block-b" style="width: ${percentB}%">${b}</div>
+        <span class="resident">${resident}</span>
       `;
       setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);
 
@@ -568,7 +599,9 @@ export class NumberHousesGame extends BaseGame {
       this.updateProgressBar(filledCards, totalCards);
 
       const availableCount = this.trayBodyEl.querySelectorAll('.card').length;
-      this.trayCountEl.textContent = `${availableCount} / ${totalCards}`;
+      if (this.trayCountEl) {
+        this.trayCountEl.textContent = `${availableCount} / ${totalCards}`;
+      }
 
       const done = this.data[n].every((_, i) => this.state.filled[`${n}-${i}`]);
       if (done && !this.state.done.includes(n)) {
@@ -579,6 +612,7 @@ export class NumberHousesGame extends BaseGame {
         setTimeout(() => houseEl.classList.remove('house-complete-anim'), 1000);
         
         this.fireConfetti(houseEl);
+        this.spawnRoofParticles(houseEl);
 
         if (this.state.done.length === 9) {
           setTimeout(() => this.winGame(), 1000);
@@ -636,6 +670,32 @@ export class NumberHousesGame extends BaseGame {
     });
   }
 
+  private spawnRoofParticles(houseEl: HTMLElement): void {
+    const title = houseEl.querySelector('.house-title') as HTMLElement | null;
+    if (!title) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'roof-particles';
+    title.appendChild(wrap);
+
+    const colors = ['#fbbf24', '#f59e0b', '#ef4444', '#3b82f6', '#22c55e', '#a855f7'];
+    const count = 14;
+
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('span');
+      p.className = 'roof-particle' + (i % 2 === 0 ? ' star' : '');
+      p.style.background = colors[i % colors.length];
+      const dx = (Math.random() - 0.5) * 140;
+      const dy = -40 - Math.random() * 80;
+      p.style.setProperty('--dx', `${dx}px`);
+      p.style.setProperty('--dy', `${dy}px`);
+      p.style.animationDelay = `${i * 25}ms`;
+      wrap.appendChild(p);
+    }
+
+    setTimeout(() => wrap.remove(), 1400);
+  }
+
   private useHint(): void {
     if (!this.state.picked) {
       this.soundManager.playWrong();
@@ -677,7 +737,6 @@ export class NumberHousesGame extends BaseGame {
   }
 
   protected showGameOverScreen(isWin: boolean, stats: { correct: number, wrong: number }): void {
-    // Принудительно убираем старый оверлей
     const oldOverlay = document.querySelector('.game-overlay');
     if (oldOverlay) oldOverlay.remove();
 
@@ -705,7 +764,6 @@ export class NumberHousesGame extends BaseGame {
 
     const overlay = document.createElement('div');
     overlay.className = 'game-overlay';
-    // Устанавливаем максимальный z-index прямо в инлайн-стиле
     overlay.style.position = 'fixed';
     overlay.style.inset = '0';
     overlay.style.zIndex = '99999';

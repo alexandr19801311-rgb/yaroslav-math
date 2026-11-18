@@ -210,7 +210,7 @@ body.dark-theme .btn-theme {
 .house {
   border: 1px solid #1976d2; 
   border-radius: 8px; 
-  background: rgba(255, 255, 255, 0.7); /* Полупрозрачный фон */
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(4px);
   position: relative; 
   cursor: pointer; 
@@ -555,4 +555,273 @@ body.dark-theme .btn-theme {
   .bg-tag {
     font-size: 20px;
   }
+}
+
+/* ========================================================= */
+/* ===== ШАГ 1: СКАЗОЧНЫЙ КВАРТАЛ ===== */
+/* ========================================================= */
+
+/* ----- 1.1. Типографика ----- */
+.houses-game-wrapper,
+.house-badge,
+.card,
+.card-number,
+.game-overlay__card {
+  font-family: 'Nunito', 'Trebuchet MS', sans-serif;
+}
+
+.houses-game-wrapper {
+  font-weight: 700;
+}
+
+/* ----- 1.2. Крыша и чердачное окно ----- */
+.house-title {
+  position: relative;
+  padding-top: 26px;
+  overflow: visible;
+}
+
+.house-title::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 26px;
+  background: var(--house-color, #1e88e5);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  filter: brightness(1.05);
+  z-index: 1;
+}
+
+.house-title::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: 18%;
+  width: 10px;
+  height: 16px;
+  background: #6d4c41;
+  border-radius: 2px 2px 0 0;
+  box-shadow: inset 2px 0 0 rgba(255, 255, 255, 0.25);
+  z-index: 0;
+}
+
+.house-badge {
+  position: relative;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border-width: 3px;
+  font-size: 20px;
+  margin-top: -14px;
+  background:
+    radial-gradient(circle at 30% 25%, #fff 0%, #f7fafc 60%, #e2e8f0 100%);
+}
+
+.house.done .house-title::after {
+  background:
+    radial-gradient(circle, rgba(255,255,255,0.9) 0 3px, transparent 4px) 0 0 / 8px 8px;
+  animation: chimney-smoke 2.2s ease-in-out infinite;
+}
+
+@keyframes chimney-smoke {
+  0%   { box-shadow: 0 -6px 0 -2px rgba(255,255,255,0.35), 0 -14px 0 -4px rgba(255,255,255,0.18); }
+  50%  { box-shadow: 0 -12px 0 -2px rgba(255,255,255,0.45), 0 -22px 0 -5px rgba(255,255,255,0.22); }
+  100% { box-shadow: 0 -6px 0 -2px rgba(255,255,255,0.35), 0 -14px 0 -4px rgba(255,255,255,0.18); }
+}
+
+/* ----- 1.3. Светящиеся окна и жильцы ----- */
+.slot-row.filled {
+  position: relative;
+  animation: window-glow 0.6s ease-out;
+}
+
+.slot-row.filled .block-a {
+  background:
+    linear-gradient(180deg, #ffe89a 0%, #ffd166 100%);
+  color: #4a2c00;
+  box-shadow: inset 0 0 12px rgba(255, 196, 0, 0.55);
+}
+
+.slot-row.filled .block-b {
+  background:
+    linear-gradient(180deg, #ffd8a8 0%, #ffb26b 100%);
+  color: #4a2200;
+  box-shadow: inset 0 0 12px rgba(255, 128, 0, 0.45);
+}
+
+@keyframes window-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 196, 0, 0); }
+  60%  { box-shadow: 0 0 14px 4px rgba(255, 196, 0, 0.55); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 196, 0, 0); }
+}
+
+.slot-row.filled .resident {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.4);
+  font-size: 16px;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  animation: resident-pop 1.5s ease-in-out forwards;
+}
+
+@keyframes resident-pop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  25%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+  70%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -110%) scale(1); }
+}
+
+/* ----- 1.4. Тактильные карточки ----- */
+.card {
+  transition:
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.15);
+}
+
+.card.picked {
+  animation: card-wiggle 1.4s ease-in-out infinite;
+}
+
+@keyframes card-wiggle {
+  0%, 100% { transform: translateY(-4px) rotate(-1deg) scale(1.02); }
+  50%      { transform: translateY(-6px) rotate(1deg)  scale(1.03); }
+}
+
+/* ----- 1.5. Пружинистая физика (Spring Physics) ----- */
+.house {
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.2s ease,
+    background 0.3s ease,
+    box-shadow 0.25s ease;
+}
+
+.slot-row {
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.2s ease;
+}
+
+.slot-row.pop-anim {
+  animation: slot-spring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slot-spring {
+  0%   { transform: scale(1, 1); }
+  35%  { transform: scale(1.12, 0.86); }
+  65%  { transform: scale(0.94, 1.08); }
+  100% { transform: scale(1, 1); }
+}
+
+/* ----- 1.6. Эффект «умного магнита» ----- */
+.slot-row.magnet-target {
+  position: relative;
+  border: 2px dashed #f59e0b !important;
+  border-radius: 6px;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+  background: rgba(255, 247, 237, 0.85);
+  animation: magnet-bob 1.2s ease-in-out infinite;
+}
+
+@keyframes magnet-bob {
+  0%, 100% { transform: translateY(-3px); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* ----- 1.7. Частицы конфетти из крыши ----- */
+.roof-particles {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.roof-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: particle-fly 0.9s cubic-bezier(0.22, 0.9, 0.35, 1) forwards;
+}
+
+.roof-particle.star {
+  border-radius: 0;
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+@keyframes particle-fly {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.3) rotate(0); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx, 0), var(--dy, -60px)) scale(1.2) rotate(240deg); }
+}
+
+/* ----- 1.8. Реакция 3D-фона на правильный ответ ----- */
+.bg-sphere-container.boost .bg-tag {
+  animation: sphere-boost 1s ease-out;
+}
+
+@keyframes sphere-boost {
+  0%   { filter: brightness(1); }
+  30%  { filter: brightness(2.2) drop-shadow(0 0 8px #facc15); }
+  100% { filter: brightness(1); }
+}
+
+/* ----- 1.9. Мобильный адаптив: подсказка о скролле ----- */
+@media (max-width: 767px) {
+  .houses {
+    position: relative;
+  }
+
+  .houses::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 32px;
+    height: 42vh;
+    pointer-events: none;
+    background: linear-gradient(to left, rgba(255,255,255,0.85), transparent);
+    z-index: 30;
+  }
+
+  body.dark-theme .houses::after {
+    background: linear-gradient(to left, rgba(15, 23, 42, 0.85), transparent);
+  }
+}
+
+/* ----- 1.10. Пустой лоток ----- */
+.tray-empty {
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: #38a169;
+  animation: tray-empty-pop 0.5s ease-out;
+}
+
+@keyframes tray-empty-pop {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
 }
