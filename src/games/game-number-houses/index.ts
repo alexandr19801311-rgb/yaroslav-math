@@ -409,7 +409,6 @@ export class NumberHousesGame extends BaseGame {
       
       this.speakExpression(a, b);
       this.createParticles(cardEl);
-      this.highlightMagnetSlots(num);
       
       this.soundManager.playClick();
     }
@@ -718,6 +717,8 @@ export class NumberHousesGame extends BaseGame {
     this.soundManager.playClick();
 
     this.highlightValidHouses(targetNum);
+	
+	this.highlightMagnetSlots(targetNum);
   }
 
   private clearHintHighlight(): void {
