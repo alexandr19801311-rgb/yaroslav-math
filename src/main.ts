@@ -1,7 +1,6 @@
 import './assets/css/global.css';
 import { NumberHousesGame } from './games/game-number-houses/index';
 
-// Функция генерации 3D-сферы
 function createBackgroundSphere(containerId: string): void {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -24,7 +23,7 @@ function createBackgroundSphere(containerId: string): void {
     
     const phi = Math.acos(-1 + (2 * i) / shuffled.length);
     const theta = Math.sqrt(shuffled.length * Math.PI) * phi;
-    const radius = 350;
+    const radius = 350; 
     
     const x = radius * Math.cos(theta) * Math.sin(phi);
     const y = radius * Math.sin(theta) * Math.sin(phi);
@@ -54,13 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!menuContainer || !gameContainer) return;
 
-  // Восстанавливаем тему для меню
   const savedTheme = localStorage.getItem('logikids_theme');
   if (savedTheme === 'dark') {
     document.body.classList.add('dark-theme');
   }
 
-  // Генерация падающих звезд для меню
   const starsContainer = document.getElementById('menu-stars');
   if (starsContainer) {
     for (let i = 0; i < 30; i++) {
@@ -73,9 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Генерация сферы в меню
   createBackgroundSphere('menu-bg-sphere');
 
+  // ВАЖНО: Здесь возвращается логика переключения экранов
   const returnToMenu = () => {
     gameContainer.style.display = 'none';
     gameContainer.innerHTML = '';
