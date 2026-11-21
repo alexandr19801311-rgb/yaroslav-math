@@ -28,7 +28,8 @@ export class NumberHousesGame extends BaseGame {
     trayOrder: [],
     sampleOn: false
   };
-
+  
+  private combo: number = 0;
   private hintsLeft: number = 3;
   private isSecondChance: boolean = false;
   private isSoundOn: boolean = true;
@@ -186,6 +187,7 @@ export class NumberHousesGame extends BaseGame {
       trayOrder: [],
       sampleOn: false
     };
+	this.combo = 0;
     this.wrongAnswers = 0;
     this.hintsLeft = 3;
     this.isSecondChance = false;
@@ -410,7 +412,7 @@ export class NumberHousesGame extends BaseGame {
       this.speakExpression(a, b);
       this.createParticles(cardEl);
       
-      this.soundManager.playClick();
+      this.soundManager.playRobotSelect();
     }
   }
 
@@ -538,6 +540,7 @@ export class NumberHousesGame extends BaseGame {
 
     if (targetIdx === -1) {
       this.soundManager.playWrong();
+	  this.combo = 0; // Сбрасываем серию при ошибке
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
       
@@ -566,7 +569,10 @@ export class NumberHousesGame extends BaseGame {
     this.animateCardToHouse(cardEl, targetSlot, () => {
       this.state.filled[key] = { a, b };
       this.state.score++;
-      this.soundManager.playCorrect();
+      
+      // Увеличиваем комбо и играем звук с учетом высоты
+      this.combo++;
+      this.soundManager.playCorrect(this.combo);
 
       // Реакция 3D-фона на правильный ответ
       this.bgSphereEl.classList.add('boost');
@@ -605,7 +611,7 @@ export class NumberHousesGame extends BaseGame {
       const done = this.data[n].every((_, i) => this.state.filled[`${n}-${i}`]);
       if (done && !this.state.done.includes(n)) {
         this.state.done.push(n);
-        this.soundManager.playWin();
+        this.soundManager.playRobotHouseDone();
         
         houseEl.classList.add('done', 'house-complete-anim');
         setTimeout(() => houseEl.classList.remove('house-complete-anim'), 1000);
