@@ -1,3 +1,4 @@
+import { Mascot } from '../../components/Mascot';
 import { BaseGame } from '../base/BaseGame';
 import { t } from '../../core/i18n';
 import confetti from 'canvas-confetti';
@@ -19,6 +20,7 @@ interface HouseState {
 export class NumberHousesGame extends BaseGame {
   protected gameId = 'number-houses';
 
+  private mascot!: Mascot;
   private data: HouseData = {};
   private state: HouseState = {
     score: 0,
@@ -132,6 +134,7 @@ export class NumberHousesGame extends BaseGame {
     if (savedVoice) this.selectedVoiceURI = savedVoice;
 
     this.createBackgroundSphere();
+	this.mascot = new Mascot();
     this.start();
   }
 
@@ -191,6 +194,7 @@ export class NumberHousesGame extends BaseGame {
     this.wrongAnswers = 0;
     this.hintsLeft = 3;
     this.isSecondChance = false;
+	this.mascot.setMood('idle');
     
     this.updateHintUI();
     this.updateLivesUI();
@@ -412,7 +416,8 @@ export class NumberHousesGame extends BaseGame {
       this.speakExpression(a, b);
       this.createParticles(cardEl);
       
-      this.soundManager.playRobotSelect();
+      this.mascot.setMood('idle');
+      this.soundManager.playRobotSelect(); // Оставляем только здесь
     }
   }
 
@@ -517,9 +522,9 @@ export class NumberHousesGame extends BaseGame {
     // ОШИБКА 1: Карточка не подходит к этому домику
     if (num !== n || a + b !== n) {
       this.soundManager.playWrong();
-      this.combo = 0; // <--- ДОБАВЛЕНО: Сброс комбо здесь!
-      houseEl.classList.add('flash-bad');
-      setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
+      this.combo = 0;
+      this.mascot.setMood('sad'); // Сочувствует
+      setTimeout(() => this.mascot.setMood('idle'), 2000); // Возврат в норму
       
       if (this.isSecondChance) {
         setTimeout(() => this.endGameWithLoss(), 500);
@@ -576,6 +581,12 @@ export class NumberHousesGame extends BaseGame {
       // Увеличиваем комбо и играем звук с учетом высоты
       this.combo++;
       this.soundManager.playCorrect(this.combo);
+
+      if (this.combo >= 3) {
+        this.mascot.setMood('combo'); // Включаем турбо-свечение
+      } else {
+        this.mascot.setMood('happy'); // Радуется
+      }
 
       // Реакция 3D-фона на правильный ответ
       this.bgSphereEl.classList.add('boost');
@@ -714,6 +725,8 @@ export class NumberHousesGame extends BaseGame {
 
     this.hintsLeft--;
     this.updateHintUI();
+	this.mascot.setMood('hint');
+    setTimeout(() => this.mascot.setMood('idle'), 1500);
 
     const targetNum = this.state.picked.num;
     const targetHouse = document.querySelector(`.house[data-num="${targetNum}"]`) as HTMLElement;
@@ -749,6 +762,7 @@ export class NumberHousesGame extends BaseGame {
   protected showGameOverScreen(isWin: boolean, stats: { correct: number, wrong: number }): void {
     const oldOverlay = document.querySelector('.game-overlay');
     if (oldOverlay) oldOverlay.remove();
+	if (this.mascot) this.mascot.destroy();
 
     const title = isWin ? t('houses.winTitle') : 'Игра окончена!';
     const emoji = isWin ? '🏆' : '💔';
