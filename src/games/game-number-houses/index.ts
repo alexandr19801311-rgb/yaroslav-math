@@ -20,6 +20,7 @@ interface HouseState {
 export class NumberHousesGame extends BaseGame {
   protected gameId = 'number-houses';
 
+  private currentLevel: 1 | 2 | 3 = 1; 
   private mascot!: Mascot;
   private data: HouseData = {};
   private state: HouseState = {
@@ -87,6 +88,9 @@ export class NumberHousesGame extends BaseGame {
           <button type="button" class="btn-theme" id="btn-theme" title="Сменить тему">
             ${this.isDarkTheme ? '☀️' : '🌙'}
           </button>
+		            <button type="button" class="btn-level" id="btn-level" title="Сменить сложность">
+            🟢 1
+          </button>
           <button type="button" class="btn-sound" id="btn-sound" title="Звук">🔊</button>
           <button type="button" class="btn-hint" id="btn-hint" title="Подсказка">🔍 <span id="hint-count">3</span></button>
           <div class="score">⭐ <span id="score">0</span></div>
@@ -108,6 +112,35 @@ export class NumberHousesGame extends BaseGame {
     this.totalCountEl = document.getElementById('totalCount')!;
     this.progressFillEl = document.getElementById('progressFill')!;
     this.bgSphereEl = document.getElementById('bg-sphere')!;
+	    // Загрузка уровня из localStorage
+    const savedLevel = localStorage.getItem('logikids_houses_level');
+    if (savedLevel) {
+      this.currentLevel = parseInt(savedLevel) as 1 | 2 | 3;
+    }
+
+    // Обработчик кнопки
+    document.getElementById('btn-level')?.addEventListener('click', () => {
+      this.currentLevel = (this.currentLevel % 3 + 1) as 1 | 2 | 3;
+      localStorage.setItem('logikids_houses_level', String(this.currentLevel));
+      
+      // Обновляем иконку
+      const btn = document.getElementById('btn-level');
+      if (btn) {
+        const icons = { 1: '🟢', 2: '🟡', 3: '🔴' };
+        btn.innerHTML = `${icons[this.currentLevel]} ${this.currentLevel}`;
+      }
+      
+      this.soundManager.playClick();
+      this.renderHouses();
+      this.renderTray();
+    });
+
+    // Установка начальной иконки
+    const levelBtn = document.getElementById('btn-level');
+    if (levelBtn) {
+      const icons = { 1: '🟢', 2: '🟡', 3: '🔴' };
+      levelBtn.innerHTML = `${icons[this.currentLevel]} ${this.currentLevel}`;
+    }
 
     document.getElementById('btn-exit')?.addEventListener('click', () => this.exitToMenu());
     document.getElementById('btn-hint')?.addEventListener('click', () => this.useHint());
@@ -326,7 +359,23 @@ export class NumberHousesGame extends BaseGame {
             <div class="block-b" style="width: ${percentB}%">${filled.b}</div>
           `;
         } else {
-          slot.innerHTML = `<div class="empty-slot"><div class="ruler-bg"></div></div>`;
+          // Логика для пустых слотов в зависимости от уровня
+          if (this.currentLevel === 1) {
+            // Уровень 1: Полупрозрачная подсказка-блок
+            slot.innerHTML = `
+              <div class="empty-slot">
+                <div class="ruler-bg"></div>
+                <div class="slot-hint-block"></div>
+              </div>
+            `;
+          } else if (this.currentLevel === 2) {
+            // Уровень 2: Чистый слот (только линейка)
+            slot.innerHTML = `<div class="empty-slot"><div class="ruler-bg"></div></div>`;
+          } else {
+            // Уровень 3: Алгебраический (спрятанное число)
+            // (Показываем вопрос только в заполненной части, если есть)
+            slot.innerHTML = `<div class="empty-slot"><div class="ruler-bg"></div><span class="slot-question">?</span></div>`;
+          }
         }
 
         slotsContainer.appendChild(slot);
@@ -374,7 +423,8 @@ export class NumberHousesGame extends BaseGame {
         for (let i = 0; i < a; i++) {
           segs += '<div class="card-segment" style="width: ' + baseUnit + 'px;"></div>';
         }
-        html += `<div class="block-a" style="width: ${a * baseUnit}px;">${segs}<span class="card-number">${a}</span></div>`;
+        const numA = this.currentLevel === 3 ? '?' : a;
+        html += `<div class="block-a" style="width: ${a * baseUnit}px;">${segs}<span class="card-number">${numA}</span></div>`;
       }
       
       if (b > 0) {
@@ -382,7 +432,8 @@ export class NumberHousesGame extends BaseGame {
         for (let i = 0; i < b; i++) {
           segs += '<div class="card-segment" style="width: ' + baseUnit + 'px;"></div>';
         }
-        html += `<div class="block-b" style="width: ${b * baseUnit}px;">${segs}<span class="card-number">${b}</span></div>`;
+        const numB = this.currentLevel === 3 ? '?' : b;
+        html += `<div class="block-b" style="width: ${b * baseUnit}px;">${segs}<span class="card-number">${numB}</span></div>`;
       }
 
       card.innerHTML = html;
@@ -604,9 +655,12 @@ export class NumberHousesGame extends BaseGame {
       const percentB = (b / n) * 100;
       const residents = ['🐱', '🦉', '🐸', '🐰', '🦊', '🐼', '🐨', '🐧', '🐢'];
       const resident = residents[Math.floor(Math.random() * residents.length)];
+      const displayA = this.currentLevel === 3 ? '?' : a;
+      const displayB = this.currentLevel === 3 ? '?' : b;
+      
       targetSlot.innerHTML = `
-        <div class="block-a" style="width: ${percentA}%">${a}</div>
-        <div class="block-b" style="width: ${percentB}%">${b}</div>
+        <div class="block-a" style="width: ${percentA}%">${displayA}</div>
+        <div class="block-b" style="width: ${percentB}%">${displayB}</div>
         <span class="resident">${resident}</span>
       `;
       setTimeout(() => targetSlot.classList.remove('pop-anim'), 400);

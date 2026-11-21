@@ -1011,3 +1011,56 @@ body.dark-theme .btn-theme {
   from { opacity: 0.5; }
   to   { opacity: 1; }
 }
+/* ========================================================= */
+/* ===== ШАГ 4: ПРОГРЕССИЯ СЛОЖНОСТИ ===== */
+/* ========================================================= */
+
+.btn-level {
+  background: #fff;
+  border: 2px solid #a0aec0;
+  color: #4a5568;
+  border-radius: 24px;
+  padding: 4px 10px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-level:hover { background: #edf2f7; }
+.btn-level:active { transform: scale(0.95); }
+
+body.dark-theme .btn-level {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+/* Подсказка в слоте (Уровень 1) */
+.slot-hint-block {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.05);
+  border-right: 1px dashed rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* Вопрос в слоте (Уровень 3) */
+.slot-question {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  font-weight: 900;
+  color: #cbd5e1;
+  pointer-events: none;
+}
