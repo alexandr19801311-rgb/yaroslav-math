@@ -1313,3 +1313,200 @@ body.dark-theme .btn-level {
   color: #cbd5e1;
   pointer-events: none;
 }
+/* ========================================================= */
+/* ===== СТИЛЬНОЕ МЕНЮ (START MENU) ===== */
+/* ========================================================= */
+
+#menu-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(244, 114, 182, 0.15) 0%, transparent 40%),
+    linear-gradient(135deg, #e0f2fe 0%, #f3e8ff 100%);
+  position: relative;
+  overflow: hidden;
+  font-family: 'Nunito', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+body.dark-theme #menu-container {
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(244, 114, 182, 0.1) 0%, transparent 40%),
+    linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+}
+
+/* Парящие элементы на фоне */
+.menu-bg-decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floating-icon {
+  position: absolute;
+  font-weight: 900;
+  color: rgba(148, 163, 184, 0.4);
+  text-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  animation: float-decor 8s ease-in-out infinite;
+}
+
+body.dark-theme .floating-icon {
+  color: rgba(71, 85, 105, 0.4);
+}
+
+.floating-icon.icon-1 { font-size: 48px; top: 15%; left: 15%; animation-delay: 0s; }
+.floating-icon.icon-2 { font-size: 32px; top: 25%; right: 20%; animation-delay: 1s; color: #f59e0b; opacity: 0.6; }
+.floating-icon.icon-3 { font-size: 64px; bottom: 20%; left: 20%; animation-delay: 2s; }
+.floating-icon.icon-4 { font-size: 80px; bottom: 15%; right: 15%; animation-delay: 0.5s; color: #3b82f6; opacity: 0.3; }
+.floating-icon.icon-5 { font-size: 24px; top: 60%; right: 30%; animation-delay: 1.5s; color: #10b981; opacity: 0.6; }
+.floating-icon.icon-6 { font-size: 40px; top: 10%; right: 40%; animation-delay: 3s; }
+
+@keyframes float-decor {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(10deg); }
+}
+
+/* Стеклянная карточка меню */
+.menu-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  padding: 48px 32px;
+  border-radius: 40px;
+  width: 90%;
+  max-width: 440px;
+  text-align: center;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.05),
+    0 2px 10px rgba(0, 0, 0, 0.02),
+    inset 0 0 0 1px rgba(255,255,255,0.5);
+  z-index: 10;
+  position: relative;
+  animation: card-entrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+body.dark-theme .menu-card {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(71, 85, 105, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes card-entrance {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Маскот в меню (маленькая голова робота) */
+.menu-mascot {
+  width: 80px;
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 30px;
+  border: 4px solid #cbd5e1;
+  margin: -80px auto 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  position: relative;
+  animation: float-decor 4s ease-in-out infinite;
+}
+
+.menu-mascot::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 15px;
+  background: #94a3b8;
+}
+
+.menu-mascot::after {
+  content: '';
+  position: absolute;
+  top: -21px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: #f87171;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #f87171;
+}
+
+.menu-mascot .mascot-eye {
+  width: 14px;
+  height: 14px;
+  background: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #38bdf8;
+  animation: blink-eye 4s infinite;
+}
+
+@keyframes blink-eye {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+/* Заголовок и текст */
+.menu-title {
+  font-size: 32px;
+  font-weight: 900;
+  color: #1e293b;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.5px;
+}
+
+body.dark-theme .menu-title {
+  color: #f8fafc;
+}
+
+.menu-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0 0 32px 0;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+body.dark-theme .menu-subtitle {
+  color: #94a3b8;
+}
+
+/* Кнопка "Играть" */
+.btn-start-menu {
+  background: linear-gradient(180deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 18px 32px;
+  font-size: 20px;
+  font-weight: 900;
+  font-family: 'Nunito', sans-serif;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 0 #2f855a, 0 10px 20px rgba(72, 187, 120, 0.4);
+  position: relative;
+  top: 0;
+}
+
+.btn-start-menu:hover {
+  background: linear-gradient(180deg, #56c882 0%, #42b276 100%);
+}
+
+.btn-start-menu:active {
+  top: 6px;
+  box-shadow: 0 0 0 #2f855a, 0 2px 5px rgba(72, 187, 120, 0.4);
+}
