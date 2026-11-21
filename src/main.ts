@@ -5,6 +5,14 @@ function createBackgroundSphere(containerId: string): void {
   const container = document.getElementById(containerId);
   if (!container) return;
 
+  // Создаем внутренний контейнер для вращения
+  const scene = document.createElement('div');
+  scene.style.position = 'absolute';
+  scene.style.top = '50%';
+  scene.style.left = '50%';
+  scene.style.transformStyle = 'preserve-3d';
+  container.appendChild(scene);
+
   const examples: string[] = [];
   for (let n = 2; n <= 10; n++) {
     for (let a = 1; a < n; a++) {
@@ -13,8 +21,6 @@ function createBackgroundSphere(containerId: string): void {
   }
 
   const shuffled = examples.sort(() => Math.random() - 0.5).slice(0, 60);
-
-  container.innerHTML = '';
   
   shuffled.forEach((text, i) => {
     const el = document.createElement('div');
@@ -35,13 +41,13 @@ function createBackgroundSphere(containerId: string): void {
     el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotY}rad) rotateX(${rotX}rad)`;
     el.style.opacity = `${0.1 + (z + radius) / (2 * radius) * 0.3}`;
     
-    container.appendChild(el);
+    scene.appendChild(el);
   });
 
   let angle = 0;
   const rotate = () => {
-    angle += 0.0005; 
-    container.style.transform = `rotateX(${angle * 0.3}rad) rotateY(${angle}rad)`;
+    angle += 0.001; // Скорость вращения
+    scene.style.transform = `rotateX(${angle * 0.3}rad) rotateY(${angle}rad)`;
     requestAnimationFrame(rotate);
   };
   rotate();

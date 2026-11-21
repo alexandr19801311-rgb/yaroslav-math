@@ -112,11 +112,17 @@ body.dark-theme .btn-level {
   left: 50%;
   transform-style: preserve-3d;
   perspective: 1200px;
-  width: 0;
-  height: 0;
   z-index: 1;
   pointer-events: none;
   opacity: 0.6;
+  /* Убираем width: 0 и height: 0, они ломают 3D */
+}
+
+#menu-bg-sphere .bg-tag {
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  font-size: 28px;
+  font-weight: bold;
 }
 
 #menu-bg-sphere .bg-tag {
