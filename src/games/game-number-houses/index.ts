@@ -514,8 +514,10 @@ export class NumberHousesGame extends BaseGame {
 
     const { a, b, num, el: cardEl } = this.state.picked;
 
+    // ОШИБКА 1: Карточка не подходит к этому домику
     if (num !== n || a + b !== n) {
       this.soundManager.playWrong();
+      this.combo = 0; // <--- ДОБАВЛЕНО: Сброс комбо здесь!
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
       
@@ -538,9 +540,10 @@ export class NumberHousesGame extends BaseGame {
       return !isFilled && expA === a && expB === b;
     });
 
+    // ОШИБКА 2: Сумма правильная, но такого пустого слота нет
     if (targetIdx === -1) {
       this.soundManager.playWrong();
-	  this.combo = 0; // Сбрасываем серию при ошибке
+      this.combo = 0; // Сброс комбо (уже был)
       houseEl.classList.add('flash-bad');
       setTimeout(() => houseEl.classList.remove('flash-bad'), 500);
       
