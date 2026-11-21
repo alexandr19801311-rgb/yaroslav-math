@@ -816,9 +816,9 @@ export class NumberHousesGame extends BaseGame {
   protected showGameOverScreen(isWin: boolean, stats: { correct: number, wrong: number }): void {
     const oldOverlay = document.querySelector('.game-overlay');
     if (oldOverlay) oldOverlay.remove();
-	if (this.mascot) this.mascot.destroy();
+    if (this.mascot) this.mascot.destroy();
 
-    const title = isWin ? t('houses.winTitle') : 'Игра окончена!';
+    const title = isWin ? 'Победа!' : 'Игра окончена!';
     const emoji = isWin ? '🏆' : '💔';
 
     const totalCards = 63;
@@ -826,51 +826,58 @@ export class NumberHousesGame extends BaseGame {
     const doneHouses = this.state.done.length;
 
     let actionsHtml = '';
-    
     if (!isWin && !this.isSecondChance) {
       actionsHtml = `
-        <button type="button" class="game-overlay__btn game-overlay__btn--primary" id="second-chance-btn">Ещё один шанс</button>
+        <button type="button" class="game-overlay__btn game-overlay__btn--primary btn-animated" id="second-chance-btn">Ещё один шанс</button>
         <button type="button" class="game-overlay__btn game-overlay__btn--secondary" id="restart-btn">${t('game.playAgain')}</button>
         <button type="button" class="game-overlay__btn game-overlay__btn--text" id="menu-btn">${t('game.menu')}</button>
       `;
     } else {
       actionsHtml = `
-        <button type="button" class="game-overlay__btn game-overlay__btn--primary" id="restart-btn">${t('game.playAgain')}</button>
+        <button type="button" class="game-overlay__btn game-overlay__btn--primary btn-animated" id="restart-btn">${t('game.playAgain')}</button>
         <button type="button" class="game-overlay__btn game-overlay__btn--secondary" id="menu-btn">${t('game.menu')}</button>
       `;
     }
 
+    // Вычисляем точность (в процентах)
+    const totalAttempts = stats.correct + stats.wrong;
+    const accuracy = totalAttempts > 0 ? Math.round((stats.correct / totalAttempts) * 100) : 0;
+
     const overlay = document.createElement('div');
-    overlay.className = 'game-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.inset = '0';
-    overlay.style.zIndex = '99999';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'flex-end';
-    overlay.style.justifyContent = 'center';
+    overlay.className = 'game-overlay game-overlay--show';
     
     overlay.innerHTML = `
       <div class="game-overlay__card">
-        <div class="game-overlay__emoji">${emoji}</div>
-        <h2 class="game-overlay__title">${title}</h2>
-        <p class="game-overlay__score">${isWin ? t('houses.winDesc') : (this.isSecondChance ? 'Ты использовал последний шанс.' : 'Ты допустил 3 ошибки.')}</p>
+        <div class="game-overlay__sparkles">
+          <div class="star" style="left: 10%; animation-delay: 0s;">⭐</div>
+          <div class="star" style="left: 30%; animation-delay: 0.5s;">🌟</div>
+          <div class="star" style="left: 70%; animation-delay: 0.2s;">✨</div>
+          <div class="star" style="left: 90%; animation-delay: 0.8s;">💫</div>
+        </div>
+
+        <div class="game-overlay__header">
+          <div class="game-overlay__emoji">${emoji}</div>
+          <h2 class="game-overlay__title">${title}</h2>
+          <p class="game-overlay__subtitle">${isWin ? t('houses.winDesc') : (this.isSecondChance ? 'Ты использовал последний шанс.' : 'Ты допустил 3 ошибки.')}</p>
+        </div>
         
-        <div class="game-overlay__stats">
-          <div class="stat-box">
-            <div class="stat-value">${stats.correct}</div>
-            <div class="stat-label">${t('game.score')}</div>
+        <div class="game-overlay__main-stat">
+          <div class="main-stat-value">${stats.correct}</div>
+          <div class="main-stat-label">${t('game.score')}</div>
+        </div>
+
+        <div class="game-overlay__stats-row">
+          <div class="mini-stat">
+            <div class="mini-stat-value">${filledCards}<span>/${totalCards}</span></div>
+            <div class="mini-stat-label">Карточек</div>
           </div>
-          <div class="stat-box">
-            <div class="stat-value" style="color: #3182ce;">${filledCards}/${totalCards}</div>
-            <div class="stat-label">Карточек</div>
+          <div class="mini-stat">
+            <div class="mini-stat-value">${doneHouses}<span>/9</span></div>
+            <div class="mini-stat-label">Домиков</div>
           </div>
-          <div class="stat-box">
-            <div class="stat-value" style="color: #38a169;">${doneHouses}/9</div>
-            <div class="stat-label">Домиков</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-value" style="color: #e53e3e;">${stats.wrong}</div>
-            <div class="stat-label">Ошибки</div>
+          <div class="mini-stat">
+            <div class="mini-stat-value" style="color: ${accuracy >= 80 ? '#38a169' : accuracy >= 50 ? '#ed8936' : '#e53e3e'};">${accuracy}%</div>
+            <div class="mini-stat-label">Точность</div>
           </div>
         </div>
 
@@ -880,6 +887,13 @@ export class NumberHousesGame extends BaseGame {
       </div>
     `;
     document.body.appendChild(overlay);
+
+    // Запускаем конфетти, если победа
+    if (isWin) {
+      confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 }, zIndex: 100000 });
+      setTimeout(() => confetti({ particleCount: 100, spread: 120, origin: { x: 0, y: 0.6 }, zIndex: 100000 }), 300);
+      setTimeout(() => confetti({ particleCount: 100, spread: 120, origin: { x: 1, y: 0.6 }, zIndex: 100000 }), 600);
+    }
 
     overlay.querySelector('#second-chance-btn')?.addEventListener('click', () => {
       overlay.remove();
