@@ -683,10 +683,52 @@ body.dark-theme .btn-theme {
 }
 
 /* ----- 1.4. Тактильные карточки ----- */
-.card {
-  transition:
-    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* ========================================================= */
+/* ===== ДОРАБОТКА КАРТОЧЕК: ЧЕТКИЕ ЕДИНИЦЫ И ВОЛНА ===== */
+/* ========================================================= */
+
+/* Более четкие границы (единицы деления) */
+.card-segment {
+  border-right: 1.5px solid rgba(0, 0, 0, 0.25) !important; /* Чуть толще и темнее */
+}
+
+.card .block-a .card-segment:last-child,
+.card .block-b .card-segment:last-child {
+  border-right: none;
+}
+
+/* Легкая волновая анимация (колыхание) для лотка */
+@keyframes tray-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Применяем анимацию ко всем карточкам */
+.tray-body .card {
+  /* Заменяем линейные transition на плавные пружинистые */
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow 0.3s ease;
+  /* Добавляем анимацию волны с задержкой */
+  animation: tray-wave 3s ease-in-out infinite;
+}
+
+/* Делаем так, чтобы карточки колыхались не синхронно (волна) */
+.tray-body .card:nth-child(3n) {
+  animation-delay: 0.2s;
+}
+.tray-body .card:nth-child(3n+1) {
+  animation-delay: 0.4s;
+}
+.tray-body .card:nth-child(3n+2) {
+  animation-delay: 0.6s;
+}
+
+/* Если карточка выбрана (в руке), она не колышется, а висит выше */
+.tray-body .card.picked {
+  animation: none;
+  transform: translateY(-8px) scale(1.05) !important;
+  box-shadow: 0 10px 20px rgba(217, 119, 6, 0.4);
+  z-index: 100;
 }
 
 .card:active {
