@@ -2,9 +2,9 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  root: '.', 
   // Указываем базовый путь — имя вашего репозитория на GitHub
   base: '/yaroslav-math/', 
+  root: '.', 
   build: {
     outDir: 'dist',
     rollupOptions: {
