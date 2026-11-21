@@ -24,7 +24,7 @@ function createBackgroundSphere(containerId: string): void {
     
     const phi = Math.acos(-1 + (2 * i) / shuffled.length);
     const theta = Math.sqrt(shuffled.length * Math.PI) * phi;
-    const radius = 350; // Чуть меньше для меню
+    const radius = 350;
     
     const x = radius * Math.cos(theta) * Math.sin(phi);
     const y = radius * Math.sin(theta) * Math.sin(phi);
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuContainer = document.getElementById('menu-container');
   const gameContainer = document.getElementById('game-container');
 
-  if (!menuContainer || !gameContainer) return; // Защита от null
+  if (!menuContainer || !gameContainer) return;
 
   // Восстанавливаем тему для меню
   const savedTheme = localStorage.getItem('logikids_theme');
